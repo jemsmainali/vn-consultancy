@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { Logo, Card, Input, Select, Btn, Err } from '../ui'
+import PasswordInput from '../components/ui/PasswordInput'
 
 const ROLES = [
   { value: 'student', label: 'Student' },
@@ -217,7 +218,7 @@ export default function Register() {
                   <Input type="email" required value={f.email} onChange={set('email')} />
                 </Field>
                 <Field label="Password (8+ characters)">
-                  <Input type="password" required minLength={8} value={f.password} onChange={set('password')} />
+                  <PasswordInput autoComplete="new-password" required minLength={8} value={f.password} onChange={set('password')} />
                 </Field>
                 <Field label="Date of birth">
                   <Input type="date" required value={f.date_of_birth} onChange={set('date_of_birth')} />

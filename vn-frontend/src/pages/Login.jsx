@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { Logo, Input, Btn, Err } from '../ui'
 import { siteContent, siteContentReady, siteImages } from '../data/siteContent'
+import PasswordInput from '../components/ui/PasswordInput'
 
 const { contact } = siteContent
 const supportNumber = siteContentReady(contact.phone) ? contact.phone : ''
@@ -128,7 +129,7 @@ export default function Login() {
             </label>
             <label className="block space-y-1.5 text-sm font-medium text-navy">
               <span>Password</span>
-              <Input type="password" name="password" autoComplete="current-password" required placeholder="Enter your password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+              <PasswordInput name="password" autoComplete="current-password" required placeholder="Enter your password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
             </label>
             <div className="text-right">
               <Link to="/forgot-password" className="text-sm font-medium text-navy/70 underline underline-offset-2 hover:text-navy">Forgot password?</Link>
