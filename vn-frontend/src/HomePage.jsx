@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ResponsiveImage from './ResponsiveImage'
 import { siteContent } from './data/siteContent'
 import TrustStrip from './components/home/TrustStrip'
@@ -80,9 +80,37 @@ function HomeHero() {
   </section>
 }
 
+function QuickFinder() {
+  const navigate = useNavigate()
+  const [country, setCountry] = useState('')
+  const [level, setLevel] = useState('')
+  const countries = siteContent.home.countries
+  const levels = ['Diploma', 'Bachelor', 'Master']
+
+  const submit = (event) => {
+    event.preventDefault()
+    if (!countries.some((item) => item.name === country)) return
+    navigate(`/?country=${encodeURIComponent(country)}#enquire`)
+  }
+
+  return <div className="home-quick-finder-shell">
+    <form className="home-quick-finder" onSubmit={submit}>
+      <div className="home-quick-finder-heading"><span aria-hidden="true">✦</span><strong>Find your next step</strong></div>
+      <label>I want to study in<select value={country} onChange={(event) => setCountry(event.target.value)} required>
+        <option value="">Choose a country</option>{countries.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
+      </select></label>
+      <label>Level<select value={level} onChange={(event) => setLevel(event.target.value)} required>
+        <option value="">Choose a level</option>{levels.map((item) => <option key={item}>{item}</option>)}
+      </select></label>
+      <button className="home-button" type="submit">Get free advice <span aria-hidden="true">→</span></button>
+    </form>
+  </div>
+}
+
 export default function HomePage() {
   return <div className="home-page data-home-page" id="top">
     <HomeHero />
+    <QuickFinder />
     <TrustStrip />
     <DestinationCards />
     <HowItWorks />

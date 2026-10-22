@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { submitEnquiry } from '../../api/enquiry'
 import { siteContent } from '../../data/siteContent'
@@ -32,6 +32,13 @@ export default function EnquiryForm() {
   const [retryable, setRetryable] = useState(false)
   const retryRef = useRef(null)
   const submissionKeyRef = useRef(null)
+
+  useEffect(() => {
+    if (!countries.includes(queryCountry)) return
+    setForm((current) => current.preferred_destination === queryCountry
+      ? current
+      : { ...current, preferred_destination: queryCountry })
+  }, [queryCountry, countries])
 
   const update = (event) => {
     const { name, value, checked, type } = event.target
