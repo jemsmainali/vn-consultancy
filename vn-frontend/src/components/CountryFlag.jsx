@@ -1,4 +1,4 @@
-const knownCodes = new Set(['au', 'ca', 'gb', 'us', 'de', 'fr', 'ie', 'jp'])
+const knownCodes = new Set(['au', 'ca', 'gb', 'us', 'de', 'fr', 'ie', 'jp', 'kr'])
 
 export default function CountryFlag({ code, name, size = 24 }) {
   const normalizedCode = typeof code === 'string' ? code.toLowerCase() : ''
