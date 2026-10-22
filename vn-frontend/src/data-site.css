@@ -1,4 +1,4 @@
-.site-nav { gap: clamp(8px, .85vw, 13px); }
+﻿.site-nav { gap: clamp(8px, .85vw, 13px); }
 .site-nav .site-nav-link { font-size: 12px; }
 .about-trigger { font-size: 12px; }
 .site-nav-actions { display: flex; align-items: center; gap: 8px; }
@@ -7,7 +7,7 @@
 .button-outline:hover { color: #fff !important; }
 .services-dropdown { left: -22px; }
 .portal-nav-link { font-size: 11px; }
-.whatsapp-float { position: fixed; z-index: 70; right: 22px; bottom: max(20px,env(safe-area-inset-bottom)); display: grid; width: 54px; height: 54px; place-items: center; border: 2px solid white; border-radius: 50%; color: #fff !important; background: #178c53; box-shadow: 0 8px 24px #10254435; transition: opacity .2s, transform .2s; }
+.whatsapp-float { position: fixed; z-index: var(--z-floating); right: 22px; bottom: max(20px,env(safe-area-inset-bottom)); display: grid; width: 54px; height: 54px; place-items: center; border: 2px solid white; border-radius: 50%; color: #fff !important; background: #178c53; box-shadow: 0 8px 24px #10254435; transition: opacity .2s, transform .2s; }
 .whatsapp-float:hover { transform: translateY(-3px); background: #117545; }
 .whatsapp-float svg { width: 29px; height: 29px; fill: currentColor; }
 .whatsapp-float.is-obscured { opacity: 0; pointer-events: none; }
@@ -265,7 +265,7 @@
 .footer-bottom { display: flex; width: 100%; max-width: 1320px; min-height: 72px; align-items: center; justify-content: space-between; gap: 20px; margin: 0 auto; border-top: 1px solid #ffffff24; color: #f6f8fcbf; font-size: 12px; }
 .footer-bottom nav { display: flex; flex-wrap: wrap; gap: 18px; }
 .footer-bottom nav a { min-height: 40px; display: inline-flex; align-items: center; color: #f6f8fccc; }
-.footer-bottom nav a + a::before { margin-right: 18px; color: #ffffff70; content: "·"; }
+.footer-bottom nav a + a::before { margin-right: 18px; color: #ffffff70; content: "Â·"; }
 .footer-bottom nav a:hover { color: var(--site-gold); }
 .footer-socials { gap: 9px; }
 .footer-socials a { width: 40px; height: 40px; border-color: #ffffff55; color: #f6f8fc; background: transparent; }
