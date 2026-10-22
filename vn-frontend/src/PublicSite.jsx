@@ -13,8 +13,10 @@ import FAQ from './components/home/FAQ'
 import DestinationCards from './components/home/DestinationCards'
 
 const observedSectionIds = ['destinations', 'process', 'services', 'stories', 'enquire', 'faq']
+const foundedYear = siteContent.brand.foundedYear
+const yearsExperience = new Date().getFullYear() - foundedYear
 const pageMetadata = {
-  '/': ['Study Abroad Guidance for Nepali Students | VN Group', 'Expert guidance for students and families in Nepal pursuing world-class education. Explore your options and plan your next steps with VN Group.'],
+  '/': [`${yearsExperience}+ Years of Study Abroad Guidance | VN Group`, `${yearsExperience}+ years of study abroad guidance for students in Nepal. Explore study options and plan your next steps with VN Group.`],
   '/about': ['Leadership & Vision | VN Group', 'A message from VN Group leadership to students in Nepal exploring international education.'],
   '/destinations': ['Study Destinations | VN Group', 'Explore destination research starting points and confirm changing requirements with official institution and government sources.'],
   '/journey': ['The Student Journey | VN Group', 'See how enquiry, account, document, and staff messaging workflows work in the VN Group portal.'],
@@ -89,6 +91,30 @@ export function PublicLayout() {
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title)
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', description)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!isHome) return undefined
+    const contact = siteContent.contact
+    const socials = contact.socials
+      .filter((item) => siteContentReady(item.label) && siteContentReady(item.url))
+      .map((item) => item.url)
+    const organization = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteContent.brand.name,
+      url: window.location.origin,
+      logo: new URL(siteContent.brand.logo.src, window.location.origin).href,
+      ...(Number.isFinite(foundedYear) ? { foundingDate: String(foundedYear) } : {}),
+      ...(siteContentReady(contact.address) ? { address: { '@type': 'PostalAddress', streetAddress: contact.address } } : {}),
+      ...(socials.length ? { sameAs: socials } : {}),
+    }
+    const script = document.createElement('script')
+    script.id = 'vn-group-organization-jsonld'
+    script.type = 'application/ld+json'
+    script.textContent = JSON.stringify(organization)
+    document.head.append(script)
+    return () => script.remove()
+  }, [isHome])
 
   useEffect(() => {
     if (!location.hash) return undefined
@@ -223,8 +249,20 @@ export function About() {
   const leadership = siteContent.leadership
   return <>
     <CeoMessage name={leadership.name} title={leadership.title} credentials={leadership.credentials} imageSrc={leadership.image.src} imageAlt={leadership.image.alt} message={leadership.message} />
+    <AboutTimeline />
     <AboutPhotos />
   </>
+}
+
+function AboutTimeline() {
+  const milestones = siteContent.about.timeline.filter((item) => Number.isFinite(Number(item.year)) && siteContentReady(item.title))
+  if (!milestones.length) return null
+  return <section className="about-timeline" aria-label="VN Group history">
+    <div className="about-photo-container">
+      <Eyebrow>Our journey</Eyebrow>
+      <ol>{milestones.map((item) => <li key={`${item.year}-${item.title}`}><strong>{item.year}</strong><span>{item.title}</span></li>)}</ol>
+    </div>
+  </section>
 }
 
 function AboutPhotos() {

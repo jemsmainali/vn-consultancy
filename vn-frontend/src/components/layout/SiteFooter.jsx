@@ -41,6 +41,7 @@ export default function SiteFooter() {
         {socials.length > 0 && <nav className="footer-socials" aria-label="Social media">
           {socials.map((social) => <a key={social.label} href={social.url} target="_blank" rel="noreferrer" aria-label={social.label}><span aria-hidden="true">{social.icon || social.label.slice(0, 1)}</span></a>)}
         </nav>}
+        {Number.isFinite(Number(brand.foundedYear)) && <p className="footer-founding-note">Guiding Nepali students since {brand.foundedYear}</p>}
       </div>
 
       <nav className="footer-link-column" aria-label="Quick links">
