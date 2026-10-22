@@ -49,6 +49,7 @@ const countries = [
   { name: 'France', code: 'fr' },
   { name: 'Ireland', code: 'ie' },
   { name: 'Japan', code: 'jp' },
+  { name: 'South Korea', code: 'kr' },
 ].map((country) => ({
   ...country,
   image: country.name === 'Australia' ? siteImages.australia : null,
@@ -64,6 +65,7 @@ export const siteContent = {
     name: 'VN Group Study Abroad',
     tagline: 'Clear next steps for students in Nepal exploring international education.',
     logo: siteImages.logo,
+    foundedYear: 2013,
   },
   navigation: {
     about: [
@@ -89,14 +91,21 @@ export const siteContent = {
   },
   home: {
     hero: {
-      eyebrow: 'Study abroad guidance · Nepal',
-      title: 'Your next chapter starts with',
-      emphasis: 'a clear plan.',
-      description: 'Explore study options and plan your next steps with VN Group.',
+      eyebrow: 'Since 2013 · trusted study guidance',
+      title: 'Study Abroad',
+      emphasis: 'Australia',
+      rotatingCountries: ['Australia', 'United States', 'Canada', 'Japan', 'South Korea'],
+      description: 'We guide Nepali students to the right course, country and visa.',
       primaryLabel: 'Free Counselling',
       secondaryLabel: 'Explore Destinations',
       photo: siteImages.hero,
     },
+    whyChoose: [
+      { icon: 'compass', title: 'A clear plan', description: 'Explore study options and plan your next steps with VN Group.' },
+      { icon: 'conversation', title: 'Guidance from counselling', description: 'Talk through your study interests, questions, and potential next steps.' },
+      { icon: 'document', title: 'Admissions support', description: 'Explore course options and application requirements.' },
+      { icon: 'passport', title: 'Visa support', description: 'Organize the visa process and its supporting documents.' },
+    ],
     stats: [
       { label: 'Students placed', value: 'TODO_REPLACE' },
       { label: 'Partner universities', value: 'TODO_REPLACE' },
@@ -188,6 +197,7 @@ export const siteContent = {
     message: 'When we founded VN Group, our vision was simple yet profound: to bridge the gap between ambitious students in Nepal and world-class international education. Navigating universities abroad can feel overwhelming, but with transparent guidance, meticulous document preparation, and honest counseling, we turn uncertainty into achievement. Your aspirations are our personal mission.',
   },
   about: {
+    timeline: [{ year: 2013, title: 'VN Group founded' }],
     institutionsEyebrow: 'Our approach',
     institutionsTitle: 'How we work with institutions',
     institutionsCopy: 'TODO_REPLACE',
