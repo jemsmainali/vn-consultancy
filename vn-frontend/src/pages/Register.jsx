@@ -10,6 +10,10 @@ const ROLES = [
   { value: 'other', label: 'Other' },
   { value: 'consultancy_staff', label: 'VN Group Staff' },
 ]
+const ROLES_REQUIRING_BANK_DETAILS = new Set(ROLES.filter((role) => role.value !== 'student').map((role) => role.value))
+const REQUIRE_BANK_DETAILS = import.meta.env.VITE_REQUIRE_BANK_DETAILS === 'true'
+const BANK_ACCOUNT_NUMBER_MIN_LENGTH = 8
+const BANK_ACCOUNT_NUMBER_MAX_LENGTH = 24
 
 const GENDERS = ['Male', 'Female', 'Other']
 
@@ -39,6 +43,7 @@ export default function Register() {
     national_id: '', date_of_birth: '', gender: '', citizenship: '', passport_number: '',
     target_course_level: '', target_field: '', target_country: '',
     parent_name: '', parent_phone: '', parent_email: '',
+    bank_name: '', bank_account_number: '',
   })
   const [showParent, setShowParent] = useState(false)
   const [agreed, setAgreed] = useState(false)
@@ -46,7 +51,19 @@ export default function Register() {
   const [preview, setPreview] = useState(null)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [bankFieldErrors, setBankFieldErrors] = useState({})
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
+  const bankDetailsVisible = REQUIRE_BANK_DETAILS && ROLES_REQUIRING_BANK_DETAILS.has(f.role)
+
+  const setBankField = (key) => (e) => {
+    setF((value) => ({ ...value, [key]: e.target.value }))
+    setBankFieldErrors((errors) => ({ ...errors, [key]: '' }))
+  }
+
+  const changeRole = (e) => {
+    setF((value) => ({ ...value, role: e.target.value, bank_name: '', bank_account_number: '' }))
+    setBankFieldErrors({})
+  }
 
   const setNationalId = (e) => {
     const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 10)
@@ -75,6 +92,21 @@ export default function Register() {
       setErr('National ID must be exactly 10 digits — the number on your National ID Card.')
       return
     }
+    if (bankDetailsVisible) {
+      const name = f.bank_name.trim()
+      const accountNumber = f.bank_account_number.replace(/[ -]/g, '')
+      const nextErrors = {}
+      if (!name) nextErrors.bank_name = 'Enter the bank name.'
+      else if (name.length < 2 || name.length > 100) nextErrors.bank_name = 'Bank name must be 2 to 100 characters.'
+      else if (!/^[\p{L}\p{N} .&()\-]+$/u.test(name)) nextErrors.bank_name = 'Use letters, numbers, spaces, periods, ampersands, hyphens, and parentheses only.'
+      if (!f.bank_account_number.trim()) nextErrors.bank_account_number = 'Enter the bank account number.'
+      else if (!/^[0-9]+$/.test(accountNumber)) nextErrors.bank_account_number = 'Enter digits only; spaces and hyphens are allowed while typing.'
+      else if (accountNumber.length < BANK_ACCOUNT_NUMBER_MIN_LENGTH || accountNumber.length > BANK_ACCOUNT_NUMBER_MAX_LENGTH) {
+        nextErrors.bank_account_number = `Bank account number must be ${BANK_ACCOUNT_NUMBER_MIN_LENGTH} to ${BANK_ACCOUNT_NUMBER_MAX_LENGTH} digits.`
+      }
+      setBankFieldErrors(nextErrors)
+      if (Object.keys(nextErrors).length) return
+    }
     setBusy(true)
     try {
       const formData = new FormData()
@@ -94,6 +126,10 @@ export default function Register() {
         if (f.target_country) formData.append('target_country', f.target_country)
       }
       if (f.role === 'principal' || f.role === 'consultancy_staff') formData.append('invite_code', f.invite_code)
+      if (bankDetailsVisible) {
+        formData.append('bank_name', f.bank_name.trim())
+        formData.append('bank_account_number', f.bank_account_number.replace(/[ -]/g, ''))
+      }
       if (showParent) {
         if (f.parent_name) formData.append('parent_name', f.parent_name)
         if (f.parent_phone) formData.append('parent_phone', f.parent_phone)
@@ -102,8 +138,13 @@ export default function Register() {
       formData.append('photo', photo)
 
       await api('/auth/register', { method: 'POST', body: formData })
+      setF((value) => ({ ...value, bank_name: '', bank_account_number: '' }))
+      setBankFieldErrors({})
       nav('/verify?sent=1&email=' + encodeURIComponent(f.email))
-    } catch (x) { setErr(x.message) }
+    } catch (x) {
+      setErr(x.message)
+      if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, bank_name: x.fieldErrors.bank_name || '', bank_account_number: x.fieldErrors.bank_account_number || '' }))
+    }
     setBusy(false)
   }
 
@@ -143,9 +184,24 @@ export default function Register() {
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-navy/70">I am registering as</label>
-                  <Select value={f.role} onChange={set('role')}>
+                  <Select value={f.role} onChange={changeRole}>
                     {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                   </Select>
+                </div>
+              </div>
+              <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${bankDetailsVisible ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} aria-hidden={!bankDetailsVisible}>
+                <div className="min-h-0 overflow-hidden">
+                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field label="Bank name" span>
+                      <input type="text" required={bankDetailsVisible} disabled={!bankDetailsVisible} autoComplete="off" value={f.bank_name} onChange={setBankField('bank_name')} aria-invalid={Boolean(bankFieldErrors.bank_name)} aria-describedby={bankFieldErrors.bank_name ? 'bank-name-error' : undefined} className="h-12 w-full rounded-lg border border-navy/20 bg-cream/60 px-3 text-sm placeholder:text-navy/40 focus:border-navy focus:outline-none focus:ring-2 focus:ring-gold/60 disabled:pointer-events-none" />
+                      {bankFieldErrors.bank_name && <p id="bank-name-error" className="mt-1 text-xs text-red-700">{bankFieldErrors.bank_name}</p>}
+                    </Field>
+                    <Field label="Bank account number" span>
+                      <input type="text" inputMode="numeric" required={bankDetailsVisible} disabled={!bankDetailsVisible} autoComplete="off" value={f.bank_account_number} onChange={setBankField('bank_account_number')} aria-invalid={Boolean(bankFieldErrors.bank_account_number)} aria-describedby={bankFieldErrors.bank_account_number ? 'bank-account-error' : 'bank-details-help'} className="h-12 w-full rounded-lg border border-navy/20 bg-cream/60 px-3 text-sm placeholder:text-navy/40 focus:border-navy focus:outline-none focus:ring-2 focus:ring-gold/60 disabled:pointer-events-none" />
+                      {bankFieldErrors.bank_account_number && <p id="bank-account-error" className="mt-1 text-xs text-red-700">{bankFieldErrors.bank_account_number}</p>}
+                    </Field>
+                    <p id="bank-details-help" className="flex items-center gap-1.5 text-xs text-navy/60 sm:col-span-2"><svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="8.5" width="12" height="8" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5M10 11.5v2"/></svg>Your bank details are stored encrypted and are never shown in full.</p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,10 +1,14 @@
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
+from app.core.validation_errors import validation_errors_without_input
 from app.api.auth import router as auth_router, limiter
 from app.api.documents import router as documents_router
 from app.api.messages import router as messages_router
@@ -23,6 +27,15 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.exception_handler(RequestValidationError)
+async def sanitize_bank_validation_errors(request: Request, exc: RequestValidationError):
+    # Form parsing can attach the whole multipart payload to an unrelated
+    # validation error (for example, a missing photo), so never echo input.
+    errors = validation_errors_without_input(exc.errors())
+    return JSONResponse(status_code=422, content=jsonable_encoder({"detail": errors}))
+
 app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(

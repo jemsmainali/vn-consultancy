@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     DATABASE_URL: str
+    REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS: bool = False
+    BANK_DATA_ENCRYPTION_KEY: str = ""
 
     CORS_ORIGINS: str = "http://localhost:3000"
 
