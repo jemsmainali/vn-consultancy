@@ -91,7 +91,7 @@ export const siteContent = {
   },
   home: {
     hero: {
-      eyebrow: 'Since 2013 · trusted study guidance',
+      eyebrow: 'years of trusted guidance',
       title: 'Study Abroad',
       emphasis: 'Australia',
       rotatingCountries: ['Australia', 'United States', 'Canada', 'Japan', 'South Korea'],
