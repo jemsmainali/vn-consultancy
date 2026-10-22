@@ -148,7 +148,6 @@ export function PublicLayout() {
 
   return (
     <div className="public-site">
-      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className={`site-header${isScrolled ? ' is-scrolled' : ''}`}>
         <div className="site-header-inner">
           <Link className="brand" to="/" aria-label="VN Group home" onClick={closeMenu}>
@@ -188,7 +187,7 @@ export function PublicLayout() {
           </nav>
         </div>
       </header>
-      <main id="main-content" key={location.pathname}><Outlet /></main>
+      <main id="main" tabIndex={-1} key={location.pathname}><Outlet /></main>
       <SiteFooter />
     </div>
   )

@@ -68,7 +68,7 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-dvh bg-cream px-3 py-4 sm:px-6 sm:py-8">
+    <main id="main" tabIndex={-1} className="min-h-dvh bg-cream px-3 py-4 sm:px-6 sm:py-8">
       <div className="mx-auto grid min-h-[calc(100dvh-2rem)] w-full max-w-6xl content-center overflow-hidden rounded-3xl border border-navy/10 bg-white shadow-[0_24px_80px_-36px_rgba(20,33,61,0.32)] lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-[1.05fr_0.95fr]">
         <section className="relative isolate flex flex-col overflow-hidden bg-cream px-5 pb-5 pt-6 sm:px-9 sm:pb-8 sm:pt-8 lg:px-12 lg:py-10">
           <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-52 h-72 w-72 rounded-full bg-[#E9D9B3]/40 blur-3xl" />

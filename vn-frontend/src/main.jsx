@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import './index.css'
 import './public-site.css'
 import './leads.css'
@@ -27,6 +28,25 @@ import GalleryAdmin from './pages/GalleryAdmin'
 import LegalPage from './components/layout/LegalPage'
 import WhatsAppButton from './components/layout/WhatsAppButton'
 
+function SkipNavigation() {
+  const location = useLocation()
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const main = document.getElementById('main')
+      if (!main) return
+      main.focus({ preventScroll: true })
+      if (!location.hash) {
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' })
+      }
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [location.pathname])
+
+  return <a className="skip-link" href="#main">Skip to content</a>
+}
+
 function Guard() {
   const { user, loading } = useAuth()
   if (loading) return <p className="p-8">Loading...</p>
@@ -44,6 +64,7 @@ function StaffGuard() {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
+      <SkipNavigation />
       <AuthProvider>
         <Routes>
           <Route element={<PublicLayout />}>

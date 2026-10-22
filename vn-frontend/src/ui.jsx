@@ -26,7 +26,7 @@ export const Err = ({ msg }) =>
   msg ? <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{msg}</p> : null
 
 export const AuthCard = ({ title, children }) => (
-  <div className="grid min-h-screen place-items-center px-4">
+  <main id="main" tabIndex={-1} className="grid min-h-screen place-items-center px-4">
     <div className="w-full max-w-sm">
       <div className="mb-8 flex justify-center"><Logo /></div>
       <Card className="p-6">
@@ -34,7 +34,7 @@ export const AuthCard = ({ title, children }) => (
         {children}
       </Card>
     </div>
-  </div>
+  </main>
 )
 
 function usePendingCount(enabled) {
@@ -101,7 +101,7 @@ export function Layout() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8"><Outlet /></main>
+      <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8"><Outlet /></main>
     </div>
   )
 }
