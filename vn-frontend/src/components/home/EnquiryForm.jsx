@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { submitEnquiry } from '../../api/enquiry'
 import { siteContent } from '../../data/siteContent'
@@ -29,6 +29,8 @@ export default function EnquiryForm() {
   const [failure, setFailure] = useState('')
   const [sending, setSending] = useState(false)
   const [receipt, setReceipt] = useState('')
+  const [retryable, setRetryable] = useState(false)
+  const retryRef = useRef(null)
 
   const update = (event) => {
     const { name, value, checked, type } = event.target
@@ -36,21 +38,10 @@ export default function EnquiryForm() {
     setErrors((current) => ({ ...current, [name]: '' }))
   }
 
-  const submit = async (event) => {
-    event.preventDefault()
-    setFailure('')
-    const nextErrors = {}
-    if (form.full_name.trim().length < 2) nextErrors.full_name = 'Enter your full name.'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) nextErrors.email = 'Enter a valid email address.'
-    if (!validNepaliMobile(form.phone)) nextErrors.phone = `Enter a Nepal mobile number, such as ${siteContent.form.nepaliPhoneExample} or +977 ${siteContent.form.nepaliPhoneExample}.`
-    if (!countries.includes(form.preferred_destination)) nextErrors.preferred_destination = 'Choose a country.'
-    if (!qualifications.includes(form.education_level)) nextErrors.education_level = 'Choose your last qualification.'
-    if (!form.privacy_consent) nextErrors.privacy_consent = 'Consent is required to send your enquiry.'
-    if (Object.keys(nextErrors).length) {
-      setErrors(nextErrors)
-      return
-    }
+  const sendEnquiry = async () => {
     setSending(true)
+    setFailure('')
+    setRetryable(false)
     try {
       if (form.website) {
         setReceipt('received')
@@ -69,9 +60,32 @@ export default function EnquiryForm() {
     } catch (error) {
       setErrors((current) => ({ ...current, ...(error.fields || {}) }))
       setFailure(error.message || 'Your enquiry could not be sent. Please try again.')
+      if (!error.status) {
+        retryRef.current = sendEnquiry
+        setRetryable(true)
+      }
     } finally {
       setSending(false)
     }
+  }
+
+  const submit = async (event) => {
+    event.preventDefault()
+    setFailure('')
+    const nextErrors = {}
+    if (form.full_name.trim().length < 2) nextErrors.full_name = 'Enter your full name.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) nextErrors.email = 'Enter a valid email address.'
+    if (!validNepaliMobile(form.phone)) nextErrors.phone = `Enter a Nepal mobile number, such as ${siteContent.form.nepaliPhoneExample} or +977 ${siteContent.form.nepaliPhoneExample}.`
+    if (!countries.includes(form.preferred_destination)) nextErrors.preferred_destination = 'Choose a country.'
+    if (!qualifications.includes(form.education_level)) nextErrors.education_level = 'Choose your last qualification.'
+    if (!form.privacy_consent) nextErrors.privacy_consent = 'Consent is required to send your enquiry.'
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors)
+      const firstInvalid = Object.keys(nextErrors)[0]
+      document.querySelector(`[name="${firstInvalid}"]`)?.focus()
+      return
+    }
+    await sendEnquiry()
   }
 
   if (receipt) return <div className="data-enquiry-success" role="status" aria-live="polite">
@@ -86,23 +100,27 @@ export default function EnquiryForm() {
   const requiredLabel = (label) => <>{label}<span className="required-mark" aria-hidden="true">*</span></>
 
   return <form className="data-enquiry-form" onSubmit={submit} noValidate>
+    {Object.keys(errors).length > 0 && <div className="data-form-error" role="alert" aria-labelledby="enquiry-error-title">
+      <strong id="enquiry-error-title">Please check these fields:</strong>
+      <ul>{Object.entries(errors).map(([field, message]) => <li key={field}><a href={`#home-enquiry-${field}`} onClick={(event) => { event.preventDefault(); document.querySelector(`[name="${field}"]`)?.focus() }}>{message}</a></li>)}</ul>
+    </div>}
     <div className="data-enquiry-grid">
-      <label>{requiredLabel('Full name')}<input name="full_name" autoComplete="name" placeholder="Your full name" value={form.full_name} onChange={update} required aria-invalid={!!errors.full_name} aria-describedby={errors.full_name ? 'home-enquiry-full_name-error' : undefined} />{fieldError('full_name')}</label>
-      <label>{requiredLabel('Email')}<input name="email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={update} required aria-invalid={!!errors.email} aria-describedby={errors.email ? 'home-enquiry-email-error' : undefined} />{fieldError('email')}</label>
-      <label>{requiredLabel('Phone')}<input name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder={siteContent.form.nepaliPhoneExample} value={form.phone} onChange={update} required aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'home-enquiry-phone-error' : undefined} />{fieldError('phone')}</label>
-      <label>{requiredLabel('Preferred country')}<select name="preferred_destination" value={form.preferred_destination} onChange={update} required aria-invalid={!!errors.preferred_destination} aria-describedby={errors.preferred_destination ? 'home-enquiry-preferred_destination-error' : undefined}>
+      <label>{requiredLabel('Full name')}<input id="home-enquiry-full_name" name="full_name" autoComplete="name" placeholder="Your full name" value={form.full_name} onChange={update} required aria-invalid={!!errors.full_name} aria-describedby={errors.full_name ? 'home-enquiry-full_name-error' : undefined} />{fieldError('full_name')}</label>
+      <label>{requiredLabel('Email')}<input id="home-enquiry-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={update} required aria-invalid={!!errors.email} aria-describedby={errors.email ? 'home-enquiry-email-error' : undefined} />{fieldError('email')}</label>
+      <label>{requiredLabel('Phone')}<input id="home-enquiry-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder={siteContent.form.nepaliPhoneExample} value={form.phone} onChange={update} required aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'home-enquiry-phone-error' : undefined} />{fieldError('phone')}</label>
+      <label>{requiredLabel('Preferred country')}<select id="home-enquiry-preferred_destination" name="preferred_destination" value={form.preferred_destination} onChange={update} required aria-invalid={!!errors.preferred_destination} aria-describedby={errors.preferred_destination ? 'home-enquiry-preferred_destination-error' : undefined}>
         <option value="">Choose a country</option>{countries.map((country) => <option key={country}>{country}</option>)}
       </select>{fieldError('preferred_destination')}</label>
-      <label className="data-enquiry-wide">{requiredLabel('Last qualification')}<select name="education_level" value={form.education_level} onChange={update} required aria-invalid={!!errors.education_level} aria-describedby={errors.education_level ? 'home-enquiry-education_level-error' : undefined}>
+      <label className="data-enquiry-wide">{requiredLabel('Last qualification')}<select id="home-enquiry-education_level" name="education_level" value={form.education_level} onChange={update} required aria-invalid={!!errors.education_level} aria-describedby={errors.education_level ? 'home-enquiry-education_level-error' : undefined}>
         <option value="">Choose your last qualification</option>{qualifications.map((qualification) => <option key={qualification}>{qualification}</option>)}
       </select>{fieldError('education_level')}</label>
     </div>
-    <label className="data-consent"><input type="checkbox" name="privacy_consent" checked={form.privacy_consent} onChange={update} aria-invalid={!!errors.privacy_consent} aria-describedby={errors.privacy_consent ? 'home-enquiry-privacy_consent-error' : undefined} />
+    <label className="data-consent"><input id="home-enquiry-privacy_consent" type="checkbox" name="privacy_consent" checked={form.privacy_consent} onChange={update} aria-invalid={!!errors.privacy_consent} aria-describedby={errors.privacy_consent ? 'home-enquiry-privacy_consent-error' : undefined} />
       <span>I agree that VN Group may use these details to respond to my enquiry. Read the <Link to="/privacy">Privacy Policy</Link>.</span>
     </label>
     {fieldError('privacy_consent')}
     <label className="data-honeypot" aria-hidden="true">Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={update} /></label>
-    {failure && <p className="data-form-error" role="alert">{failure}</p>}
+    {failure && <p className="data-form-error" role="alert">{failure} {retryable && <button type="button" onClick={() => retryRef.current?.()} disabled={sending} className="ml-2 font-semibold underline">{sending ? 'Retrying…' : 'Retry'}</button>}</p>}
     <button type="submit" className="button enquiry-submit" disabled={sending}>{sending ? <><span className="enquiry-spinner" aria-hidden="true" />Sending…</> : <>Send enquiry <span aria-hidden="true">→</span></>}</button>
     <p className="enquiry-privacy-note"><svg aria-hidden="true" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>Your details are only used to respond to your enquiry.</p>
   </form>

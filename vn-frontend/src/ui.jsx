@@ -22,8 +22,12 @@ export const Select = (p) => (
 export const Btn = ({ className = '', ...p }) => (
   <button {...p} className={'rounded-lg bg-navy px-4 py-2 text-sm font-medium text-cream transition hover:bg-navy-700 disabled:opacity-50 ' + className} />
 )
-export const Err = ({ msg }) =>
-  msg ? <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{msg}</p> : null
+export const Err = ({ msg, onRetry, busy = false }) =>
+  msg ? <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+    <svg aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5v4m0 2h.01"/></svg>
+    <span className="flex-1">{msg}</span>
+    {onRetry && <button type="button" className="font-semibold underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-gold" onClick={onRetry} disabled={busy}>{busy ? 'Retrying…' : 'Retry'}</button>}
+  </div> : null
 
 export const AuthCard = ({ title, children }) => (
   <main id="main" tabIndex={-1} className="grid min-h-screen place-items-center px-4">
