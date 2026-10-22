@@ -47,6 +47,7 @@ export function PublicLayout() {
   const dropdownRefs = useRef({})
   const triggerRefs = useRef({})
   const menuButtonRef = useRef(null)
+  const navRef = useRef(null)
   const hoverTimers = useRef({})
   const dropdownGroups = [
     { id: 'about', label: 'About', items: siteContent.navigation.about },
@@ -141,7 +142,28 @@ export function PublicLayout() {
     if (!menuOpen || window.innerWidth >= 1024) return undefined
     const oldOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = oldOverflow }
+    const focusable = () => [...(navRef.current?.querySelectorAll('a[href], button:not([disabled])') || [])]
+      .filter((element) => element.getClientRects().length)
+    requestAnimationFrame(() => focusable()[0]?.focus())
+    const onTab = (event) => {
+      if (event.key !== 'Tab') return
+      const items = focusable()
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && (document.activeElement === first || !navRef.current?.contains(document.activeElement))) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && (document.activeElement === last || !navRef.current?.contains(document.activeElement))) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onTab)
+    return () => {
+      document.body.style.overflow = oldOverflow
+      document.removeEventListener('keydown', onTab)
+    }
   }, [menuOpen])
 
   useEffect(() => () => Object.values(hoverTimers.current).forEach(window.clearTimeout), [])
@@ -157,7 +179,7 @@ export function PublicLayout() {
             <span className="sr-only">{menuOpen ? 'Close' : 'Open'} navigation menu</span>
             <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
           </button>
-          <nav id="site-navigation" className={`site-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
+          <nav ref={navRef} id="site-navigation" className={`site-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             {dropdownGroups.map((group) => {
               const isOpen = openDropdown === group.id
               const isActive = group.id === 'about' ? location.pathname === '/about' : group.id === 'destinations' ? location.pathname === '/destinations' : group.id === 'resources' ? ['/journey', '/faqs'].includes(location.pathname) : location.hash.startsWith('#service-') || activeSection === 'services'
@@ -165,7 +187,7 @@ export function PublicLayout() {
                 <button ref={(node) => { triggerRefs.current[group.id] = node }} type="button" className="about-trigger" aria-expanded={isOpen} aria-controls={`${group.id}-subnav`} onClick={() => setOpenDropdown((value) => value === group.id ? '' : group.id)}>
                   {group.label}<svg className="about-chevron" aria-hidden="true" viewBox="0 0 20 20"><path d="m5 7.5 5 5 5-5" /></svg>
                 </button>
-                <div id={`${group.id}-subnav`} className={`about-dropdown${group.destination ? ' destinations-dropdown' : ''}${group.id === 'services' ? ' services-dropdown' : ''}`} aria-label={group.label}>
+                <div id={`${group.id}-subnav`} className={`about-dropdown${group.destination ? ' destinations-dropdown' : ''}${group.id === 'services' ? ' services-dropdown' : ''}`} aria-label={group.label} aria-hidden={!isOpen}>
                   <ul>
                     {group.items.map((item) => <li key={item.label}>
                       <Link to={linkTo(item.to)} onClick={closeMenu}>
