@@ -56,7 +56,7 @@ function HomeHero() {
     <div className="home-container home-hero-grid">
       <div className="home-hero-copy hero-in">
         <p className="home-eyebrow home-hero-pill">Since {foundedYear} <span aria-hidden="true">·</span> {yearsExperience}+ {hero.eyebrow}</p>
-        <h1 id="home-title">{hero.title}<span className="home-hero-country" aria-live="polite" aria-atomic="true">{displayedCountry && <span key={displayedCountry.name} className={reducedMotion ? '' : 'is-rotating'}>{visibleCountryName(displayedCountry)}</span>}</span></h1>
+        <h1 id="home-title">{hero.title}<span className="home-hero-country">{displayedCountry && <span key={displayedCountry.name} className={reducedMotion ? '' : 'is-rotating'}>{visibleCountryName(displayedCountry)}</span>}</span></h1>
         <p className="home-hero-description">{hero.description}</p>
         <div className="home-actions">
           <a className="home-button" href="#enquire">{hero.primaryLabel}<span aria-hidden="true">↗</span></a>
