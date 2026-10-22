@@ -102,9 +102,9 @@ export const siteContent = {
     },
     whyChoose: [
       { icon: 'compass', title: 'A clear plan', description: 'Explore study options and plan your next steps with VN Group.' },
-      { icon: 'conversation', title: 'Guidance from counselling', description: 'Talk through your study interests, questions, and potential next steps.' },
-      { icon: 'document', title: 'Admissions support', description: 'Explore course options and application requirements.' },
-      { icon: 'passport', title: 'Visa support', description: 'Organize the visa process and its supporting documents.' },
+      { icon: 'conversation', title: 'End-to-end support', description: 'From counselling to admissions, visa filing, and pre-departure briefing.' },
+      { icon: 'document', title: 'Admissions guidance', description: 'Explore course options and application requirements.' },
+      { icon: 'shield', title: 'Transparent guidance', description: 'With transparent guidance, meticulous document preparation, and honest counseling, we turn uncertainty into achievement.' },
     ],
     stats: [
       { label: 'Students placed', value: 'TODO_REPLACE' },

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import ResponsiveImage from './ResponsiveImage'
 import { siteContent } from './data/siteContent'
 import TrustStrip from './components/home/TrustStrip'
+import WhyChoose from './components/home/WhyChoose'
 import DestinationCards from './components/home/DestinationCards'
 import HowItWorks from './components/home/HowItWorks'
 import Services from './components/home/Services'
@@ -112,6 +113,7 @@ export default function HomePage() {
     <HomeHero />
     <QuickFinder />
     <TrustStrip />
+    <WhyChoose />
     <DestinationCards />
     <HowItWorks />
     <Services />
