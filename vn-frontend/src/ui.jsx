@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from './auth'
 import { api } from './api'
 import { siteContent } from './data/siteContent'
+import ConfirmDialog from './components/ui/ConfirmDialog'
 
 export const Logo = () => (
   <div className="flex items-center">
@@ -66,10 +67,12 @@ export function Layout() {
   const { user, logout } = useAuth()
   const nav = useNavigate()
   const pendingCount = usePendingCount(user.role === 'consultancy_staff')
+  const [confirmLogout, setConfirmLogout] = useState(false)
   const link = ({ isActive }) =>
     'rounded-lg px-3 py-2 text-sm font-medium ' + (isActive ? 'bg-navy text-cream' : 'text-navy hover:bg-navy/10')
   return (
     <div className="min-h-screen">
+      <ConfirmDialog open={confirmLogout} title="Sign out?" message="You will need to sign in again to access your account." confirmLabel="Sign out" danger onCancel={() => setConfirmLogout(false)} onConfirm={async () => { await logout(); setConfirmLogout(false); nav('/login') }} />
       <header className="border-b border-navy/10 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Logo />
@@ -99,7 +102,7 @@ export function Layout() {
             <span className="hidden text-navy/70 sm:block">
 {{ student: 'Student', principal: 'Principal', parent: 'Parent/Guardian', other: 'Other', consultancy_staff: 'Staff' }[user.role]}
             </span>
-            <button onClick={() => { logout(); nav('/login') }} className="rounded-lg border border-navy/20 px-3 py-1.5 hover:bg-navy/10">
+            <button type="button" onClick={() => setConfirmLogout(true)} className="rounded-lg border border-navy/20 px-3 py-1.5 hover:bg-navy/10">
               Sign out
             </button>
           </div>

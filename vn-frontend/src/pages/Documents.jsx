@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api, openDocument, uploadWithProgress } from '../api'
 import { useAuth } from '../auth'
 import { Card, Input, Select, Btn, Err } from '../ui'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const BADGE = {
   pending: 'bg-amber-100 text-amber-800',
@@ -24,6 +25,7 @@ export default function Documents() {
   const [busy, setBusy] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(null) // null = not uploading; 0-100 while uploading
   const [busyId, setBusyId] = useState(null)
+  const [confirmId, setConfirmId] = useState(null)
   const replaceInputRef = useRef(null)
   const replaceTargetId = useRef(null)
 
@@ -85,7 +87,6 @@ export default function Documents() {
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Delete this document? This cannot be undone.')) return
     setBusyId(id); setErr('')
     try {
       await api(`/documents/${id}`, { method: 'DELETE' })
@@ -98,6 +99,7 @@ export default function Documents() {
 
   return (
     <div className="space-y-6">
+      <ConfirmDialog open={confirmId !== null} title="Delete this document?" message="This cannot be undone." confirmLabel="Delete document" danger onCancel={() => setConfirmId(null)} onConfirm={async () => { await remove(confirmId); setConfirmId(null) }} />
       <h1 className="font-sans text-3xl font-bold">{staff ? 'Submitted documents' : 'My documents'}</h1>
       <Err msg={err} />
 
@@ -191,7 +193,7 @@ export default function Documents() {
                         Replace
                       </button>
                       <button
-                        onClick={() => remove(d.id)}
+                        onClick={() => setConfirmId(d.id)}
                         disabled={busyId === d.id}
                         className="ml-4 font-medium text-red-700 underline disabled:opacity-50"
                       >

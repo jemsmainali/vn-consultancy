@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { Card, Btn, Err } from '../ui'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 
 const ROLE = { principal: 'Principal', consultancy_staff: 'Staff' }
 
@@ -8,6 +9,7 @@ export default function Approvals() {
   const [people, setPeople] = useState([])
   const [err, setErr] = useState('')
   const [busyId, setBusyId] = useState(null)
+  const [rejectTarget, setRejectTarget] = useState(null)
 
   const load = () => api('/auth/pending').then(setPeople).catch((e) => setErr(e.message))
   useEffect(() => { load() }, [])
@@ -21,6 +23,7 @@ export default function Approvals() {
 
   return (
     <div className="space-y-6">
+      <ConfirmDialog open={Boolean(rejectTarget)} title="Reject this account?" message="This account will be disabled and will not be able to sign in." confirmLabel="Reject account" danger onCancel={() => setRejectTarget(null)} onConfirm={async () => { await act(rejectTarget.id, 'reject'); setRejectTarget(null) }} />
       <h1 className="font-sans text-3xl font-bold">Pending approvals</h1>
       <Err msg={err} />
       <Card className="overflow-x-auto">
@@ -42,7 +45,7 @@ export default function Approvals() {
                   <Btn disabled={busyId === p.id} onClick={() => act(p.id, 'approve')}>Approve</Btn>
                   <button
                     disabled={busyId === p.id}
-                    onClick={() => act(p.id, 'reject')}
+                    onClick={() => setRejectTarget(p)}
                     className="ml-3 font-medium text-red-700 underline disabled:opacity-50"
                   >
                     Reject
