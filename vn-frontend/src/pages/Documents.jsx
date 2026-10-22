@@ -4,6 +4,7 @@ import { api, openDocument, uploadWithProgress } from '../api'
 import { useAuth } from '../auth'
 import { Card, Input, Select, Btn, Err } from '../ui'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import ListSkeleton from '../components/ui/ListSkeleton'
 
 const BADGE = {
   pending: 'bg-amber-100 text-amber-800',
@@ -23,14 +24,16 @@ export default function Documents() {
   const [pageSize, setPageSize] = useState(10)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [uploadProgress, setUploadProgress] = useState(null) // null = not uploading; 0-100 while uploading
   const [busyId, setBusyId] = useState(null)
   const [confirmId, setConfirmId] = useState(null)
   const replaceInputRef = useRef(null)
   const replaceTargetId = useRef(null)
 
-  const load = (p = page) =>
-    api(`${staff ? '/documents' : '/documents/mine'}?page=${p}`)
+  const load = (p = page) => {
+    setLoading(true)
+    return api(`${staff ? '/documents' : '/documents/mine'}?page=${p}`)
       .then((res) => {
         setDocs(res.items)
         setTotal(res.total)
@@ -38,6 +41,8 @@ export default function Documents() {
         setPage(res.page)
       })
       .catch((e) => setErr(e.message))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => { load(1) }, [])
 
@@ -102,6 +107,7 @@ export default function Documents() {
       <ConfirmDialog open={confirmId !== null} title="Delete this document?" message="This cannot be undone." confirmLabel="Delete document" danger onCancel={() => setConfirmId(null)} onConfirm={async () => { await remove(confirmId); setConfirmId(null) }} />
       <h1 className="font-sans text-3xl font-bold">{staff ? 'Submitted documents' : 'My documents'}</h1>
       <Err msg={err} />
+      {loading && <ListSkeleton label="Loading documents" />}
 
       {/* Hidden file input shared by every "Replace" button - triggerReplace() points it at the right document first */}
       <input
@@ -143,7 +149,7 @@ export default function Documents() {
         </Card>
       )}
 
-      <Card className="overflow-x-auto">
+      <Card className={`overflow-x-auto${loading ? ' opacity-60' : ''}`} aria-busy={loading}>
         <table className="w-full text-left text-sm">
           <thead className="border-b border-navy/10 bg-cream-deep/60">
             <tr>

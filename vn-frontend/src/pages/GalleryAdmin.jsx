@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { API_BASE, api } from '../api'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
+import ListSkeleton from '../components/ui/ListSkeleton'
 
 const categories = [
   ['student-life', 'Student life'], ['counselling', 'Counselling'], ['events', 'Events'],
@@ -94,7 +95,7 @@ export default function GalleryAdmin() {
       </form>
     </section>
     <section className="gallery-admin-list"><div className="gallery-admin-list-head"><h2>Gallery items</h2><span>{items.length} item{items.length === 1 ? '' : 's'}</span></div>
-      {loading && <p role="status">Loading gallery items…</p>}
+      {loading && <ListSkeleton label="Loading gallery items" />}
       {!loading && !items.length && <p className="gallery-admin-empty">No staff gallery uploads yet. The public homepage currently uses labeled illustrative placeholders.</p>}
       <div className="gallery-admin-items">{items.map((item) => {
         const draft = drafts[item.id] || item

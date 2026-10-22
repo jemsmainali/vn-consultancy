@@ -33,3 +33,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .confirm-dialog-actions button { min-height: 42px; padding: 0 15px; border: 1px solid #d7deea; border-radius: 7px; color: #102544; background: #fff; font-weight: 650; }
 .confirm-dialog-actions button:last-child { border-color: #102544; color: #fff; background: #102544; }
 .confirm-dialog-actions button.is-danger { border-color: #9b2727; background: #9b2727; }
+.route-loading { position: fixed; z-index: var(--z-toast); top: 0; left: 0; width: 100%; height: 3px; overflow: hidden; background: transparent; }
+.route-loading-bar { display: block; width: 35%; height: 100%; background: #A98543; box-shadow: 0 0 8px rgb(201 164 92 / .45); animation: route-loading 1s ease-in-out infinite alternate; }
+@keyframes route-loading { from { transform: translateX(-40%); } to { transform: translateX(230%); } }
+.list-skeleton { display: grid; gap: 12px; }
+.list-skeleton-card { display: flex; min-height: 84px; align-items: center; gap: 14px; padding: 15px; border: 1px solid rgb(16 37 68 / .1); border-radius: 12px; background: #fff; }
+.list-skeleton-mark, .list-skeleton-lines i { display: block; border-radius: 6px; background: linear-gradient(100deg,#edf0f4 20%,#f9fafb 45%,#edf0f4 70%); background-size: 220% 100%; animation: list-shimmer 1.4s ease-in-out infinite; }
+.list-skeleton-mark { width: 48px; height: 48px; flex: none; }
+.list-skeleton-lines { display: grid; flex: 1; gap: 9px; }
+.list-skeleton-lines i { width: 70%; height: 9px; }
+.list-skeleton-lines i:first-child { width: 42%; height: 12px; }
+@keyframes list-shimmer { to { background-position-x: -220%; } }
