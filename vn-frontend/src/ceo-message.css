@@ -1,0 +1,13 @@
+.ceo-message { scroll-margin-top: 92px; }
+.ceo-portrait-scene { position: relative; isolation: isolate; perspective: 1200px; }
+.ceo-portrait-scene::before { position: absolute; z-index: -1; inset: 17px -15px 62px 17px; border: 1px solid rgb(201 164 92 / .75); border-radius: 1.25rem; background: linear-gradient(145deg, rgb(201 164 92 / .2), rgb(16 37 68 / .08)); content: ""; transform: rotate(2deg); }
+.ceo-portrait-scene::after { position: absolute; z-index: -2; inset: -22px 20px 80px -20px; border-radius: 50%; background: rgb(201 164 92 / .2); content: ""; filter: blur(36px); }
+.ceo-portrait-card { transform: rotateY(3deg) rotateX(1deg); transform-style: preserve-3d; transition: transform .55s cubic-bezier(.2,.7,.2,1), box-shadow .55s ease; }
+.ceo-portrait-scene:hover .ceo-portrait-card, .ceo-portrait-scene:focus-within .ceo-portrait-card { transform: translateY(-7px) rotateY(0) rotateX(0); box-shadow: 0 34px 70px -26px rgb(16 37 68 / .36); }
+.ceo-caption { min-height: 154px; }
+.ceo-photo-note { display: block; margin: 26px 0 0 16px; color: #657184; font-size: 11px; letter-spacing: .03em; }
+.ceo-signature { color: #102544; font-family: "Brush Script MT", "Segoe Script", cursive; font-size: 30px; font-style: italic; line-height: 1; transform: rotate(-5deg); }
+.ceo-message-copy { animation: ceo-message-enter .65s ease both; }
+@keyframes ceo-message-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1023px) { .ceo-portrait-card { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ceo-message-copy { animation: none; } .ceo-portrait-card { transition: none; transform: none; } .ceo-portrait-scene:hover .ceo-portrait-card, .ceo-portrait-scene:focus-within .ceo-portrait-card { transform: none; } }

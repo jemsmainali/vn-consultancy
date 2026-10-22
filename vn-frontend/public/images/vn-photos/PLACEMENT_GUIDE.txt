@@ -1,0 +1,50 @@
+VN GROUP - PHOTO PLACEMENT GUIDE
+=================================
+
+USE THESE (7 photos, already cropped, colour-corrected and compressed)
+
+1. HOME HERO (right side, replaces the stock photo)
+   hero/hero-main-*.webp   (4:3)
+   Why: real Nepali students, a US university partner (Westcliff) and your event. This is the strongest proof of trust you have.
+   Crop removes the ceiling clutter, cables and the half-cut banners.
+
+2. DESTINATIONS > AUSTRALIA CARD
+   destinations/australia-card-*.webp   (16:9)
+   Why: clean landmark shot, nobody recognisable. The only low-resolution file, so keep the card under ~360px wide.
+
+3. SERVICES > COUNSELLING CARD and HOW IT WORKS > STEP 1 "Free Counselling"
+   services/counselling-session-*.webp   (3:2)
+   Why: shows a real counselling/briefing session with students listening.
+
+4. PARTNER VISITS GALLERY (new strip under the partner logos)
+   partners/partner-griffin-college-*.webp   (4:3)
+   partners/partner-sahe-*.webp              (4:3)
+   Caption idea: "Our team visiting partner institutions in Australia"
+   Why: proves you visit the colleges you recommend.
+
+5. ABOUT US PAGE
+   about/partner-meeting-*.webp   (4:3)   > section "How we work with institutions"
+   about/events-wide-*.webp       (16:9)  > section "We attend global education fairs"
+
+HOLD BACK (do not put on the public site)
+
+- Embassy / flags photo (nepali_ambistor.jpg): shows official portraits of political figures and national flags. It can look political or like an official endorsement. Only use it if the CEO specifically wants it.
+- Soldiers at the memorial (navy.jpg): armed uniformed soldiers, unrelated to study abroad. Skip.
+- Sydney Opera House group photo (aus-std.jpg): casual tourist photo. Only the building crop is used; the people are not.
+- The localhost screenshot: reference only.
+
+STILL MISSING (you cannot fill these from this batch)
+- Counsellor headshots: no clean portrait in this batch. Take plain-background portraits, same light for everyone, at least 800x1000.
+- Student success-story photos: need one portrait per student with written permission.
+- Logo as transparent PNG/SVG.
+- Real office photo (front of the Dillibazar office, reception).
+
+BEFORE YOU PUBLISH
+- Get written permission from the people in the group photos, especially the students in the hero.
+- Confirm Westcliff, Griffin College and SAHE agree to be shown as partners, since their logos appear in the photos.
+- The Westcliff banner shows the info-session date (18 May 2023). If the site says "upcoming events", do not present it as a recent event.
+
+HOW TO USE IN THE PROJECT
+1. Copy hero/, destinations/, about/, partners/, services/ into public/images/
+2. Put imageManifest.md in src/data/
+3. Run the Codex placement prompt from earlier and tell it to use only the files in imageManifest.md.

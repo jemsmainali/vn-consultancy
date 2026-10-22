@@ -1,0 +1,48 @@
+.env
+__pycache__/
+*.pyc
+uploads/
+venv/
+.venv/
+*.db
+alembic/versions/*.pyc
+vn-frontend/node_modules/
+vn-frontend/dist/
+.DS_Store
+
+
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Database dumps and local DB files
+*.dump
+*.sql
+*.sqlite3
+pgdata/
+
+# Uploaded student/client documents (never commit)
+uploads/
+media/
+storage/
+
+# Editor, OS, logs
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+*.log
