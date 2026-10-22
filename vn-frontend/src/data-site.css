@@ -10,6 +10,15 @@
 .whatsapp-float { position: fixed; z-index: var(--z-floating); right: 22px; bottom: max(20px,env(safe-area-inset-bottom)); display: grid; width: 54px; height: 54px; place-items: center; border: 2px solid white; border-radius: 50%; color: #fff !important; background: #178c53; box-shadow: 0 8px 24px #10254435; transition: opacity .2s, transform .2s; }
 .whatsapp-float:hover { transform: translateY(-3px); background: #117545; }
 .whatsapp-float svg { width: 29px; height: 29px; fill: currentColor; }
+.faq-accordion-item { border-bottom: 1px solid var(--site-line); }
+.faq-accordion-item h3 { margin: 0; }
+.faq-accordion-item h3 button { display: flex; width: 100%; min-height: 64px; align-items: center; justify-content: space-between; gap: 18px; padding: 17px 3px; border: 0; color: var(--site-navy); background: transparent; font: inherit; font-size: 16px; font-weight: 650; text-align: left; cursor: pointer; }
+.faq-accordion-icon { flex: none; color: #80602e; font-size: 23px; font-weight: 400; }
+.faq-accordion-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows .24s ease, visibility .24s; }
+.faq-accordion-item.is-open .faq-accordion-panel { grid-template-rows: 1fr; visibility: visible; }
+.faq-accordion-panel-inner { min-height: 0; overflow: hidden; }
+.faq-accordion-panel p { margin: 0; padding: 0 28px 20px 3px; color: var(--site-muted); font-size: 14px; line-height: 1.75; }
+@media print { .faq-accordion-panel { grid-template-rows: 1fr !important; visibility: visible !important; } .faq-accordion-panel-inner { overflow: visible; } }
 .whatsapp-float.is-obscured { opacity: 0; pointer-events: none; }
 .data-container { width: min(1160px,calc(100% - 48px)); margin-inline: auto; }
 .data-section { padding-block: 76px; scroll-margin-top: 100px; }
