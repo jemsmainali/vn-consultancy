@@ -1,5 +1,5 @@
 ﻿.site-nav { gap: clamp(8px, .85vw, 13px); }
-.site-nav .site-nav-link { font-size: 12px; }
+.site-nav .site-nav-link { font-size: 12px; font-weight: 600; }
 .about-trigger { font-size: 12px; }
 .site-nav-actions { display: flex; align-items: center; gap: 8px; }
 .site-nav-actions .button-small { min-height: 42px; padding-inline: 13px; font-size: 11px; }
@@ -135,6 +135,7 @@
 .legal-placeholder-page h1 { margin-bottom: 17px; }
 .destination-data-empty { width: min(850px,calc(100% - 48px)); min-height: 25vh; margin: 0 auto; padding: 20px 0 55px; color: var(--site-muted); font-size: 13px; line-height: 1.8; }
 @media (max-width: 1280px) { .site-header-inner { gap: 18px; }.site-nav { gap: 8px; }.site-nav .site-nav-link { font-size: 11px; }.site-nav-actions { gap: 6px; }.site-nav-actions .button-small { padding-inline: 10px; font-size: 10px; } }
+@media (max-width: 1120px) { .site-nav .site-nav-link { font-size: 13px; font-weight: 600; } }
 @media (max-width: 1120px) {
   .site-nav-actions { display: flex; flex-direction: column; align-items: stretch; gap: 9px; margin-top: 15px; }
   .site-nav-actions .button { width: min(100%,260px); }
