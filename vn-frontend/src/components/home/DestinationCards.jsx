@@ -2,6 +2,7 @@ import { siteContent, siteContentReady } from '../../data/siteContent'
 import { useState } from 'react'
 import ResponsiveImage from '../../ResponsiveImage'
 import SectionHeading from './SectionHeading'
+import CountryFlag from '../CountryFlag'
 
 function isComplete(country) {
   return [country.intro, country.intakes, country.tuitionRange, country.livingCostRange, country.requirements].every(siteContentReady)
@@ -13,7 +14,7 @@ function CountryCard({ country }) {
   return <article className="destination-data-card">
     <div className="destination-data-visual">
       {country.image && <ResponsiveImage image={country.image} className="destination-data-image" onUnavailable={() => setAvailable(false)} />}
-      <span className="destination-flag" aria-hidden="true">{country.flag}</span><h3>{country.name}</h3>
+      <div className="destination-card-heading"><CountryFlag code={country.code} name={country.name} size={32} /><h3>{country.name}</h3></div>
     </div>
     <p>{country.intro}</p>
     <dl>

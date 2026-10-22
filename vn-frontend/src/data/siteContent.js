@@ -41,14 +41,14 @@ export const siteImages = {
 }
 
 const countries = [
-  { name: 'Australia', flag: '🇦🇺', code: 'AU' },
-  { name: 'Canada', flag: '🇨🇦', code: 'CA' },
-  { name: 'United Kingdom', flag: '🇬🇧', code: 'UK' },
-  { name: 'United States', flag: '🇺🇸', code: 'US' },
-  { name: 'Germany', flag: '🇩🇪', code: 'DE' },
-  { name: 'France', flag: '🇫🇷', code: 'FR' },
-  { name: 'Ireland', flag: '🇮🇪', code: 'IE' },
-  { name: 'Japan', flag: '🇯🇵', code: 'JP' },
+  { name: 'Australia', code: 'au' },
+  { name: 'Canada', code: 'ca' },
+  { name: 'United Kingdom', code: 'gb' },
+  { name: 'United States', code: 'us' },
+  { name: 'Germany', code: 'de' },
+  { name: 'France', code: 'fr' },
+  { name: 'Ireland', code: 'ie' },
+  { name: 'Japan', code: 'jp' },
 ].map((country) => ({
   ...country,
   image: country.name === 'Australia' ? siteImages.australia : null,

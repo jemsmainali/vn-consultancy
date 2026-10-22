@@ -5,6 +5,7 @@ import CeoMessage from './CeoMessage'
 import ScrollReveal from './ScrollReveal'
 import ResponsiveImage from './ResponsiveImage'
 import { siteContent, siteContentReady, siteImages } from './data/siteContent'
+import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
 import LegalPage from './components/layout/LegalPage'
 import EnquirySection from './components/home/EnquirySection'
@@ -50,7 +51,7 @@ export function PublicLayout() {
   const dropdownGroups = [
     { id: 'about', label: 'About', items: siteContent.navigation.about },
     { id: 'services', label: 'Services', items: siteContent.navigation.services, icon: true },
-    { id: 'destinations', label: 'Destinations', items: siteContent.home.countries.map(({ name, flag }) => ({ label: name, flag, to: '/destinations' })), destination: true },
+    { id: 'destinations', label: 'Destinations', items: siteContent.home.countries.map(({ name, code }) => ({ label: name, code, to: '/destinations' })), destination: true },
     { id: 'resources', label: 'Resources', items: siteContent.navigation.resources },
   ]
   const closeMenu = () => { setMenuOpen(false); setOpenDropdown('') }
@@ -170,7 +171,7 @@ export function PublicLayout() {
                     {group.items.map((item) => <li key={item.label}>
                       <Link to={linkTo(item.to)} onClick={closeMenu}>
                         {group.icon && <NavIcon name={item.icon} />}
-                        {group.destination && <span className="destination-flag" aria-hidden="true">{item.flag}</span>}
+                        {group.destination && <CountryFlag code={item.code} name={item.label} size={20} />}
                         <span className="about-menu-copy"><strong>{item.label}</strong>{item.detail && <small>{item.detail}</small>}</span>
                       </Link>
                     </li>)}
