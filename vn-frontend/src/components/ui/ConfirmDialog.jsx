@@ -22,9 +22,11 @@ export default function ConfirmDialog({
       if (event.key !== 'Tab') return
       const buttons = [...document.querySelectorAll('[data-confirm-dialog] button:not(:disabled)')]
       if (!buttons.length) return
+      const dialog = document.querySelector('[data-confirm-dialog]')
       const first = buttons[0]
       const last = buttons[buttons.length - 1]
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      if (!dialog?.contains(document.activeElement)) { event.preventDefault(); first.focus() }
+      else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
     }
     document.addEventListener('keydown', onKeyDown)
@@ -32,6 +34,7 @@ export default function ConfirmDialog({
       document.body.style.overflow = oldOverflow
       document.removeEventListener('keydown', onKeyDown)
       if (restoreRef.current?.isConnected) restoreRef.current.focus()
+      else document.getElementById('main')?.focus()
     }
   }, [open])
 

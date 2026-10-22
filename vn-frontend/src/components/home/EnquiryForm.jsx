@@ -31,11 +31,13 @@ export default function EnquiryForm() {
   const [receipt, setReceipt] = useState('')
   const [retryable, setRetryable] = useState(false)
   const retryRef = useRef(null)
+  const submissionKeyRef = useRef(null)
 
   const update = (event) => {
     const { name, value, checked, type } = event.target
     setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }))
     setErrors((current) => ({ ...current, [name]: '' }))
+    submissionKeyRef.current = null
   }
 
   const sendEnquiry = async () => {
@@ -48,7 +50,7 @@ export default function EnquiryForm() {
         return
       }
       const result = await submitEnquiry({
-        submission_key: createSubmissionKey(),
+        submission_key: submissionKeyRef.current || (submissionKeyRef.current = createSubmissionKey()),
         full_name: form.full_name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
@@ -56,6 +58,7 @@ export default function EnquiryForm() {
         education_level: form.education_level,
         privacy_consent: form.privacy_consent,
       })
+      submissionKeyRef.current = null
       setReceipt(result?.reference || 'received')
     } catch (error) {
       setErrors((current) => ({ ...current, ...(error.fields || {}) }))

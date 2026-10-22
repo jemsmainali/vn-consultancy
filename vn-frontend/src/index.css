@@ -5,7 +5,7 @@
 html { scroll-behavior: smooth; }
 body { @apply bg-cream text-ink font-sans antialiased; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", sans-serif; }
 button, input, select, textarea { font-family: inherit; }
-:focus-visible { outline: 3px solid #A98543; outline-offset: 3px; }
+:focus-visible { outline: 3px solid #75521B; outline-offset: 3px; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { scroll-margin-block: 110px; }
 .reveal { transition: opacity .6s cubic-bezier(.22,.61,.36,1), transform .6s cubic-bezier(.22,.61,.36,1); }
 .reveal-hidden { opacity: 0; transform: translateY(20px); }
@@ -18,7 +18,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) { .reveal, .reveal-hidden { transition: none; opacity: 1; transform: none; } .hero-in { animation: none; } }
 @media (hover: hover) {
   button:not(:disabled):hover, .button:hover { transform: translateY(-1px); }
-  a:not(.button):hover { text-decoration-color: #A98543; text-underline-offset: .2em; }
+  a:not(.button):hover { text-decoration: underline; text-decoration-color: #75521B; text-underline-offset: .2em; }
   .interactive-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgb(16 37 68 / .12); }
   .interactive-image:hover { transform: scale(1.03); }
 }
