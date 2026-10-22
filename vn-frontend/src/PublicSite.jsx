@@ -181,7 +181,7 @@ export function PublicLayout() {
             })}
             <a href={isHome ? '#enquire' : '/#enquire'} onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</a>
             <div className="site-nav-actions">
-              <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>Student Login</Link>
+              <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu} aria-label={user ? undefined : 'Login'}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>{user ? 'My account' : 'Login'}</Link>
               <a className="button button-small" href={`${isHome ? '' : '/'}#enquire`} onClick={closeMenu}>Free Counselling</a>
             </div>
           </nav>

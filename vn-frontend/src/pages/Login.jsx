@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { Logo, Input, Btn, Err } from '../ui'
@@ -41,6 +41,18 @@ export default function Login() {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
+  useEffect(() => {
+    const previousTitle = document.title
+    const description = document.querySelector('meta[name="description"]')
+    const previousDescription = description?.content
+    document.title = 'Login | VN Group'
+    if (description) description.content = 'Log in to your VN Group account.'
+    return () => {
+      document.title = previousTitle
+      if (description && previousDescription !== undefined) description.content = previousDescription
+    }
+  }, [])
+
   const submit = async (e) => {
     e.preventDefault()
     setBusy(true)
@@ -63,7 +75,7 @@ export default function Login() {
           <div aria-hidden="true" className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-[#D9E1F0]/60 blur-3xl" />
           <header className="relative flex flex-wrap items-center justify-between gap-3">
             <Logo />
-            <span className="rounded-full border border-navy/10 bg-white/75 px-3 py-1.5 text-xs font-medium text-navy/70">Secure student portal</span>
+            <span className="rounded-full border border-navy/10 bg-white/75 px-3 py-1.5 text-xs font-medium text-navy/70">Secure account access</span>
           </header>
 
           <div className="relative mt-8 sm:mt-10 lg:mt-14">
@@ -94,7 +106,7 @@ export default function Login() {
         <section className="flex flex-col justify-center px-5 py-7 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
           <div>
             <p className="text-sm font-medium text-navy/55">Welcome back</p>
-            <h2 className="mt-1 font-sans text-3xl font-bold text-navy sm:text-4xl">Sign in</h2>
+            <h2 className="mt-1 font-sans text-3xl font-bold text-navy sm:text-4xl">Login</h2>
             <p className="mt-2 text-sm text-navy/65">Use your registered email and password to continue.</p>
           </div>
 
@@ -121,7 +133,7 @@ export default function Login() {
             <div className="text-right">
               <Link to="/forgot-password" className="text-sm font-medium text-navy/70 underline underline-offset-2 hover:text-navy">Forgot password?</Link>
             </div>
-            <Btn type="submit" className="w-full py-3 shadow-sm" disabled={busy}>{busy ? 'Signing in...' : 'Sign in'}</Btn>
+            <Btn type="submit" className="w-full py-3 shadow-sm" disabled={busy}>{busy ? 'Logging in...' : 'Login'}</Btn>
           </form>
 
           <p className="mt-5 text-center text-sm text-navy/70">
