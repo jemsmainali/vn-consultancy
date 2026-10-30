@@ -1,8 +1,10 @@
 export const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 const PUBLIC_ROUTES = new Set([
-  '/', '/about', '/destinations', '/journey', '/faqs', '/contact', '/privacy',
+  '/', '/about', '/destinations', '/journey', '/faqs', '/gallery', '/contact', '/privacy',
   '/login', '/register', '/verify', '/forgot-password', '/reset-password', '/terms',
 ])
+// Destination guide pages are public even though their full-guide section calls a private API.
+const isPublicPage = (pathname) => PUBLIC_ROUTES.has(pathname) || pathname.startsWith('/destinations/')
 
 const send = (path, opts = {}) => {
   const headers = { ...(opts.headers || {}) }
@@ -19,7 +21,7 @@ export async function api(path, opts = {}) {
     const r = await send('/auth/refresh', { method: 'POST' })
     if (r.ok) {
       res = await send(path, opts)
-    } else if (path !== '/auth/me' && !PUBLIC_ROUTES.has(window.location.pathname)) {
+    } else if (path !== '/auth/me' && !isPublicPage(window.location.pathname)) {
       window.location.href = '/login'
     }
   }

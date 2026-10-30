@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import { Card, Err } from '../ui'
+import { Card, Btn, Err, PageHeader, StatusBadge, EmptyState, Pagination, Avatar } from '../ui'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
+import ListSkeleton from '../components/ui/ListSkeleton'
 
 const ROLE_LABEL = {
   student: 'Student',
@@ -9,14 +11,17 @@ const ROLE_LABEL = {
   other: 'Other',
   consultancy_staff: 'Staff',
 }
+const ROLE_TONE = { consultancy_staff: 'gold', principal: 'indigo', student: 'info' }
 
 export default function Users() {
   const [users, setUsers] = useState([])
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [pageSize, setPageSize] = useState(20)
+  const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   const [busyId, setBusyId] = useState(null)
+  const [deactivateTarget, setDeactivateTarget] = useState(null)
 
   const load = (p = page) =>
     api(`/auth/users?page=${p}`)
@@ -27,15 +32,15 @@ export default function Users() {
         setPage(res.page)
       })
       .catch((e) => setErr(e.message))
+      .finally(() => setLoading(false))
 
   useEffect(() => { load(1) }, [])
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const goToPage = (p) => { if (p >= 1 && p <= totalPages) load(p) }
 
-  const toggle = async (u) => {
+  const run = async (u) => {
     const action = u.is_active ? 'deactivate' : 'reactivate'
-    if (u.is_active && !window.confirm(`Deactivate ${u.full_name}? They won't be able to sign in until reactivated.`)) return
     setBusyId(u.id); setErr('')
     try {
       await api(`/auth/${u.id}/${action}`, { method: 'POST' })
@@ -44,74 +49,61 @@ export default function Users() {
     setBusyId(null)
   }
 
+  // Deactivating asks for confirmation first; reactivating is immediate.
+  const toggle = (u) => (u.is_active ? setDeactivateTarget(u) : run(u))
+
   return (
-    <div className="space-y-6">
-      <h1 className="font-sans text-3xl font-bold">Manage users</h1>
+    <div className="ui-stack">
+      <ConfirmDialog
+        open={Boolean(deactivateTarget)}
+        title={`Deactivate ${deactivateTarget?.full_name || 'this user'}?`}
+        message="They won't be able to sign in until reactivated."
+        confirmLabel="Deactivate"
+        danger
+        onCancel={() => setDeactivateTarget(null)}
+        onConfirm={async () => { await run(deactivateTarget); setDeactivateTarget(null) }}
+      />
+      <PageHeader
+        eyebrow="Staff tools"
+        title="Manage users"
+        description="Everyone with a VN Group account. Deactivated users can't sign in until they're reactivated."
+        actions={total > 0 && <span className="ui-count"><strong>{total}</strong> user{total === 1 ? '' : 's'}</span>}
+      />
       <Err msg={err} />
 
-      <Card className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-navy/10 bg-cream-deep/60">
-            <tr>
-              {['Name', 'Email', 'Role', 'Status', 'Joined', ''].map((h) => (
-                <th key={h} className="px-4 py-3 font-semibold">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-navy/60">No users found.</td></tr>
-            )}
-            {users.map((u) => (
-              <tr key={u.id} className="border-b border-navy/5 last:border-0">
-                <td className="px-4 py-3 font-medium">{u.full_name}</td>
-                <td className="px-4 py-3">{u.email}</td>
-                <td className="px-4 py-3">{ROLE_LABEL[u.role] || u.role}</td>
-                <td className="px-4 py-3">
-                  <span className={'rounded-full px-2.5 py-1 text-xs font-medium ' + (u.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700')}>
-                    {u.is_active ? 'Active' : 'Deactivated'}
-                  </span>
-                </td>
-                <td className="px-4 py-3">{new Date(u.created_at).toLocaleDateString()}</td>
-                <td className="whitespace-nowrap px-4 py-3 text-right">
-                  <button
-                    onClick={() => toggle(u)}
-                    disabled={busyId === u.id}
-                    className={'font-medium underline disabled:opacity-50 ' + (u.is_active ? 'text-red-700' : 'text-emerald-700')}
-                  >
-                    {u.is_active ? 'Deactivate' : 'Reactivate'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {total > 0 && (
-          <div className="flex items-center justify-between border-t border-navy/10 px-4 py-3 text-sm">
-            <span className="text-navy/60">
-              Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => goToPage(page - 1)}
-                disabled={page <= 1}
-                className="rounded-lg border border-navy/20 px-3 py-1.5 font-medium hover:bg-navy/5 disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                Previous
-              </button>
-              <span className="text-navy/70">Page {page} of {totalPages}</span>
-              <button
-                onClick={() => goToPage(page + 1)}
-                disabled={page >= totalPages}
-                className="rounded-lg border border-navy/20 px-3 py-1.5 font-medium hover:bg-navy/5 disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                Next
-              </button>
+      {loading ? <ListSkeleton label="Loading users" /> : (
+        <Card className="overflow-hidden">
+          {users.length === 0 ? <EmptyState icon="users" title="No users found" /> : (
+            <div className="ui-table-wrap">
+              <table className="ui-table ui-table--stack">
+                <thead>
+                  <tr>{['Name', 'Email', 'Role', 'Status', 'Joined'].map((h) => <th key={h}>{h}</th>)}<th><span className="sr-only">Actions</span></th></tr>
+                </thead>
+                <tbody>
+                  {users.map((u, i) => (
+                    <tr key={u.id} style={{ '--i': i }} className={u.is_active ? '' : 'opacity-70'}>
+                      <td className="ui-cell-lead" data-label="Name">
+                        <span className="ui-cell-person"><Avatar name={u.full_name} size="sm" /><span className="ui-cell-primary">{u.full_name}</span></span>
+                      </td>
+                      <td data-label="Email"><span className="ui-truncate" title={u.email}>{u.email}</span></td>
+                      <td data-label="Role"><StatusBadge tone={ROLE_TONE[u.role] || 'neutral'}>{ROLE_LABEL[u.role] || u.role}</StatusBadge></td>
+                      <td data-label="Status"><StatusBadge tone={u.is_active ? 'success' : 'danger'}>{u.is_active ? 'Active' : 'Deactivated'}</StatusBadge></td>
+                      <td data-label="Joined" className="whitespace-nowrap">{new Date(u.created_at).toLocaleDateString()}</td>
+                      <td className="ui-cell-actions">
+                        <Btn type="button" size="sm" variant={u.is_active ? 'danger' : 'secondary'} onClick={() => toggle(u)} disabled={busyId === u.id}>
+                          {busyId === u.id && <span className="ui-spin" aria-hidden="true" />}
+                          {u.is_active ? 'Deactivate' : 'Reactivate'}
+                        </Btn>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
-      </Card>
+          )}
+          {total > 0 && <Pagination page={page} totalPages={totalPages} total={total} pageSize={pageSize} onPage={goToPage} />}
+        </Card>
+      )}
     </div>
   )
 }

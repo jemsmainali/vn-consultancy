@@ -1,0 +1,297 @@
+{
+  "slug": "canada",
+  "name": "Canada",
+  "currency": "CAD",
+  "lastVerified": "2026-10-30",
+  "nprConversion": {
+    "rate": 109.12,
+    "date": "2026-10-30"
+  },
+  "overview": {
+    "summary": "Canada combines universities, colleges and polytechnics with a post-graduation work permit route. Since 2024 the government has capped study permits and tightened work-permit eligibility, so programme choice now matters a great deal.",
+    "educationSystem": "Universities award bachelor’s, master’s and doctoral degrees. Colleges and polytechnics offer certificates, diplomas, advanced diplomas, graduate certificates and some degrees. You must study at a Designated Learning Institution (DLI) to get a study permit."
+  },
+  "courses": [
+    {
+      "level": "College certificate or diploma",
+      "typicalDuration": {
+        "value": "1–3 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Bachelor’s degree",
+      "typicalDuration": {
+        "value": "4 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master’s degree",
+      "typicalDuration": {
+        "value": "1–2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    }
+  ],
+  "universities": {
+    "institutions": [],
+    "intakes": [
+      "September and January, some May starts"
+    ],
+    "applicationTimeline": [
+      "Shortlist programmes 10–12 months ahead.",
+      "Apply to institutions and pay the deposit after admission.",
+      "Get a PAL/TAL from the institution if required.",
+      "Apply for the study permit online as early as possible."
+    ]
+  },
+  "tuition": [
+    {
+      "level": "College diploma or graduate certificate",
+      "annualFee": {
+        "min": 15000,
+        "max": 22000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Bachelor’s degree",
+      "annualFee": {
+        "min": 25000,
+        "max": 45000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Master’s degree",
+      "annualFee": {
+        "min": 18000,
+        "max": 45000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "Typical student city (major cities cost more)",
+      "accommodation": {
+        "min": 800,
+        "max": 1800,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 300,
+        "max": 500,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 80,
+        "max": 150,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 100,
+        "max": 200,
+        "label": "estimate"
+      },
+      "personal": {
+        "min": 150,
+        "max": 300,
+        "label": "estimate"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "University entrance and merit awards",
+      "provider": "Individual universities",
+      "coverage": {
+        "value": "Usually one-time or renewable partial awards",
+        "label": "institution-specific"
+      },
+      "eligibility": "Academic results; some are automatic",
+      "deadline": "With admission",
+      "url": "https://www.educanada.ca/scholarships-bourses/index.aspx?lang=eng"
+    },
+    {
+      "name": "Graduate funding packages",
+      "provider": "University departments and research supervisors",
+      "coverage": {
+        "value": "Teaching or research assistantships, sometimes with tuition support",
+        "label": "official"
+      },
+      "eligibility": "Mainly research master’s and PhD applicants",
+      "deadline": "Contact supervisors before applying",
+      "url": "https://www.educanada.ca/scholarships-bourses/index.aspx?lang=eng"
+    },
+    {
+      "name": "Government of Canada scholarships for international students",
+      "provider": "Global Affairs Canada (EduCanada)",
+      "coverage": {
+        "value": "Varies by programme",
+        "label": "TODO"
+      },
+      "eligibility": "Many programmes are limited to specific countries; check whether Nepal is eligible. Check the current rule with the official source before relying on this.",
+      "deadline": "Varies",
+      "url": "https://www.educanada.ca/scholarships-bourses/non_can/index.aspx?lang=eng"
+    }
+  ],
+  "studentVisa": {
+    "category": "Study permit",
+    "process": [
+      "Receive a letter of acceptance from a DLI.",
+      "Obtain a PAL/TAL if required.",
+      "Gather financial, academic and identity documents.",
+      "Apply online and pay the fees.",
+      "Give biometrics at a visa application centre and complete a medical exam if instructed.",
+      "Wait for a decision; then travel with your letter of introduction."
+    ],
+    "financialEvidence": {
+      "requirement": "Outside Quebec, a single applicant must show CAD 23,448 for living expenses for applications submitted on or after 1 September 2026, in addition to first-year tuition and travel costs. Quebec sets its own amount.",
+      "amount": {
+        "min": 23448,
+        "max": 23448,
+        "label": "official"
+      }
+    },
+    "insurance": {
+      "requirement": "Depends on the province: some include international students in provincial plans, others require school insurance.",
+      "annualCost": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "documents": [
+      "Passport",
+      "Letter of acceptance from a DLI",
+      "Provincial or territorial attestation letter (PAL/TAL), unless exempt",
+      "Proof of financial support (for example a GIC, bank statements, education loan)",
+      "Academic documents and English test results",
+      "Study plan / letter of explanation",
+      "Biometrics and, if requested, a medical exam",
+      "NOC from Nepal’s Ministry of Education"
+    ],
+    "processingEstimate": {
+      "value": "IRCC publishes processing times that change weekly. Apply as early as possible after receiving your acceptance letter.",
+      "label": "TODO"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "Up to 24 hours a week off campus while classes are in session",
+      "label": "official"
+    },
+    "duringBreaks": {
+      "value": "Unlimited hours during scheduled breaks",
+      "label": "official"
+    },
+    "conditions": [
+      "Up to 24 hours per week off campus while classes are in session, if your permit allows off-campus work.",
+      "Unlimited hours during scheduled breaks (such as winter and summer holidays).",
+      "You must be a full-time student at a DLI in an eligible programme of at least 6 months that leads to a degree, diploma or certificate.",
+      "Working more than allowed can cost you your status and future permits. Job availability varies widely by city; do not plan to pay tuition from part-time work."
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "Post-Graduation Work Permit (PGWP)",
+      "duration": {
+        "value": "Up to 3 years depending on programme length (master’s graduates can receive up to 3 years)",
+        "label": "official"
+      },
+      "conditions": "Programme of at least 8 months at an eligible DLI; language test at CLB 7 for university degrees or CLB 5 for college programmes; non-degree programmes must be in an eligible field of study for permits applied for on or after 1 November 2024."
+    },
+    {
+      "name": "Employer-specific work permits",
+      "duration": {
+        "value": "Varies",
+        "label": "official"
+      },
+      "conditions": "Usually need a job offer and sometimes a Labour Market Impact Assessment."
+    },
+    {
+      "name": "Permanent residence",
+      "duration": {
+        "value": "—",
+        "label": "official"
+      },
+      "conditions": "Express Entry and provincial programmes are competitive and points-based. A PGWP does not guarantee permanent residence."
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "Accommodation",
+      "text": "Rental markets are tight in big cities. Arrange temporary housing first and watch for rental scams asking for deposits before viewing."
+    },
+    {
+      "topic": "Transport",
+      "text": "Many institutions include a transit pass in student fees. Distances between cities are large."
+    },
+    {
+      "topic": "Climate",
+      "text": "Long, cold winters in most provinces; budget for proper winter clothing."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Coverage depends on the province: some include international students in provincial plans, others require school insurance."
+    },
+    {
+      "topic": "Safety",
+      "text": "Generally safe. Learn tenant rights in your province and keep copies of your permit."
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "IRCC – Study in Canada",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada.html"
+    },
+    {
+      "label": "Designated Learning Institutions list",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/prepare/designated-learning-institutions-list.html"
+    },
+    {
+      "label": "IRCC – PGWP eligibility",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/after-graduation/eligibility.html"
+    },
+    {
+      "label": "EduCanada",
+      "url": "https://www.educanada.ca/"
+    },
+    {
+      "label": "College of Immigration and Citizenship Consultants – public register",
+      "url": "https://college-ic.ca/"
+    }
+  ],
+  "sources": [
+    {
+      "label": "IRCC – Proof of financial support",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/study-permit/get-documents/financial-support.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "IRCC – Work off campus",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/work-off-campus.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "IRCC – Apply for a study permit as a graduate student",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/graduate-student/how-to-apply.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "IRCC – PGWP: who can apply",
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/after-graduation/eligibility.html",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "IRCC – Fee list",
+      "url": "https://ircc.canada.ca/english/information/fees/fees.asp",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

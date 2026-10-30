@@ -1,0 +1,336 @@
+{
+  "slug": "australia",
+  "name": "Australia",
+  "currency": "AUD",
+  "lastVerified": "2026-10-30",
+  "nprConversion": {
+    "rate": 107.39,
+    "date": "2026-10-30"
+  },
+  "overview": {
+    "summary": "Australia offers career-focused university and vocational study with strong student support services. Visa rules tightened in 2025–26, so a well-documented, genuine study plan matters more than ever.",
+    "educationSystem": "Universities offer bachelor’s (usually 3 years), master’s (1–2 years) and research degrees. Vocational education and training (VET) providers, including TAFE institutes, offer certificates and diplomas. Every course offered to international students must be registered on CRICOS."
+  },
+  "courses": [
+    {
+      "level": "Bachelor’s degree",
+      "typicalDuration": {
+        "value": "3 years (4 with honours or in some fields)",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master’s by coursework",
+      "typicalDuration": {
+        "value": "1–2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Vocational diploma (VET)",
+      "typicalDuration": {
+        "value": "1–2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    }
+  ],
+  "universities": {
+    "institutions": [],
+    "intakes": [
+      "February and July (some courses also start in other months)"
+    ],
+    "applicationTimeline": [
+      "Start 9–12 months before your intake.",
+      "Apply to institutions 6–8 months ahead.",
+      "Accept the offer, pay the deposit and receive the CoE.",
+      "Lodge the visa application well before the course starts."
+    ]
+  },
+  "tuition": [
+    {
+      "level": "Vocational diploma / advanced diploma",
+      "annualFee": {
+        "min": 8000,
+        "max": 22000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Bachelor’s degree",
+      "annualFee": {
+        "min": 25000,
+        "max": 50000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Master’s by coursework",
+      "annualFee": {
+        "min": 28000,
+        "max": 55000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Medicine, dentistry, veterinary science",
+      "annualFee": {
+        "min": 60000,
+        "max": 90000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "Typical student city (major cities cost more)",
+      "accommodation": {
+        "min": 1100,
+        "max": 2000,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 400,
+        "max": 700,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 120,
+        "max": 250,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 120,
+        "max": 250,
+        "label": "estimate"
+      },
+      "personal": {
+        "min": 200,
+        "max": 400,
+        "label": "estimate"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "Australia Awards Scholarships (Nepal)",
+      "provider": "Australian Government (DFAT)",
+      "coverage": {
+        "value": "Full tuition, return airfare, living allowance and health cover",
+        "label": "official"
+      },
+      "eligibility": "Nepali citizens applying for postgraduate study in priority development fields; personal, academic and English criteria apply",
+      "deadline": "The 2027 intake closed on 30 April 2026. The next round is expected in early 2027; check the official site.",
+      "url": "https://australiaawardsnepal.org/"
+    },
+    {
+      "name": "Destination Australia",
+      "provider": "Australian Government, through participating institutions",
+      "coverage": {
+        "value": "Annual payment towards study in regional Australia",
+        "label": "TODO"
+      },
+      "eligibility": "Students enrolled in eligible courses at participating regional campuses. Check the current rule with the official source before relying on this.",
+      "deadline": "Applied for through the institution",
+      "url": "https://www.education.gov.au/destination-australia"
+    },
+    {
+      "name": "Research Training Program",
+      "provider": "Australian Government, through universities",
+      "coverage": {
+        "value": "Tuition offset and possible stipend for research degrees",
+        "label": "official"
+      },
+      "eligibility": "Research master’s and PhD applicants with strong academic and research records",
+      "deadline": "University research admission rounds",
+      "url": "https://www.education.gov.au/research-block-grants/research-training-program"
+    },
+    {
+      "name": "University international scholarships",
+      "provider": "Individual universities",
+      "coverage": {
+        "value": "Commonly a percentage reduction of tuition fees",
+        "label": "institution-specific"
+      },
+      "eligibility": "Often based on academic results; criteria and amounts vary",
+      "deadline": "Usually assessed with the admission application",
+      "url": "https://www.studyaustralia.gov.au/en/plan-your-studies/scholarships"
+    }
+  ],
+  "studentVisa": {
+    "category": "Student visa (subclass 500)",
+    "process": [
+      "Receive an offer and CoE from a CRICOS-registered provider.",
+      "Buy Overseas Student Health Cover (OSHC) for your visa period.",
+      "Prepare financial, academic, English and Genuine Student evidence.",
+      "Lodge online in ImmiAccount and pay the visa application charge.",
+      "Complete biometrics and health examinations if requested.",
+      "Wait for a decision and check your visa conditions in VEVO."
+    ],
+    "financialEvidence": {
+      "requirement": "For the visa you must show enough money for travel, course fees and living costs. The living-cost figure widely published for a single main applicant is AUD 29,710 per year. Confirm the current amount and acceptable evidence in the Home Affairs Document Checklist Tool before you prepare funds.",
+      "amount": {
+        "min": 29710,
+        "max": 29710,
+        "label": "TODO"
+      }
+    },
+    "insurance": {
+      "requirement": "Overseas Student Health Cover (OSHC) for the whole visa period, unless an exemption applies.",
+      "annualCost": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "documents": [
+      "Passport",
+      "Academic transcripts and certificates (character and migration certificates where requested)",
+      "English test results",
+      "Statement of purpose / Genuine Student answers",
+      "Financial documents and sponsor evidence",
+      "CV and work experience letters, if any",
+      "Offer letter and Confirmation of Enrolment (CoE)",
+      "Overseas Student Health Cover (OSHC)",
+      "No Objection Certificate (NOC) from Nepal’s Ministry of Education"
+    ],
+    "processingEstimate": {
+      "value": "Home Affairs publishes a processing-time guide based on recently decided applications. It is not specific to your application. Offshore applications are prioritised under Ministerial Direction 115 according to each provider’s allocation.",
+      "label": "TODO"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "Up to 48 hours per fortnight while the course is in session",
+      "label": "official"
+    },
+    "duringBreaks": {
+      "value": "Unlimited hours during scheduled course breaks",
+      "label": "official"
+    },
+    "conditions": [
+      "Up to 48 hours per fortnight while your course is in session, including exam periods.",
+      "Unlimited hours during scheduled course breaks and after completing the course on your CoE while your visa is valid.",
+      "Master’s by research and doctoral students have no limit once the course has started.",
+      "You cannot start work before your course starts unless another visa allows it.",
+      "Jobs are not guaranteed and earnings depend on the city, hours, skills and the season. Part-time income should not be counted on to pay tuition. Check your rights with the Fair Work Ombudsman and never work beyond your visa conditions."
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "Temporary Graduate visa – Post-Higher Education Work stream",
+      "duration": {
+        "value": "Reported as 2 years for bachelor’s and coursework master’s, and 3 years for research master’s and PhD graduates. Confirm the current period with Home Affairs.",
+        "label": "TODO"
+      },
+      "conditions": "Recent eligible degree from an Australian provider, aged 35 or under unless an exception applies, held a Student visa in the last 6 months. Application charge AUD 5,750 from 1 July 2026. Check the current rule with the official source before relying on this."
+    },
+    {
+      "name": "Temporary Graduate visa – Post-Vocational Education Work stream",
+      "duration": {
+        "value": "Up to 18 months",
+        "label": "official"
+      },
+      "conditions": "Eligible associate degree, diploma or trade qualification linked to an occupation on the skilled occupation list."
+    },
+    {
+      "name": "Second Post-Higher Education Work stream",
+      "duration": {
+        "value": "Depends on the regional location studied and lived in",
+        "label": "official"
+      },
+      "conditions": "For eligible graduates who studied and lived in regional areas."
+    },
+    {
+      "name": "Employer-sponsored and skilled visas",
+      "duration": {
+        "value": "Depends on the visa",
+        "label": "official"
+      },
+      "conditions": "Separate visas with their own occupation, skills, English and sponsorship requirements. Permanent residence is never automatic after study."
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "Accommodation",
+      "text": "On-campus housing, purpose-built student accommodation, share houses and homestays. Book temporary accommodation before you arrive and never pay a bond before seeing a written lease."
+    },
+    {
+      "topic": "Transport",
+      "text": "Public transport is good in major cities. Student concession fares for international students differ by state."
+    },
+    {
+      "topic": "Climate",
+      "text": "Varies widely: tropical in the north, mild winters in Brisbane and Perth, cooler winters in Melbourne, Canberra and Hobart."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "OSHC covers doctor visits and hospital care up to the policy limits. Dental and optical care are usually extra."
+    },
+    {
+      "topic": "Safety",
+      "text": "Australia is generally safe. Learn beach and sun safety, keep emergency number 000, and report workplace underpayment."
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "Department of Home Affairs – Student visa (subclass 500)",
+      "url": "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500"
+    },
+    {
+      "label": "Study Australia (Australian Government)",
+      "url": "https://www.studyaustralia.gov.au/en"
+    },
+    {
+      "label": "CRICOS course and institution search",
+      "url": "https://cricos.education.gov.au/"
+    },
+    {
+      "label": "Australia Awards Nepal",
+      "url": "https://australiaawardsnepal.org/"
+    },
+    {
+      "label": "Fair Work Ombudsman – international students",
+      "url": "https://www.fairwork.gov.au/find-help-for/visa-holders-migrants"
+    }
+  ],
+  "sources": [
+    {
+      "label": "Study Australia – Student visa (subclass 500)",
+      "url": "https://www.studyaustralia.gov.au/en/plan-your-move/your-guide-to-visas/student-visa-subclass-500",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study Australia – Student visa changes: October 2026 update",
+      "url": "https://www.studyaustralia.gov.au/en/tools-and-resources/news/student-visa-changes-october-2026",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study Australia – Student Visa Application Charge increase (1 July 2026)",
+      "url": "https://www.studyaustralia.gov.au/en/Agent-Hub/agent-news-index/student-visa-application-charge-increase",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study Australia – Ministerial Direction 115",
+      "url": "https://www.studyaustralia.gov.au/en/Agent-Hub/agent-news-index/ministerial-direction-115",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study Australia – Temporary Graduate visa (subclass 485)",
+      "url": "https://www.studyaustralia.gov.au/en/plan-your-move/your-guide-to-visas/temporary-graduate-visa-subclass-485",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Home Affairs – Temporary Graduate visa (subclass 485)",
+      "url": "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/temporary-graduate-485",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Home Affairs – English language requirements",
+      "url": "https://immi.homeaffairs.gov.au/help-support/meeting-our-requirements/english-language",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

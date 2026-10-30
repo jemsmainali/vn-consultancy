@@ -1,48 +1,48 @@
-import ResponsiveImage from '../../ResponsiveImage'
-import { siteContent, siteContentReady, siteImages } from '../../data/siteContent'
+import { formatPhoneDisplay, siteContent, siteContentReady } from '../../data/siteContent'
 import EnquiryForm from './EnquiryForm'
-import SectionHeading from './SectionHeading'
+import ScrollReveal from '../../ScrollReveal'
 
 function ContactIcon({ kind }) {
   const paths = {
-    phone: <path d="M6 3.5 8.5 7 7 8.5c.8 1.6 2 2.8 3.6 3.6l1.5-1.5 3.5 2.5-.8 3c-.2.7-.9 1.1-1.6 1C7.8 16.2 3.8 12.2 3 6.8c-.1-.7.3-1.4 1-1.6z"/>,
-    mail: <><rect x="2.8" y="4.5" width="14.4" height="11" rx="1.3"/><path d="m3.5 5.5 6.5 5 6.5-5"/></>,
-    clock: <><circle cx="10" cy="10" r="7"/><path d="M10 6v4l2.8 1.8"/></>,
+    phone: <><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.96.35 1.9.69 2.8a2 2 0 0 1-.45 2.11L8.08 9.92a16 16 0 0 0 6 6l1.29-1.27a2 2 0 0 1 2.11-.45c.9.34 1.84.57 2.8.69A2 2 0 0 1 22 16.92Z"/></>,
+    mail: <><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></>,
+    whatsapp: <><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/><path d="M8.5 9.5c.6 2.5 2.5 4.4 5 5l1.2-1.2 2 .8c-.3 1.4-1.4 2.2-2.8 2-3.5-.5-6.5-3.5-7-7-.2-1.4.6-2.5 2-2.8l.8 2z"/></>,
+    arrow: <><path d="M7 17 17 7"/><path d="M7 7h10v10"/></>,
   }
-  return <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg>
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg>
 }
 
 export default function EnquirySection() {
-  const { phone, whatsappNumber, email, officeHours, whatsappMessage } = siteContent.contact
+  const { phone, whatsappNumber, email, whatsappMessage } = siteContent.contact
   const contactItems = [
-    siteContentReady(phone) && { kind: 'phone', label: 'Phone', value: phone, href: `tel:${phone}` },
-    siteContentReady(whatsappNumber) && { kind: 'phone', label: 'WhatsApp', value: 'WhatsApp', href: `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(siteContentReady(whatsappMessage) ? whatsappMessage : '')}` },
-    siteContentReady(email) && { kind: 'mail', label: 'Email', value: email, href: `mailto:${email}` },
-    siteContentReady(officeHours) && { kind: 'clock', label: 'Office hours', value: officeHours },
+    siteContentReady(phone) && { kind: 'phone', label: 'Call us', value: formatPhoneDisplay(phone), href: `tel:${phone}` },
+    siteContentReady(whatsappNumber) && { kind: 'whatsapp', label: 'WhatsApp', value: 'Chat on WhatsApp', href: `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(siteContentReady(whatsappMessage) ? whatsappMessage : '')}`, external: true },
+    siteContentReady(email) && { kind: 'mail', label: 'Email us', value: email, href: `mailto:${email}` },
   ].filter(Boolean)
 
-  return <section id="enquire" className="data-section enquiry-data-section">
+  return <section id="enquire" className="data-section enquiry-data-section" aria-labelledby="enquire-title">
     <div className="data-container enquiry-data-layout">
-      <div className="enquiry-intro-column">
-        <SectionHeading eyebrow="Free counselling" title="Tell us what you’re thinking about." centered={false} />
-        <p className="enquiry-data-intro">Share your contact details and a few study preferences to start an enquiry.</p>
-        <div className="enquiry-next-steps">
-          <h3>What happens next</h3>
-          <ol>
-            <li><span>1</span><p>Send your details</p></li>
-            <li><span>2</span><p>A VN Group counsellor contacts you</p></li>
-            <li><span>3</span><p>You get a clear, personal study plan</p></li>
-          </ol>
-        </div>
-        {contactItems.length > 0 && <address className="enquiry-contact-card" aria-label="Contact VN Group">
-          {contactItems.map((item) => <div className="enquiry-contact-item" key={item.label}>
-            <ContactIcon kind={item.kind} />
-            <span><small>{item.label}</small>{item.href ? <a href={item.href}>{item.value}</a> : <span>{item.value}</span>}</span>
-          </div>)}
+      <ScrollReveal className="enquiry-intro-column" direction="left">
+        <header className="enquiry-intro-heading">
+          <p className="enquiry-eyebrow">FREE COUNSELLING</p>
+          <h2 id="enquire-title">Book a free counselling session.</h2>
+        </header>
+        <p className="enquiry-data-intro">Fill in the form and a VN Group counsellor will get in touch about your study plans.</p>
+        {contactItems.length > 0 && <div className="enquiry-contact-divider" aria-hidden="true" />}
+        {contactItems.length > 0 && <address className="enquiry-contact-block" aria-label="Contact VN Group">
+          <h3>Prefer to talk directly?</h3>
+          <ul className="enquiry-contact-list">
+            {contactItems.map((item) => <li key={item.label}>
+              <a className={`enquiry-contact-link${item.kind === 'whatsapp' ? ' is-whatsapp' : ''}`} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener noreferrer' : undefined}>
+                <span className="enquiry-contact-icon"><ContactIcon kind={item.kind} /></span>
+                <span className="enquiry-contact-copy"><small>{item.label}</small><strong>{item.value}</strong></span>
+                <span className="enquiry-contact-arrow"><ContactIcon kind="arrow" /></span>
+              </a>
+            </li>)}
+          </ul>
         </address>}
-        {siteImages.counselling && <div className="enquiry-counselling-photo"><ResponsiveImage image={siteImages.counselling} className="enquiry-counselling-image" /></div>}
-      </div>
-      <div className="enquiry-data-card"><div className="enquiry-card-accent" aria-hidden="true" /><EnquiryForm /></div>
+      </ScrollReveal>
+      <ScrollReveal className="enquiry-data-card" direction="right" delay={100}><div className="enquiry-card-accent" aria-hidden="true" /><EnquiryForm /></ScrollReveal>
     </div>
   </section>
 }

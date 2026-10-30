@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, Form, File, UploadFile, Query
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, delete, func
@@ -13,6 +14,7 @@ from jose import JWTError
 from pydantic import ValidationError
 
 from app.core.config import settings
+from app.core.bank_data import encrypt_bank_account_number
 from app.core.database import get_db
 from app.core.otp import generate_otp, hash_otp, send_otp_email, send_plain_email, send_password_reset_email
 from app.core.security import (
@@ -25,10 +27,11 @@ from app.core.security import (
 from app.models.user import User, UserRole
 from app.models.otp import EmailOTP
 from app.models.audit import AuditLog
+from app.models.bank_details import UserBankDetails
 from app.schemas.user import (
     UserCreate, UserUpdate, UserOut, UserLogin, StaffOut, PendingUserOut,
     StaffUserOut, UserListPage,
-    VerifyEmailRequest, VerifyEmailResponse, ResendRequest,
+    VerifyEmailRequest, VerifyEmailResponse, ResendRequest, ROLES_REQUIRING_BANK_DETAILS,
     ForgotPasswordRequest, ResetPasswordRequest,
 )
 from app.schemas.token import TokenPair
@@ -137,6 +140,8 @@ async def register(
     parent_name: str | None = Form(None),
     parent_phone: str | None = Form(None),
     parent_email: str | None = Form(None),
+    bank_name: str | None = Form(None),
+    bank_account_number: str | None = Form(None),
     terms_accepted: bool = Form(...),
     photo: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
@@ -159,10 +164,13 @@ async def register(
             parent_name=parent_name,
             parent_phone=parent_phone,
             parent_email=parent_email or None,
+            bank_name=bank_name,
+            bank_account_number=bank_account_number,
             terms_accepted=terms_accepted,
         )
     except ValidationError as e:
-        raise HTTPException(422, e.errors())
+        # Custom validators put the raw ValueError in ctx; encode it like main.py's handler or this becomes a 500.
+        raise HTTPException(422, jsonable_encoder(e.errors(include_input=False)))
 
     if payload.role in (UserRole.consultancy_staff, UserRole.principal):
         expected = (
@@ -183,6 +191,18 @@ async def register(
     existing_nid = await db.execute(select(User).where(User.national_id == payload.national_id))
     if existing_nid.scalar_one_or_none():
         raise HTTPException(400, "This National ID is already registered")
+
+    bank_values = None
+    if settings.REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS and payload.role in ROLES_REQUIRING_BANK_DETAILS:
+        try:
+            encrypted_account_number = encrypt_bank_account_number(payload.bank_account_number)
+        except ValueError:
+            raise HTTPException(503, "Bank details registration is temporarily unavailable.") from None
+        bank_values = {
+            "bank_name": payload.bank_name,
+            "account_number_encrypted": encrypted_account_number,
+            "account_last4": payload.bank_account_number[-4:],
+        }
 
     saved = await validate_and_save_upload(photo, subfolder="profile_photos", allowed_mimes=PROFILE_PHOTO_MIMES)
 
@@ -208,6 +228,9 @@ async def register(
         is_approved=payload.role not in ROLES_NEEDING_APPROVAL,
     )
     db.add(user)
+    if bank_values:
+        await db.flush()
+        db.add(UserBankDetails(user_id=user.id, **bank_values))
     await db.commit()
     await db.refresh(user)
 

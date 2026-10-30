@@ -1,0 +1,290 @@
+{
+  "slug": "south-korea",
+  "name": "South Korea",
+  "currency": "KRW",
+  "lastVerified": "2026-10-30",
+  "nprConversion": {
+    "rate": 0.1142,
+    "date": "2026-10-30"
+  },
+  "overview": {
+    "summary": "South Korea offers degree programmes and Korean-language programmes at universities, with government GKS scholarships for a small number of Nepali applicants each year. Work rights depend on your programme, your TOPIK level and your university’s status.",
+    "educationSystem": "Four-year bachelor’s degrees, two-year master’s and doctoral programmes, plus university-run Korean language institutes. Many degree programmes are taught in Korean; English-taught options are more common at graduate level."
+  },
+  "courses": [
+    {
+      "level": "Korean language programme (D-4)",
+      "typicalDuration": {
+        "value": "Terms run quarterly; length varies by student",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Bachelor’s degree",
+      "typicalDuration": {
+        "value": "4 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master’s degree",
+      "typicalDuration": {
+        "value": "Usually 2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    }
+  ],
+  "universities": {
+    "institutions": [],
+    "intakes": [
+      "March and September (language programmes run quarterly)"
+    ],
+    "applicationTimeline": [
+      "Spring (March) applications usually close between October and December.",
+      "Autumn (September) applications usually close between April and June.",
+      "Book an online appointment with the embassy for the visa."
+    ]
+  },
+  "tuition": [
+    {
+      "level": "Korean language programme (4 terms)",
+      "annualFee": {
+        "min": 5000000,
+        "max": 7000000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Bachelor’s – national university",
+      "annualFee": {
+        "min": 4000000,
+        "max": 6000000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Bachelor’s – private university",
+      "annualFee": {
+        "min": 7000000,
+        "max": 12000000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Master’s degree",
+      "annualFee": {
+        "min": 5000000,
+        "max": 14000000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "Typical student city (major cities cost more)",
+      "accommodation": {
+        "min": 250000,
+        "max": 700000,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 300000,
+        "max": 450000,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 60000,
+        "max": 100000,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 30000,
+        "max": 60000,
+        "label": "estimate"
+      },
+      "personal": {
+        "min": 150000,
+        "max": 250000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "Global Korea Scholarship (GKS) – Embassy track",
+      "provider": "Korean Government (NIIED)",
+      "coverage": {
+        "value": "Tuition, airfare, monthly living allowance and one year of Korean language study",
+        "label": "official"
+      },
+      "eligibility": "Nepali citizens selected through the Embassy of Korea in Nepal; very few places (for example 2 undergraduate places for 2026 and 4 graduate places in recent rounds)",
+      "deadline": "Graduate round usually early in the year; undergraduate round in the autumn",
+      "url": "https://www.studyinkorea.go.kr/"
+    },
+    {
+      "name": "GKS – University track",
+      "provider": "Korean Government through universities",
+      "coverage": {
+        "value": "Same benefits as the embassy track",
+        "label": "official"
+      },
+      "eligibility": "Apply through participating universities",
+      "deadline": "University deadlines",
+      "url": "https://www.studyinkorea.go.kr/"
+    },
+    {
+      "name": "University tuition reductions",
+      "provider": "Universities",
+      "coverage": {
+        "value": "30–100% tuition reductions, often linked to TOPIK level or grades",
+        "label": "institution-specific"
+      },
+      "eligibility": "Varies",
+      "deadline": "With admission and each semester",
+      "url": "https://www.studyinkorea.go.kr/"
+    }
+  ],
+  "studentVisa": {
+    "category": "D-2 student visa / D-4 language trainee visa",
+    "process": [
+      "Receive the certificate of admission.",
+      "Prepare verified academic documents and financial evidence.",
+      "Book an online appointment with the embassy.",
+      "Submit originals and copies as required.",
+      "Register for an alien registration card after arrival."
+    ],
+    "financialEvidence": {
+      "requirement": "You must show a bank balance certificate and recent statements covering your study costs. The Embassy of Korea in Nepal asks for statements from an “A level” bank and original documents. The minimum amount varies by programme and university; confirm it with the embassy and your university before applying.",
+      "amount": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "insurance": {
+      "requirement": "International students generally must join National Health Insurance.",
+      "annualCost": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "documents": [
+      "Passport",
+      "Certificate of admission",
+      "Verified academic certificates",
+      "TOPIK or IELTS score report",
+      "Balance certificate and 6 months of bank statements",
+      "Sponsor documents and relationship proof",
+      "Invitation letter and letter of guarantee where requested",
+      "NOC from Nepal’s Ministry of Education"
+    ],
+    "processingEstimate": {
+      "value": "Processing times vary by season; contact the embassy visa section for current timelines.",
+      "label": "TODO"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "Depends on degree level, TOPIK score and university status; permission is required. Check the current rule with the official source before relying on this.",
+      "label": "TODO"
+    },
+    "duringBreaks": {
+      "value": "Depends on your programme and permission. Check the current rule with the official source before relying on this.",
+      "label": "TODO"
+    },
+    "conditions": [
+      "Part-time work needs prior permission from the immigration office.",
+      "Allowed hours depend on your degree level, TOPIK score and the university’s certification status (for example up to 25 weekday hours for some undergraduates with TOPIK 3 at certified universities, less in other cases). Check the current rule with the official source before relying on this.",
+      "Language-programme (D-4) students generally have tighter limits. Check the current rule with the official source before relying on this.",
+      "Unauthorised work can lead to fines and deportation. Part-time income is limited and should not be used to plan tuition."
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "D-10 job-seeker visa",
+      "duration": {
+        "value": "Usually granted in 6-month periods; recent reforms reportedly allow up to 1 year for qualifying graduates",
+        "label": "TODO"
+      },
+      "conditions": "For graduates actively looking for work. Paid work is generally not allowed on D-10 except approved internships. Check the current rule with the official source before relying on this."
+    },
+    {
+      "name": "E-7 specific activities visa",
+      "duration": {
+        "value": "Depends on contract",
+        "label": "official"
+      },
+      "conditions": "Requires a job offer in an eligible professional occupation."
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "Accommodation",
+      "text": "University dormitories are affordable. Private one-room apartments often need a large key deposit."
+    },
+    {
+      "topic": "Transport",
+      "text": "Fast, cheap subways, buses and high-speed trains."
+    },
+    {
+      "topic": "Climate",
+      "text": "Four distinct seasons: hot, humid summers and cold, dry winters."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "International students generally must join National Health Insurance."
+    },
+    {
+      "topic": "Safety",
+      "text": "Very safe cities. Learn basic Korean for daily life and work."
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "Study in Korea (NIIED)",
+      "url": "https://www.studyinkorea.go.kr/"
+    },
+    {
+      "label": "HiKorea – immigration services",
+      "url": "https://www.hikorea.go.kr/"
+    },
+    {
+      "label": "Korea Visa Portal",
+      "url": "https://www.visa.go.kr/"
+    },
+    {
+      "label": "Embassy of the Republic of Korea in Nepal",
+      "url": "https://overseas.mofa.go.kr/np-en/index.do"
+    },
+    {
+      "label": "TOPIK (Test of Proficiency in Korean)",
+      "url": "https://www.topik.go.kr/"
+    }
+  ],
+  "sources": [
+    {
+      "label": "Embassy of Korea in Nepal – Visa issuance",
+      "url": "https://overseas.mofa.go.kr/np-en/wpge/m_1714/contents.do",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Embassy of Korea in Nepal – Important announcement for visa applications",
+      "url": "https://overseas.mofa.go.kr/np-en/brd/m_25533/view.do?seq=112",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Embassy of Korea in Nepal – 2026 GKS undergraduate notice",
+      "url": "https://overseas.mofa.go.kr/np-en/brd/m_25533/view.do?seq=145",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study in Korea – Employment system for international students",
+      "url": "https://www.studyinkorea.go.kr/fr/work/aboutForeignerEmploymentSystem.do",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

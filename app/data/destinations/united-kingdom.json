@@ -1,0 +1,320 @@
+{
+  "slug": "united-kingdom",
+  "name": "United Kingdom",
+  "currency": "GBP",
+  "lastVerified": "2026-10-30",
+  "nprConversion": {
+    "rate": 203.32,
+    "date": "2026-10-30"
+  },
+  "overview": {
+    "summary": "UK degrees are shorter than in many countries: most bachelor’s degrees in England take three years and taught master’s degrees usually take one year. The Graduate visa period is being reduced for applications made from 2027.",
+    "educationSystem": "Universities offer bachelor’s degrees (3 years in England, Wales and Northern Ireland; usually 4 in Scotland), one-year taught master’s degrees and research degrees. Foundation and pathway programmes help students who do not meet direct entry requirements. To study on a Student visa you need a Confirmation of Acceptance for Studies (CAS) from a licensed student sponsor."
+  },
+  "courses": [
+    {
+      "level": "Foundation / pathway year",
+      "typicalDuration": {
+        "value": "1 year",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Bachelor’s degree",
+      "typicalDuration": {
+        "value": "3 years in England, Wales and Northern Ireland; usually 4 in Scotland",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Taught master’s",
+      "typicalDuration": {
+        "value": "1 year",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    }
+  ],
+  "universities": {
+    "institutions": [],
+    "intakes": [
+      "September/October, with some January starts"
+    ],
+    "applicationTimeline": [
+      "Apply through UCAS (undergraduate) or directly to universities (postgraduate).",
+      "Pay the deposit and complete credibility interviews if requested.",
+      "Receive the CAS.",
+      "Apply for the visa up to 6 months before your course starts."
+    ]
+  },
+  "tuition": [
+    {
+      "level": "Foundation / pathway year",
+      "annualFee": {
+        "min": 12000,
+        "max": 22000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Bachelor’s degree (per year)",
+      "annualFee": {
+        "min": 15000,
+        "max": 30000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Taught master’s (one year)",
+      "annualFee": {
+        "min": 15000,
+        "max": 35000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Medicine and clinical degrees (per year)",
+      "annualFee": {
+        "min": 35000,
+        "max": 60000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "Typical student city (major cities cost more)",
+      "accommodation": {
+        "min": 600,
+        "max": 1300,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 200,
+        "max": 350,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 60,
+        "max": 180,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 50,
+        "max": 120,
+        "label": "estimate"
+      },
+      "personal": {
+        "min": 100,
+        "max": 200,
+        "label": "estimate"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "Chevening Scholarships",
+      "provider": "UK Government (FCDO)",
+      "coverage": {
+        "value": "Tuition, monthly stipend, travel and visa costs for a one-year master’s",
+        "label": "official"
+      },
+      "eligibility": "Citizens of Chevening-eligible countries including Nepal, with work experience and a commitment to return home for at least two years",
+      "deadline": "Applications usually open in August and close in October/November",
+      "url": "https://www.chevening.org/scholarship/nepal/"
+    },
+    {
+      "name": "GREAT Scholarships",
+      "provider": "British Council with UK universities",
+      "coverage": {
+        "value": "At least £10,000 towards tuition for a one-year postgraduate course",
+        "label": "TODO"
+      },
+      "eligibility": "Citizens of eligible countries; Nepal’s eligibility and participating universities change each year. Check the current rule with the official source before relying on this.",
+      "deadline": "Usually announced late in the year for the following September",
+      "url": "https://study-uk.britishcouncil.org/scholarships/great-scholarships"
+    },
+    {
+      "name": "University international scholarships",
+      "provider": "Individual universities",
+      "coverage": {
+        "value": "Commonly £1,000–£5,000 or a percentage of tuition",
+        "label": "institution-specific"
+      },
+      "eligibility": "Based on grades and sometimes automatic",
+      "deadline": "With or after admission",
+      "url": "https://study-uk.britishcouncil.org/scholarships-funding"
+    }
+  ],
+  "studentVisa": {
+    "category": "Student visa",
+    "process": [
+      "Receive your CAS from a licensed student sponsor.",
+      "Take a TB test at an approved clinic.",
+      "Make sure funds meet the 28-day rule.",
+      "Apply online and pay the fee and Immigration Health Surcharge.",
+      "Give biometrics and submit documents.",
+      "Receive a decision, usually within 3 weeks from outside the UK."
+    ],
+    "financialEvidence": {
+      "requirement": "Unless exempt, you must show living costs of £1,529 per month for courses in London or £1,171 per month elsewhere, for up to 9 months, plus any unpaid first-year tuition. The money must have been held for 28 consecutive days.",
+      "amount": {
+        "min": 13761,
+        "max": 13761,
+        "label": "official"
+      }
+    },
+    "insurance": {
+      "requirement": "The Immigration Health Surcharge, paid with the visa application, gives access to the NHS.",
+      "annualCost": {
+        "min": 776,
+        "max": 776,
+        "label": "official"
+      }
+    },
+    "documents": [
+      "Passport",
+      "CAS number from your university",
+      "Academic transcripts and certificates",
+      "English evidence",
+      "Bank statements meeting the 28-day rule",
+      "Tuberculosis test certificate (required for applicants from Nepal)",
+      "ATAS certificate for some science and engineering postgraduate courses",
+      "NOC from Nepal’s Ministry of Education"
+    ],
+    "processingEstimate": {
+      "value": "GOV.UK says you will usually get a decision within 3 weeks when applying from outside the UK. Priority services may be available for an extra fee.",
+      "label": "official"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "Up to 20 hours a week in term-time at degree level (10 hours below degree level)",
+      "label": "official"
+    },
+    "duringBreaks": {
+      "value": "Full-time outside official term-time",
+      "label": "official"
+    },
+    "conditions": [
+      "Up to 20 hours per week during term-time for degree-level study.",
+      "Up to 10 hours per week during term-time below degree level.",
+      "Full-time work is allowed outside official term-time (vacations).",
+      "You cannot be self-employed, work as a professional sportsperson or fill a permanent full-time role.",
+      "Part-time work is not guaranteed and should not be used to plan tuition payments. The 20-hour limit applies to each week, not as an average."
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "Graduate visa",
+      "duration": {
+        "value": "2 years if you apply on or before 31 December 2026; 18 months if you apply on or after 1 January 2027; 3 years for PhD graduates",
+        "label": "official"
+      },
+      "conditions": "Successfully complete an eligible UK degree while on a Student visa and apply from inside the UK. Fee £937 plus the Immigration Health Surcharge (£1,035 per year). No job offer is needed."
+    },
+    {
+      "name": "Skilled Worker visa",
+      "duration": {
+        "value": "Up to 5 years, renewable",
+        "label": "official"
+      },
+      "conditions": "Requires a job offer from a licensed sponsor at the required skill level and salary. Thresholds have risen in recent years."
+    },
+    {
+      "name": "Settlement",
+      "duration": {
+        "value": "—",
+        "label": "official"
+      },
+      "conditions": "Not automatic after study. Time on the Graduate visa does not by itself lead to settlement."
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "Accommodation",
+      "text": "University halls are popular for the first year; later, most students rent shared houses. Contracts often run 44–51 weeks."
+    },
+    {
+      "topic": "Transport",
+      "text": "Good buses and trains. Student railcards and city bus passes reduce costs."
+    },
+    {
+      "topic": "Climate",
+      "text": "Mild and wet. Winters are dark and cool rather than extremely cold."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Paying the Immigration Health Surcharge gives access to the NHS. Register with a local GP when you arrive."
+    },
+    {
+      "topic": "Safety",
+      "text": "Generally safe. Use licensed taxis late at night and keep your BRP/eVisa details secure."
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "GOV.UK – Student visa",
+      "url": "https://www.gov.uk/student-visa"
+    },
+    {
+      "label": "GOV.UK – Graduate visa",
+      "url": "https://www.gov.uk/graduate-visa"
+    },
+    {
+      "label": "UKCISA – advice for international students",
+      "url": "https://www.ukcisa.org.uk/"
+    },
+    {
+      "label": "Study UK (British Council)",
+      "url": "https://study-uk.britishcouncil.org/"
+    },
+    {
+      "label": "UCAS – undergraduate applications",
+      "url": "https://www.ucas.com/"
+    },
+    {
+      "label": "Chevening – Nepal",
+      "url": "https://www.chevening.org/scholarship/nepal/"
+    }
+  ],
+  "sources": [
+    {
+      "label": "GOV.UK – Student visa: money",
+      "url": "https://www.gov.uk/student-visa/money",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "GOV.UK – Student visa: knowledge of English",
+      "url": "https://www.gov.uk/student-visa/knowledge-of-english",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "GOV.UK – Immigration Rules Appendix Student (work limits)",
+      "url": "https://www.gov.uk/guidance/immigration-rules/immigration-rules-appendix-student",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "GOV.UK – Graduate visa",
+      "url": "https://www.gov.uk/graduate-visa",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "GOV.UK – Student visa: family members",
+      "url": "https://www.gov.uk/student-visa/family-members",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "GOV.UK – Countries where you need a TB test",
+      "url": "https://www.gov.uk/tb-test-visa/countries-where-you-need-a-tb-test-to-enter-the-uk",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "GOV.UK – Immigration Health Surcharge",
+      "url": "https://www.gov.uk/healthcare-immigration-application/how-much-pay",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

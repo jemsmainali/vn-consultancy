@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { API_BASE, api } from '../api'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
+import ListSkeleton from '../components/ui/ListSkeleton'
+import { Btn, Icon, PageHeader, StatusBadge } from '../ui'
 
 const categories = [
   ['student-life', 'Student life'], ['counselling', 'Counselling'], ['events', 'Events'],
@@ -13,6 +16,7 @@ export default function GalleryAdmin() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [removeTarget, setRemoveTarget] = useState(null)
   const [form, setForm] = useState({ caption: '', alt_text: '', category: 'student-life', position: '0', published: false, publication_authorized: false })
   const [file, setFile] = useState(null)
   const fileInput = useRef(null)
@@ -65,7 +69,6 @@ export default function GalleryAdmin() {
     } catch (err) { setError(err.message || 'The gallery item could not be updated.') }
   }
   const removeItem = async (item) => {
-    if (!window.confirm(`Remove “${item.caption}” from the gallery? This also deletes its stored image.`)) return
     setError(''); setNotice('')
     try {
       await api(`/gallery/${item.id}`, { method: 'DELETE' })
@@ -75,7 +78,8 @@ export default function GalleryAdmin() {
   }
 
   return <div className="gallery-admin">
-    <header className="gallery-admin-heading"><div><p className="gallery-admin-eyebrow">Website content</p><h1>Gallery management</h1><p>Upload and manage images shown in the public homepage gallery. Only VN Group staff can access these controls.</p></div><button type="button" className="gallery-admin-refresh" onClick={load} disabled={loading}>Refresh list</button></header>
+    <ConfirmDialog open={Boolean(removeTarget)} title="Remove this gallery image?" message={`${removeTarget?.caption || ''} will be removed along with its stored image.`} confirmLabel="Remove image" danger onCancel={() => setRemoveTarget(null)} onConfirm={async () => { await removeItem(removeTarget); setRemoveTarget(null) }} />
+    <PageHeader eyebrow="Website content" title="Gallery management" description="Upload and manage images shown in the public homepage gallery. Only VN Group staff can access these controls." actions={<Btn type="button" variant="secondary" onClick={load} disabled={loading}><Icon name="refresh" />Refresh list</Btn>} />
     <p className="gallery-admin-caution">Publish only images VN Group owns or has permission to use. Confirm consent before publishing identifiable students. Do not upload passports, application documents, personal contact information, or private student records.</p>
     {error && <p className="gallery-admin-error" role="alert">{error}</p>}
     {notice && <p className="gallery-admin-success" role="status">{notice}</p>}
@@ -92,19 +96,22 @@ export default function GalleryAdmin() {
       </form>
     </section>
     <section className="gallery-admin-list"><div className="gallery-admin-list-head"><h2>Gallery items</h2><span>{items.length} item{items.length === 1 ? '' : 's'}</span></div>
-      {loading && <p role="status">Loading gallery items…</p>}
+      {loading && <ListSkeleton label="Loading gallery items" />}
       {!loading && !items.length && <p className="gallery-admin-empty">No staff gallery uploads yet. The public homepage currently uses labeled illustrative placeholders.</p>}
       <div className="gallery-admin-items">{items.map((item) => {
         const draft = drafts[item.id] || item
         return <article className="gallery-admin-item" key={item.id}>
-          <img src={`${API_BASE}${item.image_url}`} alt="" width="240" height="160" />
+          <div className="gallery-admin-thumb">
+            <img src={`${API_BASE}${item.image_url}`} alt="" width="240" height="160" loading="lazy" />
+            <StatusBadge tone={item.published ? 'success' : 'neutral'}>{item.published ? 'Published' : 'Draft'}</StatusBadge>
+          </div>
           <div className="gallery-admin-edit">
             <label>Caption<input maxLength="180" value={draft.caption} onChange={(e) => updateDraft(item.id, 'caption', e.target.value)} /></label>
             <label>Alternative text<input maxLength="240" value={draft.alt_text} onChange={(e) => updateDraft(item.id, 'alt_text', e.target.value)} /></label>
             <div className="gallery-admin-edit-row"><label>Category<select value={draft.category} onChange={(e) => updateDraft(item.id, 'category', e.target.value)}>{categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Order<input type="number" min="0" max="10000" value={draft.position} onChange={(e) => updateDraft(item.id, 'position', e.target.value)} /></label></div>
             <label className="gallery-admin-check"><input type="checkbox" checked={Boolean(draft.published)} onChange={(e) => updateDraft(item.id, 'published', e.target.checked)} /> Published on website</label>
             <label className="gallery-admin-check"><input type="checkbox" checked={Boolean(draft.publication_authorized)} onChange={(e) => updateDraft(item.id, 'publication_authorized', e.target.checked)} /> Image rights and consent confirmed</label>
-            <div className="gallery-admin-item-actions"><button type="button" onClick={() => saveItem(item.id)}>Save changes</button><button type="button" className="gallery-admin-danger" onClick={() => removeItem(item)}>Delete</button></div>
+            <div className="gallery-admin-item-actions"><button type="button" onClick={() => saveItem(item.id)}>Save changes</button><button type="button" className="gallery-admin-danger" onClick={() => setRemoveTarget(item)}>Delete</button></div>
           </div>
         </article>
       })}</div>

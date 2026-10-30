@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api'
 import { AuthCard, Input, Btn, Err } from '../ui'
+import PasswordInput from '../components/ui/PasswordInput'
 
 export default function ResetPassword() {
   const [params] = useSearchParams()
@@ -44,8 +45,8 @@ export default function ResetPassword() {
           required inputMode="numeric" pattern="\d{6}" maxLength={6} placeholder="6-digit code"
           value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
         />
-        <Input type="password" required minLength={8} placeholder="New password (8+ characters)" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-        <Input type="password" required minLength={8} placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        <PasswordInput autoComplete="new-password" required minLength={8} placeholder="New password (8+ characters)" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+        <PasswordInput autoComplete="new-password" required minLength={8} placeholder="Confirm new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
         <Btn className="w-full" disabled={busy || code.length !== 6}>{busy ? 'Resetting...' : 'Reset password'}</Btn>
       </form>
       <p className="mt-4 text-center text-sm text-navy/70">

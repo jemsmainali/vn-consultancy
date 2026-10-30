@@ -4,20 +4,31 @@ import { useAuth } from './auth'
 import CeoMessage from './CeoMessage'
 import ScrollReveal from './ScrollReveal'
 import ResponsiveImage from './ResponsiveImage'
-import { siteContent, siteContentReady, siteImages } from './data/siteContent'
+import { siteContent, siteContentReady, siteImages, yearsOfExperience } from './data/siteContent'
+import { destinationBySlug, destinationPath, destinations } from './data/destinations/registry'
+import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
 import LegalPage from './components/layout/LegalPage'
 import EnquirySection from './components/home/EnquirySection'
 import FAQ from './components/home/FAQ'
-import DestinationCards from './components/home/DestinationCards'
 
 const observedSectionIds = ['destinations', 'process', 'services', 'stories', 'enquire', 'faq']
+const foundedYear = siteContent.brand.foundedYear
+const yearsExperience = yearsOfExperience()
+// Destination detail pages get their title from the registry; everything else is listed here.
+const metadataFor = (pathname) => {
+  const destination = pathname.startsWith('/destinations/') && destinationBySlug(pathname.split('/')[2])
+  if (destination) return [`Study in ${destination.name} from Nepal | VN Group`, `${destination.name}: costs in local currency and NPR, admission, scholarships, student visa, work rights and post-study options, with official sources.`]
+  return pageMetadata[pathname]
+}
+
 const pageMetadata = {
-  '/': ['Study Abroad Guidance for Nepali Students | VN Group', 'Expert guidance for students and families in Nepal pursuing world-class education. Explore your options and plan your next steps with VN Group.'],
+  '/': [`${yearsExperience}+ Years of Study Abroad Guidance | VN Group`, `${yearsExperience}+ years of study abroad guidance for students in Nepal. Explore study options and plan your next steps with VN Group.`],
   '/about': ['Leadership & Vision | VN Group', 'A message from VN Group leadership to students in Nepal exploring international education.'],
-  '/destinations': ['Study Destinations | VN Group', 'Explore destination research starting points and confirm changing requirements with official institution and government sources.'],
-  '/journey': ['The Student Journey | VN Group', 'See how enquiry, account, document, and staff messaging workflows work in the VN Group portal.'],
-  '/faqs': ['Study Abroad Questions | VN Group', 'Answers about enquiries, student accounts, documents, and checking official study requirements.'],
+  '/destinations': ['Study Destinations for Nepali Students | VN Group', 'Compare costs, visas, work rights and post-study options in 10 study destinations, with official sources and dated exchange rates.'],
+  '/journey': ['How It Works – The Student Journey | VN Group', 'Eleven stages from free counselling to arrival abroad: what you do, how VN Group helps, documents needed and what affects the timeline.'],
+  '/faqs': ['Study Abroad FAQs for Nepali Students | VN Group', 'Searchable answers on eligibility, English tests, costs, visas, part-time work and post-study options.'],
+  '/gallery': ['Gallery | VN Group', 'Visa success stories, student departures and partner visits from VN Group Study Abroad in Kathmandu.'],
   '/contact': ['Contact VN Group | Student Enquiry', 'Send a study enquiry to VN Group. Your message is saved before a confirmation is shown.'],
   '/privacy': ['Privacy Policy | VN Group', 'Privacy policy information for VN Group Study Abroad.'],
   '/terms': ['Terms | VN Group', 'Terms information for VN Group Study Abroad.'],
@@ -46,11 +57,12 @@ export function PublicLayout() {
   const dropdownRefs = useRef({})
   const triggerRefs = useRef({})
   const menuButtonRef = useRef(null)
+  const navRef = useRef(null)
   const hoverTimers = useRef({})
   const dropdownGroups = [
     { id: 'about', label: 'About', items: siteContent.navigation.about },
     { id: 'services', label: 'Services', items: siteContent.navigation.services, icon: true },
-    { id: 'destinations', label: 'Destinations', items: siteContent.home.countries.map(({ name, flag }) => ({ label: name, flag, to: '/destinations' })), destination: true },
+    { id: 'destinations', label: 'Destinations', items: destinations.map((item) => ({ label: item.name, code: item.code, to: destinationPath(item) })), destination: true },
     { id: 'resources', label: 'Resources', items: siteContent.navigation.resources },
   ]
   const closeMenu = () => { setMenuOpen(false); setOpenDropdown('') }
@@ -81,12 +93,36 @@ export function PublicLayout() {
   }, [])
 
   useEffect(() => {
-    const [title, description] = pageMetadata[location.pathname] || ['Page not found | VN Group', 'This VN Group page is not available. Return to the homepage to continue.']
+    const [title, description] = metadataFor(location.pathname) || ['Page not found | VN Group', 'This VN Group page is not available. Return to the homepage to continue.']
     document.title = title
     document.querySelector('meta[name="description"]')?.setAttribute('content', description)
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title)
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', description)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!isHome) return undefined
+    const contact = siteContent.contact
+    const socials = contact.socials
+      .filter((item) => siteContentReady(item.label) && siteContentReady(item.url))
+      .map((item) => item.url)
+    const organization = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: siteContent.brand.name,
+      url: window.location.origin,
+      logo: new URL(siteContent.brand.logo.src, window.location.origin).href,
+      ...(Number.isFinite(foundedYear) ? { foundingDate: String(foundedYear) } : {}),
+      ...(siteContentReady(contact.address) ? { address: { '@type': 'PostalAddress', streetAddress: contact.address } } : {}),
+      ...(socials.length ? { sameAs: socials } : {}),
+    }
+    const script = document.createElement('script')
+    script.id = 'vn-group-organization-jsonld'
+    script.type = 'application/ld+json'
+    script.textContent = JSON.stringify(organization)
+    document.head.append(script)
+    return () => script.remove()
+  }, [isHome])
 
   useEffect(() => {
     if (!location.hash) return undefined
@@ -140,14 +176,34 @@ export function PublicLayout() {
     if (!menuOpen || window.innerWidth >= 1024) return undefined
     const oldOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = oldOverflow }
+    const focusable = () => [...(navRef.current?.querySelectorAll('a[href], button:not([disabled])') || [])]
+      .filter((element) => element.getClientRects().length)
+    requestAnimationFrame(() => focusable()[0]?.focus())
+    const onTab = (event) => {
+      if (event.key !== 'Tab') return
+      const items = focusable()
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && (document.activeElement === first || !navRef.current?.contains(document.activeElement))) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && (document.activeElement === last || !navRef.current?.contains(document.activeElement))) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onTab)
+    return () => {
+      document.body.style.overflow = oldOverflow
+      document.removeEventListener('keydown', onTab)
+    }
   }, [menuOpen])
 
   useEffect(() => () => Object.values(hoverTimers.current).forEach(window.clearTimeout), [])
 
   return (
     <div className="public-site">
-      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className={`site-header${isScrolled ? ' is-scrolled' : ''}`}>
         <div className="site-header-inner">
           <Link className="brand" to="/" aria-label="VN Group home" onClick={closeMenu}>
@@ -157,20 +213,20 @@ export function PublicLayout() {
             <span className="sr-only">{menuOpen ? 'Close' : 'Open'} navigation menu</span>
             <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
           </button>
-          <nav id="site-navigation" className={`site-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
+          <nav ref={navRef} id="site-navigation" className={`site-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             {dropdownGroups.map((group) => {
               const isOpen = openDropdown === group.id
-              const isActive = group.id === 'about' ? location.pathname === '/about' : group.id === 'destinations' ? location.pathname === '/destinations' : group.id === 'resources' ? ['/journey', '/faqs'].includes(location.pathname) : location.hash.startsWith('#service-') || activeSection === 'services'
+              const isActive = group.id === 'about' ? location.pathname === '/about' : group.id === 'destinations' ? location.pathname.startsWith('/destinations') : group.id === 'resources' ? ['/journey', '/faqs', '/gallery'].includes(location.pathname) : location.hash.startsWith('#service-') || activeSection === 'services'
               return <div key={group.id} ref={(node) => { dropdownRefs.current[group.id] = node }} className={`about-nav${group.destination ? ' destinations-nav' : ''}${group.id === 'resources' ? ' resources-nav' : ''}${isOpen ? ' is-open' : ''}${isActive ? ' has-active-route' : ''}`} onMouseEnter={() => window.matchMedia('(min-width: 1024px)').matches && scheduleDropdown(group.id, 120, () => setOpenDropdown(group.id))} onMouseLeave={() => window.matchMedia('(min-width: 1024px)').matches && scheduleDropdown(group.id, 150, () => setOpenDropdown((value) => value === group.id ? '' : value))}>
                 <button ref={(node) => { triggerRefs.current[group.id] = node }} type="button" className="about-trigger" aria-expanded={isOpen} aria-controls={`${group.id}-subnav`} onClick={() => setOpenDropdown((value) => value === group.id ? '' : group.id)}>
                   {group.label}<svg className="about-chevron" aria-hidden="true" viewBox="0 0 20 20"><path d="m5 7.5 5 5 5-5" /></svg>
                 </button>
-                <div id={`${group.id}-subnav`} className={`about-dropdown${group.destination ? ' destinations-dropdown' : ''}${group.id === 'services' ? ' services-dropdown' : ''}`} aria-label={group.label}>
+                <div id={`${group.id}-subnav`} className={`about-dropdown${group.destination ? ' destinations-dropdown' : ''}${group.id === 'services' ? ' services-dropdown' : ''}`} aria-label={group.label} aria-hidden={!isOpen}>
                   <ul>
                     {group.items.map((item) => <li key={item.label}>
                       <Link to={linkTo(item.to)} onClick={closeMenu}>
                         {group.icon && <NavIcon name={item.icon} />}
-                        {group.destination && <span className="destination-flag" aria-hidden="true">{item.flag}</span>}
+                        {group.destination && <CountryFlag code={item.code} name={item.label} size={20} />}
                         <span className="about-menu-copy"><strong>{item.label}</strong>{item.detail && <small>{item.detail}</small>}</span>
                       </Link>
                     </li>)}
@@ -181,13 +237,13 @@ export function PublicLayout() {
             })}
             <a href={isHome ? '#enquire' : '/#enquire'} onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</a>
             <div className="site-nav-actions">
-              <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>Student Login</Link>
+              <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu} aria-label={user ? undefined : 'Login'}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>{user ? 'My account' : 'Login'}</Link>
               <a className="button button-small" href={`${isHome ? '' : '/'}#enquire`} onClick={closeMenu}>Free Counselling</a>
             </div>
           </nav>
         </div>
       </header>
-      <main id="main-content" key={location.pathname}><Outlet /></main>
+      <main id="main" tabIndex={-1} key={location.pathname}><Outlet /></main>
       <SiteFooter />
     </div>
   )
@@ -201,8 +257,20 @@ export function About() {
   const leadership = siteContent.leadership
   return <>
     <CeoMessage name={leadership.name} title={leadership.title} credentials={leadership.credentials} imageSrc={leadership.image.src} imageAlt={leadership.image.alt} message={leadership.message} />
+    <AboutTimeline />
     <AboutPhotos />
   </>
+}
+
+function AboutTimeline() {
+  const milestones = siteContent.about.timeline.filter((item) => Number.isFinite(Number(item.year)) && siteContentReady(item.title))
+  if (!milestones.length) return null
+  return <section className="about-timeline" aria-label="VN Group history">
+    <div className="about-photo-container">
+      <Eyebrow>Our journey</Eyebrow>
+      <ol>{milestones.map((item) => <li key={`${item.year}-${item.title}`}><strong>{item.year}</strong><span>{item.title}</span></li>)}</ol>
+    </div>
+  </section>
 }
 
 function AboutPhotos() {
@@ -233,14 +301,7 @@ function AboutPhotos() {
   </div>
 }
 
-export function Destinations() {
-  const copy = siteContent.pages.destinations
-  return <><PageIntro eyebrow="Explore destinations" title={copy.title}>{copy.description}</PageIntro><DestinationCards /><p className="destination-data-empty">{copy.emptyMessage}</p></>
-}
-
-export function Journey() { return <><PageIntro eyebrow="How it works" title="A clear path, step by step" /> <section className="steps-list">{siteContent.home.process.map((step, index) => <article className="step-row" key={step.title}><span className="step-number">{String(index + 1).padStart(2, '0')}</span><div><h2>{step.title}</h2><p>{step.description}</p></div></article>)}</section></> }
-
-export function FAQs() { return <><PageIntro eyebrow="Questions" title={siteContent.pages.faqs.title}>{siteContent.pages.faqs.description}</PageIntro><FAQ /></> }
+export function FAQs() { return <><PageIntro eyebrow="Questions" title={siteContent.pages.faqs.title}>{siteContent.pages.faqs.description}</PageIntro><FAQ variant="full" /></> }
 
 export function Privacy() { return <LegalPage type="privacy" /> }
 

@@ -1,0 +1,272 @@
+{
+  "slug": "ireland",
+  "name": "Ireland",
+  "currency": "EUR",
+  "lastVerified": "2026-10-30",
+  "nprConversion": {
+    "rate": 170.09,
+    "date": "2026-10-30"
+  },
+  "overview": {
+    "summary": "Ireland is an English-speaking EU country with a strong technology and pharmaceutical sector. Graduates can stay for 12 or 24 months to look for work, depending on their qualification level.",
+    "educationSystem": "Universities, technological universities and colleges award qualifications on the National Framework of Qualifications (NFQ). Honours bachelor’s degrees are Level 8; master’s degrees are Level 9. Most taught master’s programmes take one year."
+  },
+  "courses": [
+    {
+      "level": "Honours bachelor’s degree (NFQ Level 8)",
+      "typicalDuration": {
+        "value": "3–4 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Taught master’s (NFQ Level 9)",
+      "typicalDuration": {
+        "value": "1 year",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    }
+  ],
+  "universities": {
+    "institutions": [],
+    "intakes": [
+      "September, with some January starts"
+    ],
+    "applicationTimeline": [
+      "Apply 8–10 months before September.",
+      "Pay fees and arrange insurance.",
+      "Apply for the study visa online (AVATS) and submit documents as instructed.",
+      "Register for Stamp 2 permission after arrival."
+    ]
+  },
+  "tuition": [
+    {
+      "level": "Bachelor’s degree",
+      "annualFee": {
+        "min": 10000,
+        "max": 25000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Taught master’s",
+      "annualFee": {
+        "min": 10000,
+        "max": 30000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Medicine",
+      "annualFee": {
+        "min": 45000,
+        "max": 60000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "Typical student city (major cities cost more)",
+      "accommodation": {
+        "min": 600,
+        "max": 1200,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 250,
+        "max": 400,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 60,
+        "max": 120,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 60,
+        "max": 120,
+        "label": "estimate"
+      },
+      "personal": {
+        "min": 100,
+        "max": 200,
+        "label": "estimate"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "Government of Ireland International Education Scholarships",
+      "provider": "Higher Education Authority",
+      "coverage": {
+        "value": "Stipend and fee waiver for one year of study",
+        "label": "TODO"
+      },
+      "eligibility": "High-achieving non-EU students at Irish higher education institutions. Check the current rule with the official source before relying on this.",
+      "deadline": "Annual round, usually early in the year",
+      "url": "https://hea.ie/policy/internationalisation/goi-ies/"
+    },
+    {
+      "name": "University scholarships and fee reductions",
+      "provider": "Individual institutions",
+      "coverage": {
+        "value": "Commonly €2,000–€5,000 or a percentage of fees",
+        "label": "institution-specific"
+      },
+      "eligibility": "Academic merit; some automatic",
+      "deadline": "With admission",
+      "url": "https://www.educationinireland.com/en/"
+    }
+  ],
+  "studentVisa": {
+    "category": "Long-stay (D) study visa",
+    "process": [
+      "Receive a letter of acceptance for an ILEP course.",
+      "Pay tuition fees as required.",
+      "Apply online and submit supporting documents.",
+      "Receive the visa decision.",
+      "Travel and register your Stamp 2 permission after arrival."
+    ],
+    "financialEvidence": {
+      "requirement": "You must have immediate access to at least €10,000 for each year of study (courses over eight months), in addition to course fees. Visa-required applicants are checked at the visa stage.",
+      "amount": {
+        "min": 10000,
+        "max": 10000,
+        "label": "official"
+      }
+    },
+    "insurance": {
+      "requirement": "Private medical insurance is required.",
+      "annualCost": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "documents": [
+      "Passport",
+      "Letter of acceptance from an eligible course",
+      "Evidence of fees paid",
+      "Evidence of €10,000 access per year and sponsor documents",
+      "Private medical insurance",
+      "Academic documents and English results",
+      "Explanation of any gaps in education",
+      "NOC from Nepal’s Ministry of Education"
+    ],
+    "processingEstimate": {
+      "value": "Processing times are published by the Irish Immigration Service and vary by visa office and season.",
+      "label": "TODO"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "Up to 20 hours a week during term",
+      "label": "official"
+    },
+    "duringBreaks": {
+      "value": "Up to 40 hours a week in June–September and 15 December–15 January",
+      "label": "official"
+    },
+    "conditions": [
+      "Up to 20 hours per week during term.",
+      "Up to 40 hours per week during holidays: June to September and 15 December to 15 January.",
+      "Students on Stamp 2A (non-ILEP courses) are not permitted to work.",
+      "Work income is not guaranteed and does not replace the €10,000 financial requirement."
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "Third Level Graduate Programme (Stamp 1G)",
+      "duration": {
+        "value": "12 months for Level 8; up to 24 months for Level 9 or higher",
+        "label": "official"
+      },
+      "conditions": "Hold current Stamp 2, apply within six months of your results, and stay within the overall time limits for students. You can work full-time but cannot be self-employed."
+    },
+    {
+      "name": "Critical Skills or General Employment Permit",
+      "duration": {
+        "value": "Depends on permit",
+        "label": "official"
+      },
+      "conditions": "Requires an eligible job offer and salary."
+    },
+    {
+      "name": "Long-term residence",
+      "duration": {
+        "value": "—",
+        "label": "official"
+      },
+      "conditions": "Separate rules; study time does not lead to residence automatically."
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "Accommodation",
+      "text": "Housing is the biggest challenge. Book student residence early and be wary of rental scams."
+    },
+    {
+      "topic": "Transport",
+      "text": "Buses, DART and Luas in Dublin. The student Leap card reduces fares."
+    },
+    {
+      "topic": "Climate",
+      "text": "Mild and rainy all year."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Private medical insurance is required; GP visits usually involve a fee."
+    },
+    {
+      "topic": "Safety",
+      "text": "Generally safe. Keep your IRP card and registration up to date."
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "Irish Immigration Service Delivery – Study in Ireland",
+      "url": "https://www.irishimmigration.ie/coming-to-study-in-ireland/"
+    },
+    {
+      "label": "Third Level Graduate Programme",
+      "url": "https://www.irishimmigration.ie/my-situation-has-changed-since-i-arrived-in-ireland/third-level-graduate-programme/"
+    },
+    {
+      "label": "Education in Ireland",
+      "url": "https://www.educationinireland.com/"
+    },
+    {
+      "label": "Interim List of Eligible Programmes (ILEP)",
+      "url": "https://www.irishimmigration.ie/coming-to-study-in-ireland/what-are-my-study-options/interim-list-of-eligible-programmes-ilep/"
+    },
+    {
+      "label": "Government of Ireland International Education Scholarships",
+      "url": "https://hea.ie/policy/internationalisation/goi-ies/"
+    }
+  ],
+  "sources": [
+    {
+      "label": "Irish Immigration – Planning to study in Ireland",
+      "url": "https://www.irishimmigration.ie/coming-to-study-in-ireland/what-are-my-study-options/planning-to-study-in-ireland/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Irish Immigration – Immigration permission/stamps",
+      "url": "https://www.irishimmigration.ie/registering-your-immigration-permission/information-on-registering/immigration-permission-stamps/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Irish Immigration – Frequently asked questions for students",
+      "url": "https://www.irishimmigration.ie/coming-to-study-in-ireland/frequently-asked-questions-for-students/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Irish Immigration – Third level graduate programme",
+      "url": "https://www.irishimmigration.ie/my-situation-has-changed-since-i-arrived-in-ireland/third-level-graduate-programme/",
+      "accessed": "2026-10-30"
+    }
+  ]
+}

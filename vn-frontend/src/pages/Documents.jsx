@@ -2,16 +2,19 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, openDocument, uploadWithProgress } from '../api'
 import { useAuth } from '../auth'
-import { Card, Input, Select, Btn, Err } from '../ui'
+import { Card, Input, Select, Btn, Err, Field, Icon, PageHeader, StatusBadge, EmptyState, Pagination, Avatar } from '../ui'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
+import ListSkeleton from '../components/ui/ListSkeleton'
 
-const BADGE = {
-  pending: 'bg-amber-100 text-amber-800',
-  under_review: 'bg-sky-100 text-sky-800',
-  reviewed: 'bg-emerald-100 text-emerald-800',
-  rejected: 'bg-red-100 text-red-700',
+const STATUS_TONE = {
+  pending: 'gold',
+  under_review: 'info',
+  reviewed: 'success',
+  rejected: 'danger',
 }
 const label = (s) => s.replace('_', ' ').replace(/^\w/, (c) => c.toUpperCase())
 const roleLabel = { student: 'Student', principal: 'Principal', parent: 'Parent/Guardian', other: 'Other', consultancy_staff: 'Staff' }
+const DOC_TYPES = ['Transcript', 'Certificate', 'Recommendation letter', 'Passport', 'Other']
 
 export default function Documents() {
   const { user } = useAuth()
@@ -22,13 +25,17 @@ export default function Documents() {
   const [pageSize, setPageSize] = useState(10)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [uploadProgress, setUploadProgress] = useState(null) // null = not uploading; 0-100 while uploading
+  const [fileName, setFileName] = useState('')
   const [busyId, setBusyId] = useState(null)
+  const [confirmId, setConfirmId] = useState(null)
   const replaceInputRef = useRef(null)
   const replaceTargetId = useRef(null)
 
-  const load = (p = page) =>
-    api(`${staff ? '/documents' : '/documents/mine'}?page=${p}`)
+  const load = (p = page) => {
+    setLoading(true)
+    return api(`${staff ? '/documents' : '/documents/mine'}?page=${p}`)
       .then((res) => {
         setDocs(res.items)
         setTotal(res.total)
@@ -36,6 +43,8 @@ export default function Documents() {
         setPage(res.page)
       })
       .catch((e) => setErr(e.message))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => { load(1) }, [])
 
@@ -52,6 +61,7 @@ export default function Documents() {
     try {
       await uploadWithProgress('/documents/upload', form, (pct) => setUploadProgress(pct))
       formEl.reset()
+      setFileName('')
       await load(1)
     } catch (x) {
       setErr(x.message)
@@ -85,7 +95,6 @@ export default function Documents() {
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Delete this document? This cannot be undone.')) return
     setBusyId(id); setErr('')
     try {
       await api(`/documents/${id}`, { method: 'DELETE' })
@@ -96,9 +105,19 @@ export default function Documents() {
     setBusyId(null)
   }
 
+  const firstLoad = loading && docs.length === 0
+
   return (
-    <div className="space-y-6">
-      <h1 className="font-sans text-3xl font-bold">{staff ? 'Submitted documents' : 'My documents'}</h1>
+    <div className="ui-stack">
+      <ConfirmDialog open={confirmId !== null} title="Delete this document?" message="This cannot be undone." confirmLabel="Delete document" danger onCancel={() => setConfirmId(null)} onConfirm={async () => { await remove(confirmId); setConfirmId(null) }} />
+      <PageHeader
+        eyebrow={staff ? 'Staff workspace' : 'Your workspace'}
+        title={staff ? 'Submitted documents' : 'My documents'}
+        description={staff
+          ? 'Review files sent by students, principals and families, update their status and follow up with the sender.'
+          : 'Send your academic documents to VN Group securely and follow their review status here.'}
+        actions={total > 0 && <span className="ui-count"><strong>{total}</strong> document{total === 1 ? '' : 's'}</span>}
+      />
       <Err msg={err} />
 
       {/* Hidden file input shared by every "Replace" button - triggerReplace() points it at the right document first */}
@@ -111,125 +130,133 @@ export default function Documents() {
       />
 
       {!staff && (
-        <Card className="p-5">
-          <h2 className="mb-4 font-semibold">Send a document to VN Group</h2>
-          <form onSubmit={upload} className="grid gap-3 sm:grid-cols-2">
-            <Select name="doc_type" required defaultValue="">
-              <option value="" disabled>Document type</option>
-              {['Transcript', 'Certificate', 'Recommendation letter', 'Passport', 'Other'].map((t) => <option key={t}>{t}</option>)}
-            </Select>
-            <Input name="college_name" required placeholder="College name" />
-            <Input name="university_name" required placeholder="University name" />
-            <input name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png" className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-cream-deep file:px-3 file:py-2 file:text-navy" />
-            <Btn className="sm:col-span-2 sm:w-fit" disabled={busy}>{busy ? 'Uploading...' : 'Upload document'}</Btn>
+        <Card>
+          <div className="ui-section-head">
+            <div>
+              <h2 className="ui-section-title">Send a document to VN Group</h2>
+              <p className="ui-section-text">PDF, JPG or PNG, up to 10 MB. You can replace or delete a file while it&apos;s still pending.</p>
+            </div>
+          </div>
+          <form onSubmit={upload} className="doc-upload-grid">
+            <Field label="Document type">
+              <Select name="doc_type" required defaultValue="">
+                <option value="" disabled>Select a type</option>
+                {DOC_TYPES.map((t) => <option key={t}>{t}</option>)}
+              </Select>
+            </Field>
+            <Field label="College name">
+              <Input name="college_name" required placeholder="e.g. Trichandra College" />
+            </Field>
+            <Field label="University name">
+              <Input name="university_name" required placeholder="e.g. Tribhuvan University" />
+            </Field>
+            <label className={`doc-dropzone doc-span${fileName ? ' has-file' : ''}`}>
+              <input name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png" className="sr-only" onChange={(e) => setFileName(e.target.files?.[0]?.name || '')} />
+              <span className="doc-dropzone-icon"><Icon name={fileName ? 'documents' : 'upload'} /></span>
+              <span className="doc-dropzone-text">
+                <span className="doc-dropzone-title">{fileName || 'Choose a file to upload'}</span>
+                <span className="doc-dropzone-hint">{fileName ? 'Click to choose a different file' : 'PDF, JPG or PNG · max 10 MB'}</span>
+              </span>
+            </label>
 
             {uploadProgress !== null && (
-              <div className="sm:col-span-2">
-                <div className="h-2 w-full overflow-hidden rounded-full bg-cream-deep">
-                  <div
-                    className="h-full bg-navy transition-all duration-150"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-                <p className="mt-1 text-xs text-navy/60">
-                  {uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Processing on the server...'}
+              <div className="doc-span" role="status">
+                <div className="doc-progress"><span style={{ width: `${uploadProgress}%` }} /></div>
+                <p className="mt-2 text-sm text-navy/70">
+                  {uploadProgress < 100 ? `Uploading… ${uploadProgress}%` : 'Processing on the server…'}
                 </p>
               </div>
             )}
+            <div className="doc-upload-footer doc-span">
+              <span className="flex items-center gap-2 text-sm text-navy/70"><Icon name="lock" className="!h-4 !w-4" />Files are stored privately and only visible to VN Group staff.</span>
+              <Btn disabled={busy}>
+                {busy ? <><span className="ui-spin" aria-hidden="true" />Uploading…</> : <><Icon name="upload" />Upload document</>}
+              </Btn>
+            </div>
           </form>
-          <p className="mt-2 text-xs text-navy/60">PDF, JPG or PNG, up to 10 MB.</p>
         </Card>
       )}
 
-      <Card className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-navy/10 bg-cream-deep/60">
-            <tr>
-              {['Document', ...(staff ? ['Sent by'] : []), 'College and university', 'Uploaded', 'Status', ''].map((h) => (
-                <th key={h} className="px-4 py-3 font-semibold">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {docs.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-navy/60">
-                {staff ? 'No documents have been submitted yet.' : 'Nothing uploaded yet. Use the form above to send your first document.'}
-              </td></tr>
-            )}
-            {docs.map((d) => (
-              <tr key={d.id} className="border-b border-navy/5 last:border-0">
-                <td className="px-4 py-3"><div className="font-medium">{d.doc_type}</div><div className="text-xs text-navy/60">{d.original_filename}</div></td>
-                {staff && (
-                  <td className="px-4 py-3">
-                    {d.owner_name}
-                    <div className="text-xs text-navy/60">{roleLabel[d.owner_role]}</div>
-                  </td>
-                )}
-                <td className="px-4 py-3">{d.college_name}<div className="text-xs text-navy/60">{d.university_name}</div></td>
-                <td className="px-4 py-3">{new Date(d.uploaded_at).toLocaleDateString()}</td>
-                <td className="px-4 py-3">
-                  {staff ? (
-                    <Select value={d.status} onChange={(e) => setStatus(d.id, e.target.value)}>
-                      {Object.keys(BADGE).map((s) => <option key={s} value={s}>{label(s)}</option>)}
-                    </Select>
-                  ) : <span className={'rounded-full px-2.5 py-1 text-xs font-medium ' + BADGE[d.status]}>{label(d.status)}</span>}
-                </td>
-                <td className="whitespace-nowrap px-4 py-3 text-right">
-                  <button onClick={() => openDocument(d.id).catch((e) => setErr(e.message))} className="font-medium underline">
-                    View file
-                  </button>
-                  {staff && (
-                    <Link to={`/messages?to=${d.owner_id}`} className="ml-4 font-medium underline">Message sender</Link>
-                  )}
-                  {!staff && d.status === 'pending' && (
-                    <>
-                      <button
-                        onClick={() => triggerReplace(d.id)}
-                        disabled={busyId === d.id}
-                        className="ml-4 font-medium underline disabled:opacity-50"
-                      >
-                        Replace
-                      </button>
-                      <button
-                        onClick={() => remove(d.id)}
-                        disabled={busyId === d.id}
-                        className="ml-4 font-medium text-red-700 underline disabled:opacity-50"
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {total > 0 && (
-          <div className="flex items-center justify-between border-t border-navy/10 px-4 py-3 text-sm">
-            <span className="text-navy/60">
-              Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => goToPage(page - 1)}
-                disabled={page <= 1}
-                className="rounded-lg border border-navy/20 px-3 py-1.5 font-medium hover:bg-navy/5 disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                Previous
-              </button>
-              <span className="text-navy/70">Page {page} of {totalPages}</span>
-              <button
-                onClick={() => goToPage(page + 1)}
-                disabled={page >= totalPages}
-                className="rounded-lg border border-navy/20 px-3 py-1.5 font-medium hover:bg-navy/5 disabled:opacity-40 disabled:hover:bg-transparent"
-              >
-                Next
-              </button>
+      {firstLoad ? <ListSkeleton label="Loading documents" /> : (
+        <Card className={`overflow-hidden transition-opacity${loading ? ' opacity-60' : ''}`} aria-busy={loading}>
+          {docs.length === 0 ? (
+            <EmptyState icon="documents" title={staff ? 'No documents yet' : 'Nothing uploaded yet'}>
+              {staff ? 'No documents have been submitted yet.' : 'Use the form above to send your first document.'}
+            </EmptyState>
+          ) : (
+            <div className="ui-table-wrap">
+              <table className="ui-table ui-table--stack">
+                <thead>
+                  <tr>
+                    {['Document', ...(staff ? ['Sent by'] : []), 'College and university', 'Uploaded', 'Status'].map((h) => <th key={h}>{h}</th>)}
+                    <th><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {docs.map((d, i) => (
+                    <tr key={d.id} style={{ '--i': i }}>
+                      <td className="ui-cell-lead" data-label="Document">
+                        <span className="ui-cell-file">
+                          <span className="ui-file-icon"><Icon name="documents" /></span>
+                          <span className="min-w-0">
+                            <span className="ui-cell-primary">{d.doc_type}</span>
+                            <span className="ui-cell-secondary ui-truncate" title={d.original_filename}>{d.original_filename}</span>
+                          </span>
+                        </span>
+                      </td>
+                      {staff && (
+                        <td data-label="Sent by">
+                          <span className="ui-cell-person">
+                            <Avatar name={d.owner_name} size="sm" />
+                            <span className="text-left">
+                              <span className="ui-cell-primary">{d.owner_name}</span>
+                              <span className="ui-cell-secondary">{roleLabel[d.owner_role]}</span>
+                            </span>
+                          </span>
+                        </td>
+                      )}
+                      <td data-label="College">
+                        <span>
+                          {d.college_name}
+                          <span className="ui-cell-secondary">{d.university_name}</span>
+                        </span>
+                      </td>
+                      <td data-label="Uploaded" className="whitespace-nowrap">{new Date(d.uploaded_at).toLocaleDateString()}</td>
+                      <td data-label="Status">
+                        {staff ? (
+                          <Select aria-label={`Status for ${d.doc_type} from ${d.owner_name}`} className={`ui-status-select is-${d.status}`} value={d.status} onChange={(e) => setStatus(d.id, e.target.value)}>
+                            {Object.keys(STATUS_TONE).map((s) => <option key={s} value={s}>{label(s)}</option>)}
+                          </Select>
+                        ) : <StatusBadge tone={STATUS_TONE[d.status]}>{label(d.status)}</StatusBadge>}
+                      </td>
+                      <td className="ui-cell-actions">
+                        <Btn type="button" variant="secondary" size="sm" onClick={() => openDocument(d.id).catch((e) => setErr(e.message))}>
+                          <Icon name="eye" />View
+                        </Btn>
+                        {staff && (
+                          <Link to={`/messages?to=${d.owner_id}`} className="ui-btn ui-btn--ghost ui-btn--sm"><Icon name="messages" />Message</Link>
+                        )}
+                        {!staff && d.status === 'pending' && (
+                          <>
+                            <Btn type="button" variant="secondary" size="sm" onClick={() => triggerReplace(d.id)} disabled={busyId === d.id}>
+                              <Icon name="refresh" />Replace
+                            </Btn>
+                            <Btn type="button" variant="danger" size="sm" onClick={() => setConfirmId(d.id)} disabled={busyId === d.id}>
+                              <Icon name="trash" />Delete
+                            </Btn>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
-      </Card>
+          )}
+
+          {total > 0 && <Pagination page={page} totalPages={totalPages} total={total} pageSize={pageSize} onPage={goToPage} disabled={loading} />}
+        </Card>
+      )}
     </div>
   )
 }

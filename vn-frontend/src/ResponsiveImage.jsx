@@ -21,7 +21,7 @@ export default function ResponsiveImage({ image, className = '', loading = 'lazy
         height={image.height}
         loading={loading}
         decoding="async"
-        fetchPriority={fetchPriority}
+        {...(fetchPriority ? { fetchpriority: fetchPriority } : {})}
         style={objectPosition ? { objectPosition } : undefined}
         onLoad={() => setLoaded(true)}
         onError={handleError}

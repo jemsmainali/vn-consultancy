@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { siteContent, siteContentReady } from '../../data/siteContent'
 
+// Signed-in portal pages have in-app messaging, and the bubble would cover table actions there.
+const PORTAL_PATHS = ['/portal', '/messages', '/profile', '/leads', '/gallery-admin', '/approvals', '/users', '/audit-log']
+
 export default function WhatsAppButton() {
   const [overlap, setOverlap] = useState(false)
   const location = useLocation()
@@ -11,7 +14,7 @@ export default function WhatsAppButton() {
   useEffect(() => {
     setOverlap(false)
     if (!digits || !('IntersectionObserver' in window)) return undefined
-    const coveredAreas = [...document.querySelectorAll('form, .site-footer')]
+    const coveredAreas = [...document.querySelectorAll('form, .site-footer, .auth-help')]
     const visible = new Set()
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => entry.isIntersecting ? visible.add(entry.target) : visible.delete(entry.target))
@@ -21,6 +24,7 @@ export default function WhatsAppButton() {
     return () => observer.disconnect()
   }, [digits, location.key])
 
+  if (PORTAL_PATHS.includes(location.pathname)) return null
   if (!digits || digits.length < 8 || digits.length > 15) return null
   const message = siteContentReady(whatsappMessage) ? whatsappMessage : 'Hello, I would like to ask about study abroad guidance.'
   return <a className={`whatsapp-float${overlap ? ' is-obscured' : ''}`} href={`https://wa.me/${digits}?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer" aria-label="Chat with VN Group on WhatsApp">

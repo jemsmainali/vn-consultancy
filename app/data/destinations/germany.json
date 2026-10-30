@@ -1,0 +1,295 @@
+{
+  "slug": "germany",
+  "name": "Germany",
+  "currency": "EUR",
+  "lastVerified": "2026-10-30",
+  "nprConversion": {
+    "rate": 170.09,
+    "date": "2026-10-30"
+  },
+  "overview": {
+    "summary": "Most public universities in Germany charge no tuition for international students, though you pay a semester contribution and need to show living funds. Many master’s programmes are taught in English; most bachelor’s programmes need German.",
+    "educationSystem": "Universities (Universitäten) focus on research and theory; universities of applied sciences (Hochschulen / Fachhochschulen) are more practical. Bachelor’s degrees usually take 3–3.5 years and master’s 1.5–2 years."
+  },
+  "courses": [
+    {
+      "level": "Foundation course (Studienkolleg)",
+      "typicalDuration": {
+        "value": "About 1 year",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Bachelor’s degree",
+      "typicalDuration": {
+        "value": "3–3.5 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master’s degree",
+      "typicalDuration": {
+        "value": "1.5–2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    }
+  ],
+  "universities": {
+    "institutions": [],
+    "intakes": [
+      "Winter semester (October) and summer semester (April)"
+    ],
+    "applicationTimeline": [
+      "Winter semester deadlines are often between January and July; check each programme.",
+      "Book the embassy appointment early; waiting times can be long.",
+      "Open a blocked account if requested and arrange insurance."
+    ]
+  },
+  "tuition": [
+    {
+      "level": "Public university – semester contribution (most states) (per year (about €100–400 per semester))",
+      "annualFee": {
+        "min": 200,
+        "max": 800,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Public universities in Baden-Württemberg (non-EU students) (€1,500 per semester plus contribution)",
+      "annualFee": {
+        "min": 3000,
+        "max": 3000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Private universities",
+      "annualFee": {
+        "min": 10000,
+        "max": 30000,
+        "label": "estimate"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "Typical student city (major cities cost more)",
+      "accommodation": {
+        "min": 350,
+        "max": 750,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 200,
+        "max": 300,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 30,
+        "max": 60,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 100,
+        "max": 180,
+        "label": "estimate"
+      },
+      "personal": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "DAAD scholarships",
+      "provider": "German Academic Exchange Service",
+      "coverage": {
+        "value": "Monthly stipend, insurance and travel allowance (varies by programme)",
+        "label": "official"
+      },
+      "eligibility": "Graduates and researchers; development-related postgraduate courses (EPOS) usually require relevant work experience",
+      "deadline": "Programme-specific deadlines, often a year ahead",
+      "url": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/"
+    },
+    {
+      "name": "Deutschlandstipendium",
+      "provider": "Federal Government and private sponsors, through universities",
+      "coverage": {
+        "value": "€300 per month",
+        "label": "TODO"
+      },
+      "eligibility": "High-achieving students at participating universities, including international students. Check the current rule with the official source before relying on this.",
+      "deadline": "Applied for through your university",
+      "url": "https://www.deutschlandstipendium.de/"
+    },
+    {
+      "name": "Foundation and university scholarships",
+      "provider": "Political and religious foundations, universities",
+      "coverage": {
+        "value": "Varies",
+        "label": "official"
+      },
+      "eligibility": "Academic merit and social engagement",
+      "deadline": "Varies",
+      "url": "https://www.study-in-germany.de/en/plan-your-studies/scholarships/"
+    }
+  ],
+  "studentVisa": {
+    "category": "National visa for study",
+    "process": [
+      "Receive the admission letter (or conditional admission).",
+      "Book an online appointment with the German Embassy in Kathmandu.",
+      "Prepare academic, language and financial documents.",
+      "Attend the appointment, pay the fee and attend any interview.",
+      "After approval, provide health insurance and a flight reservation as instructed.",
+      "In Germany, register your address and apply for a residence permit."
+    ],
+    "financialEvidence": {
+      "requirement": "You must prove you can finance your stay. The usual benchmark is €11,904 per year (€992 per month), most often shown through a blocked account (Sperrkonto), a formal declaration of commitment or a scholarship. The German Embassy in Kathmandu says a blocked account is not mandatory when you apply but may be requested during processing.",
+      "amount": {
+        "min": 11904,
+        "max": 11904,
+        "label": "official"
+      }
+    },
+    "insurance": {
+      "requirement": "Health insurance is compulsory; students usually join public health insurance after enrolment.",
+      "annualCost": {
+        "min": 1440,
+        "max": 1800,
+        "label": "estimate"
+      }
+    },
+    "documents": [
+      "Passport with at least 12 months validity",
+      "Admission letter",
+      "School leaving and higher secondary certificates, degree transcripts",
+      "Motivation letter and CV",
+      "Language certificates",
+      "Financial proof (blocked account, declaration of commitment or scholarship)",
+      "Health insurance (after visa approval, per the Kathmandu embassy)",
+      "NOC from Nepal’s Ministry of Education"
+    ],
+    "processingEstimate": {
+      "value": "Appointment and processing times vary and can be long in peak months. Apply as soon as you have admission.",
+      "label": "TODO"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "140 full days or 280 half days per calendar year",
+      "label": "official"
+    },
+    "duringBreaks": {
+      "value": "Counts towards the same annual limit of 140 full or 280 half days",
+      "label": "official"
+    },
+    "conditions": [
+      "Up to 140 full days or 280 half days per calendar year.",
+      "Student assistant jobs at your university usually do not count towards this limit, but you should inform the foreigners’ office.",
+      "Self-employment and freelancing need separate permission.",
+      "Many jobs require German. Earnings are not guaranteed and should not be counted on to meet the financial requirement."
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "Residence permit to seek employment",
+      "duration": {
+        "value": "Up to 18 months",
+        "label": "official"
+      },
+      "conditions": "For graduates of German universities, to look for work that matches the qualification. You can work in any job while searching."
+    },
+    {
+      "name": "EU Blue Card or skilled worker residence permit",
+      "duration": {
+        "value": "Typically up to 4 years",
+        "label": "official"
+      },
+      "conditions": "Requires a qualified job offer, with salary thresholds for the Blue Card."
+    },
+    {
+      "name": "Settlement permit",
+      "duration": {
+        "value": "—",
+        "label": "official"
+      },
+      "conditions": "Possible after a period of qualified work and pension contributions; never automatic."
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "Accommodation",
+      "text": "Student residences (Studierendenwerk) are cheapest but have waiting lists. Shared flats (WG) are common. Apply early."
+    },
+    {
+      "topic": "Transport",
+      "text": "Excellent public transport. Many semester contributions include a regional or Germany-wide ticket."
+    },
+    {
+      "topic": "Climate",
+      "text": "Four seasons with cold, grey winters."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Health insurance is compulsory; public student insurance covers most treatment."
+    },
+    {
+      "topic": "Safety",
+      "text": "Generally safe. Registration (Anmeldung) and residence permit deadlines are strict."
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "German Embassy Kathmandu – Study visa",
+      "url": "https://kathmandu.diplo.de/np-en/service/01-visaeinreise/2225320-2225320"
+    },
+    {
+      "label": "Study in Germany (DAAD)",
+      "url": "https://www.study-in-germany.de/en/"
+    },
+    {
+      "label": "DAAD international programmes database",
+      "url": "https://www2.daad.de/deutschland/studienangebote/international-programmes/en/"
+    },
+    {
+      "label": "Make it in Germany (Federal Government)",
+      "url": "https://www.make-it-in-germany.com/en/"
+    },
+    {
+      "label": "uni-assist",
+      "url": "https://www.uni-assist.de/en/"
+    },
+    {
+      "label": "DAAD scholarship database",
+      "url": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/"
+    }
+  ],
+  "sources": [
+    {
+      "label": "German Embassy Kathmandu – Study visa",
+      "url": "https://kathmandu.diplo.de/np-en/service/01-visaeinreise/2225320-2225320",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Make it in Germany – Securing funding",
+      "url": "https://www.make-it-in-germany.com/en/study-vocational-training/studies-in-germany/complete/securing-funding",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "DAAD – Side jobs",
+      "url": "https://www.daad.de/en/studying-in-germany/work-career/side-jobs/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "DAAD – Career planning",
+      "url": "https://www.daad.de/en/studying-in-germany/work-career/career-planning/",
+      "accessed": "2026-10-30"
+    }
+  ]
+}
