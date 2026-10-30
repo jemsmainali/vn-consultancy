@@ -3,6 +3,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, Form, File, UploadFile, Query
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, delete, func
@@ -168,7 +169,8 @@ async def register(
             terms_accepted=terms_accepted,
         )
     except ValidationError as e:
-        raise HTTPException(422, e.errors(include_input=False))
+        # Custom validators put the raw ValueError in ctx; encode it like main.py's handler or this becomes a 500.
+        raise HTTPException(422, jsonable_encoder(e.errors(include_input=False)))
 
     if payload.role in (UserRole.consultancy_staff, UserRole.principal):
         expected = (
