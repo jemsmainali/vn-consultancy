@@ -2,108 +2,163 @@
   "slug": "new-zealand",
   "name": "New Zealand",
   "currency": "NZD",
-  "lastVerified": "TODO",
+  "lastVerified": "2026-10-30",
   "nprConversion": {
-    "rate": "TODO",
-    "date": "TODO"
+    "rate": 85.83,
+    "date": "2026-10-30"
   },
   "overview": {
-    "summary": "TODO",
-    "educationSystem": "TODO"
+    "summary": "New Zealand has eight universities and a range of polytechnic and private institutions, smaller cities and a published visa processing time. Work rights during study increased to 25 hours a week.",
+    "educationSystem": "Qualifications sit on the New Zealand Qualifications and Credentials Framework (NZQCF). Universities offer bachelor’s (level 7), postgraduate diplomas (level 8), master’s (level 9) and doctorates (level 10). Polytechnics and private training establishments offer diplomas and applied degrees."
   },
   "courses": [
     {
-      "level": "TODO",
+      "level": "Diploma (levels 5–6)",
       "typicalDuration": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "1–2 years",
+        "label": "institution-specific"
       },
-      "description": "TODO"
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Bachelor’s degree (level 7)",
+      "typicalDuration": {
+        "value": "3 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master’s degree (level 9)",
+      "typicalDuration": {
+        "value": "1–2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
     }
   ],
   "universities": {
-    "institutions": [
-      {
-        "name": "TODO",
-        "city": "TODO",
-        "url": "TODO"
-      }
-    ],
+    "institutions": [],
     "intakes": [
-      "TODO"
+      "February and July"
     ],
     "applicationTimeline": [
-      "TODO"
+      "Apply to institutions 6–9 months before the intake.",
+      "Receive the offer and pay fees as required.",
+      "Apply for the visa at least 3 months before you plan to travel; October to March is the busiest period."
     ]
   },
   "tuition": [
     {
-      "level": "TODO",
+      "level": "Diploma (levels 5–6)",
       "annualFee": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 18000,
+        "max": 28000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Bachelor’s degree",
+      "annualFee": {
+        "min": 25000,
+        "max": 45000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Postgraduate diploma / master’s",
+      "annualFee": {
+        "min": 28000,
+        "max": 50000,
+        "label": "estimate"
       }
     }
   ],
   "livingCosts": [
     {
-      "city": "TODO",
+      "city": "Typical student city (major cities cost more)",
       "accommodation": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 900,
+        "max": 1600,
+        "label": "estimate"
       },
       "food": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 350,
+        "max": 550,
+        "label": "estimate"
       },
       "transport": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 100,
+        "max": 200,
+        "label": "estimate"
       },
       "utilities": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 100,
+        "max": 200,
+        "label": "estimate"
       },
       "personal": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 150,
+        "max": 300,
+        "label": "estimate"
       }
     }
   ],
   "scholarships": [
     {
-      "name": "TODO",
-      "provider": "TODO",
+      "name": "Manaaki New Zealand Scholarships",
+      "provider": "New Zealand Government (MFAT)",
       "coverage": {
-        "value": "TODO",
+        "value": "Tuition, living allowance, travel and insurance",
         "label": "TODO"
       },
-      "eligibility": "TODO",
-      "deadline": "TODO",
-      "url": "TODO"
+      "eligibility": "Citizens of eligible developing countries; check whether Nepal is listed for the current round. Check the current rule with the official source before relying on this.",
+      "deadline": "Annual round",
+      "url": "https://www.nzscholarships.govt.nz/"
+    },
+    {
+      "name": "University international scholarships",
+      "provider": "Individual universities",
+      "coverage": {
+        "value": "Commonly NZD 5,000–10,000 off tuition",
+        "label": "institution-specific"
+      },
+      "eligibility": "Academic merit; criteria vary",
+      "deadline": "With or after admission",
+      "url": "https://www.studywithnewzealand.govt.nz/en/study-options/scholarships"
+    },
+    {
+      "name": "Doctoral scholarships",
+      "provider": "Universities",
+      "coverage": {
+        "value": "Tuition and stipend for PhD study",
+        "label": "official"
+      },
+      "eligibility": "Strong research profile and supervisor support",
+      "deadline": "University rounds",
+      "url": "https://www.studywithnewzealand.govt.nz/en/study-options/scholarships"
     }
   ],
   "studentVisa": {
-    "category": "TODO",
+    "category": "Fee Paying Student Visa",
     "process": [
-      "TODO"
+      "Receive an offer of place from an approved education provider.",
+      "Pay tuition or show you can pay it.",
+      "Prepare evidence of living funds.",
+      "Apply online and pay the fee.",
+      "Complete medical and X-ray checks if asked.",
+      "Receive a decision and arrange insurance before travel."
     ],
     "financialEvidence": {
-      "requirement": "TODO",
+      "requirement": "You must show NZD 20,000 for each year of study (or NZD 1,667 per month for courses shorter than a year), plus tuition fees, unless your living costs are already paid or you have an acceptable sponsor.",
       "amount": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 20000,
+        "max": 20000,
+        "label": "official"
       }
     },
     "insurance": {
-      "requirement": "TODO",
+      "requirement": "Full medical and travel insurance acceptable to your education provider for your whole stay.",
       "annualCost": {
         "min": "TODO",
         "max": "TODO",
@@ -111,53 +166,115 @@
       }
     },
     "documents": [
-      "TODO"
+      "Passport",
+      "Offer of place",
+      "Evidence of tuition payment or scholarship",
+      "Evidence of funds for living costs",
+      "Academic documents and English results",
+      "Insurance acceptable to your education provider",
+      "Medical and chest X-ray certificates if asked",
+      "NOC from Nepal’s Ministry of Education"
     ],
     "processingEstimate": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Immigration New Zealand publishes an indicative processing time (7 weeks at the time of research). It is a guide only.",
+      "label": "official"
     }
   },
   "workRules": {
     "duringTerm": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Up to 25 hours a week, depending on the conditions on your visa",
+      "label": "official"
     },
     "duringBreaks": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Full-time in scheduled holidays, depending on your visa conditions",
+      "label": "official"
     },
     "conditions": [
-      "TODO"
+      "Up to 25 hours a week during study and full-time in scheduled holidays, depending on the conditions printed on your visa.",
+      "Required practical work experience that is part of your course is in addition to these hours.",
+      "Job availability varies by city and season. Wages and hours are not guaranteed, so do not depend on work income for tuition."
     ]
   },
   "postStudyRoutes": [
     {
-      "name": "TODO",
+      "name": "Post-Study Work Visa",
       "duration": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "Up to 3 years, depending on the qualification and study length",
+        "label": "official"
       },
-      "conditions": "TODO"
+      "conditions": "Recently completed an approved New Zealand qualification. Graduates of degree-level 7 or higher qualifications can work for any employer; non-degree level 7 or lower graduates must work in a related job and the qualification must be on the eligible list. You need at least NZD 5,000 for living costs. Fee NZD 1,670."
+    },
+    {
+      "name": "Accredited Employer Work Visa",
+      "duration": {
+        "value": "Depends on the role",
+        "label": "official"
+      },
+      "conditions": "Requires a job offer from an accredited employer that meets wage and other requirements."
+    },
+    {
+      "name": "Residence",
+      "duration": {
+        "value": "—",
+        "label": "official"
+      },
+      "conditions": "Separate residence pathways have strict criteria. Study does not lead to residence automatically."
     }
   ],
   "lifestyle": [
     {
-      "topic": "TODO",
-      "text": "TODO"
+      "topic": "Accommodation",
+      "text": "University halls (often catered) for first-year students, then shared flats. Rental demand is high around the start of each year."
+    },
+    {
+      "topic": "Transport",
+      "text": "City buses and trains in Auckland and Wellington; many students walk or cycle in smaller cities."
+    },
+    {
+      "topic": "Climate",
+      "text": "Temperate and changeable; the south is noticeably colder in winter."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Most international students are not eligible for publicly funded healthcare, so insurance is essential."
+    },
+    {
+      "topic": "Safety",
+      "text": "Generally safe. Learn about earthquake preparedness and outdoor safety."
     }
   ],
   "officialLinks": [
     {
-      "label": "TODO",
-      "url": "TODO"
+      "label": "Immigration New Zealand – Fee Paying Student Visa",
+      "url": "https://www.immigration.govt.nz/visas/fee-paying-student-visa/"
+    },
+    {
+      "label": "Immigration New Zealand – Post-Study Work Visa",
+      "url": "https://www.immigration.govt.nz/visas/post-study-work-visa/"
+    },
+    {
+      "label": "Study with New Zealand",
+      "url": "https://www.studywithnewzealand.govt.nz/"
+    },
+    {
+      "label": "NZQA – qualifications framework",
+      "url": "https://www2.nzqa.govt.nz/"
+    },
+    {
+      "label": "Manaaki New Zealand Scholarships",
+      "url": "https://www.nzscholarships.govt.nz/"
     }
   ],
   "sources": [
     {
-      "label": "TODO",
-      "url": "TODO",
-      "accessed": "TODO"
+      "label": "Immigration New Zealand – Fee Paying Student Visa",
+      "url": "https://www.immigration.govt.nz/visas/fee-paying-student-visa/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Immigration New Zealand – Post-Study Work Visa",
+      "url": "https://www.immigration.govt.nz/visas/post-study-work-visa/",
+      "accessed": "2026-10-30"
     }
   ]
 }

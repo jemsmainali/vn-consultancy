@@ -1,4 +1,4 @@
-const knownCodes = new Set(['au', 'ca', 'gb', 'us', 'de', 'fr', 'ie', 'jp', 'kr'])
+const knownCodes = new Set(['au', 'ca', 'gb', 'us', 'de', 'fr', 'ie', 'jp', 'kr', 'nz'])
 
 export default function CountryFlag({ code, name, size = 24 }) {
   const normalizedCode = typeof code === 'string' ? code.toLowerCase() : ''
@@ -6,7 +6,8 @@ export default function CountryFlag({ code, name, size = 24 }) {
   const style = { width: `${width}px`, height: `${size}px` }
 
   if (knownCodes.has(normalizedCode)) {
-    return <img className="country-flag" src={`/images/flags/${normalizedCode}.svg`} alt={name ? `${name} flag` : ''} role="img" style={style} width={width} height={size} />
+    // Without a name the flag is decorative (the country name is already in the surrounding text).
+    return <img className="country-flag" src={`/images/flags/${normalizedCode}.svg`} alt={name ? `${name} flag` : ''} role={name ? 'img' : undefined} style={style} width={width} height={size} />
   }
 
   return <span className="country-flag country-flag-fallback" role="img" aria-label={name ? `${name} location` : 'Country'} style={style}>

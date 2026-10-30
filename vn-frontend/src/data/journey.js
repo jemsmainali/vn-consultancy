@@ -1,0 +1,95 @@
+import { siteImages } from './siteContent'
+
+// Detailed student journey. Durations are typical planning ranges, not promises.
+export const journeyDisclaimer = 'Admission decisions belong to institutions and visa decisions belong to the immigration authorities of each country. VN Group cannot guarantee admission, scholarships, employment or visa approval.'
+
+export const journeySteps = [
+  {
+    id: 'counselling', title: 'Initial counselling and profile assessment', time: 'Week 1', image: siteImages.counselling,
+    summary: 'We start with your goals, academic history, budget and family plans.',
+    student: ['Share your transcripts, test scores and any work experience', 'Tell us your budget range and career interests', 'Ask every question you have'],
+    support: ['Assess your academic profile and gaps', 'Explain realistic options and trade-offs', 'Outline costs, timelines and official requirements'],
+    documents: ['Academic transcripts and certificates', 'Passport (if available)', 'Any English test results'],
+    factors: ['How quickly documents are available', 'Whether an English test is still needed'],
+  },
+  {
+    id: 'destination', title: 'Destination and course selection', time: 'Weeks 1–3', image: siteImages.choose,
+    summary: 'Compare countries and courses against your interests, budget and career plans.',
+    student: ['Research suggested courses and cities', 'Discuss options with your family', 'Shortlist countries and course types'],
+    support: ['Compare tuition, living costs and work rules', 'Explain post-study options and their limits', 'Recommend courses that fit your background'],
+    documents: ['CV or summary of experience', 'Budget and sponsor information'],
+    factors: ['Changes in your budget or preferences', 'New immigration rules in a country'],
+  },
+  {
+    id: 'eligibility', title: 'University research and eligibility checks', time: 'Weeks 2–4', image: siteImages.ielts,
+    summary: 'Check each course’s academic, English and document requirements before applying.',
+    student: ['Book or retake English tests if required', 'Gather recommendation letters', 'Confirm intake dates'],
+    support: ['Check entry requirements on official course pages', 'Identify scholarships you may be eligible for', 'Flag institution-specific differences'],
+    documents: ['English test score report', 'Recommendation letters', 'Credential evaluations where required'],
+    factors: ['English test dates and results', 'Deadlines for competitive programmes'],
+  },
+  {
+    id: 'documents', title: 'Document preparation', time: 'Weeks 3–6', image: siteImages.apply,
+    summary: 'Prepare accurate, consistent documents and a clear statement of purpose.',
+    student: ['Write your statement of purpose in your own words', 'Collect certificates, transcripts and letters', 'Get translations or verifications where needed'],
+    support: ['Provide country-specific checklists', 'Review documents for consistency', 'Explain what each document must show'],
+    documents: ['Statement of purpose', 'Transcripts, character and migration certificates', 'Work experience letters', 'Passport'],
+    factors: ['Time needed for verification and translation', 'Missing or inconsistent documents'],
+  },
+  {
+    id: 'application', title: 'Application submission', time: 'Weeks 4–8', image: siteImages.apply,
+    summary: 'Submit applications to your shortlisted institutions.',
+    student: ['Review every application before it is submitted', 'Pay application fees where charged', 'Respond quickly to requests'],
+    support: ['Submit or help you submit applications', 'Track progress with institutions', 'Prepare you for interviews if requested'],
+    documents: ['Completed application forms', 'All supporting documents'],
+    factors: ['Institution processing times', 'Interview or additional document requests'],
+  },
+  {
+    id: 'offer', title: 'Offer letter and admission conditions', time: '2–8 weeks after applying', image: siteImages.choose,
+    summary: 'Understand your offer, its conditions and its deadlines.',
+    student: ['Read the offer and its conditions carefully', 'Meet any conditions (results, English, documents)', 'Decide which offer to accept'],
+    support: ['Explain conditional and unconditional offers', 'Compare offers, fees and refund policies', 'Help you meet conditions on time'],
+    documents: ['Offer letter', 'Evidence of meeting conditions'],
+    factors: ['Final results or English scores still pending', 'Acceptance deadlines'],
+  },
+  {
+    id: 'finance', title: 'Financial planning and scholarship assessment', time: 'Alongside offers', image: siteImages.scholarships,
+    summary: 'Plan how tuition and living costs will be paid and prepare financial evidence.',
+    student: ['Organise sponsor funds and income documents', 'Apply for scholarships and loans if relevant', 'Apply for the NOC from Nepal’s Ministry of Education'],
+    support: ['Explain each country’s official financial requirement', 'Check that evidence matches the rules', 'Explain scholarship terms and timelines'],
+    documents: ['Bank statements and balance certificates', 'Sponsor income and tax documents', 'Education loan letters', 'Scholarship letters'],
+    factors: ['How long funds must be held (for example 28 days for the UK)', 'Loan approval times'],
+  },
+  {
+    id: 'deposit', title: 'Tuition deposit and required confirmations', time: '1–3 weeks after accepting', image: siteImages.apply,
+    summary: 'Pay the deposit and receive the document needed for your visa.',
+    student: ['Pay the tuition deposit through official channels', 'Arrange health insurance where required', 'Keep all receipts'],
+    support: ['Explain refund policies before you pay', 'Track issuance of your CoE, CAS, I-20 or acceptance letter', 'Check details for errors'],
+    documents: ['Payment receipts', 'CoE (Australia), CAS (UK), I-20 (USA), letter of acceptance (Canada) or equivalent'],
+    factors: ['Bank transfer times', 'Institution processing times'],
+  },
+  {
+    id: 'visa', title: 'Visa application, biometrics and medical checks', time: '3–12 weeks, varies by country', image: siteImages.visa,
+    summary: 'Apply for the correct student visa with complete, honest evidence.',
+    student: ['Complete and sign the visa application yourself', 'Attend biometrics, medicals or TB tests if required', 'Attend the visa interview where applicable'],
+    support: ['Explain the official process and checklist', 'Review your application for completeness', 'Prepare you for interviews'],
+    documents: ['Passport and photos', 'Visa forms', 'Financial evidence', 'Medical or TB test results where required'],
+    factors: ['Seasonal demand at embassies', 'Requests for more information', 'Policy changes'],
+  },
+  {
+    id: 'pre-departure', title: 'Pre-departure preparation, accommodation and travel', time: '2–6 weeks before travel', image: siteImages.fly,
+    summary: 'Get ready for travel, housing and your first weeks abroad.',
+    student: ['Book flights and accommodation', 'Prepare money for the first months', 'Pack important documents in your hand luggage'],
+    support: ['Run a pre-departure briefing', 'Share a practical checklist', 'Explain arrival, registration and work rules'],
+    documents: ['Visa and passport', 'Offer and enrolment documents', 'Insurance details', 'Accommodation confirmation'],
+    factors: ['Flight availability around intakes', 'Housing shortages in some cities'],
+  },
+  {
+    id: 'arrival', title: 'Arrival guidance and next steps', time: 'First month abroad', image: siteImages.fly,
+    summary: 'Settle in, complete registrations and understand your visa conditions.',
+    student: ['Attend orientation and enrol', 'Complete residence, address or visa registration where required', 'Open a bank account and get a local phone number'],
+    support: ['Answer questions after arrival', 'Remind you of work-hour limits and visa conditions', 'Help you find official support services'],
+    documents: ['Residence permit or registration documents', 'Enrolment confirmation'],
+    factors: ['Registration appointment availability', 'University enrolment schedules'],
+  },
+]

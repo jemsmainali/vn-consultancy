@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import './index.css'
 import './public-site.css'
@@ -8,6 +8,16 @@ import './leads.css'
 import './home-page.css'
 import './gallery-admin.css'
 import './data-site.css'
+import './gallery.css'
+import './premium.css'
+import './journey-gallery.css'
+import './partner-gallery.css'
+import './site-footer.css'
+import './destinations.css'
+import './auth.css'
+import './portal.css'
+import './study-plan.css'
+import './visa.css'
 import { AuthProvider, useAuth } from './auth'
 import { Layout } from './ui'
 const HomePage = lazy(() => import('./HomePage'))
@@ -18,20 +28,29 @@ const Documents = lazy(() => import('./pages/Documents'))
 const Messages = lazy(() => import('./pages/Messages'))
 const Approvals = lazy(() => import('./pages/Approvals'))
 const Profile = lazy(() => import('./pages/Profile'))
+const StudyPlan = lazy(() => import('./pages/StudyPlan'))
+const Universities = lazy(() => import('./pages/Universities'))
+const Applications = lazy(() => import('./pages/Applications'))
+const loadVisaPrep = () => import('./pages/VisaPrep')
+const VisaHub = lazy(() => loadVisaPrep().then((module) => ({ default: module.VisaHub })))
+const VisaChecklist = lazy(() => loadVisaPrep().then((module) => ({ default: module.VisaChecklist })))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const AuditLog = lazy(() => import('./pages/AuditLog'))
 const Users = lazy(() => import('./pages/Users'))
 const Leads = lazy(() => import('./pages/Leads'))
 const GalleryAdmin = lazy(() => import('./pages/GalleryAdmin'))
+const Gallery = lazy(() => import('./pages/Gallery'))
 const LegalPage = lazy(() => import('./components/layout/LegalPage'))
 const loadPublicSite = () => import('./PublicSite')
 const PublicLayout = lazy(() => loadPublicSite().then((module) => ({ default: module.PublicLayout })))
 const About = lazy(() => loadPublicSite().then((module) => ({ default: module.About })))
 const Contact = lazy(() => loadPublicSite().then((module) => ({ default: module.Contact })))
-const Destinations = lazy(() => loadPublicSite().then((module) => ({ default: module.Destinations })))
+const loadDestinations = () => import('./pages/Destinations')
+const Destinations = lazy(() => loadDestinations().then((module) => ({ default: module.DestinationsHub })))
+const DestinationDetail = lazy(() => loadDestinations().then((module) => ({ default: module.DestinationDetail })))
 const FAQs = lazy(() => loadPublicSite().then((module) => ({ default: module.FAQs })))
-const Journey = lazy(() => loadPublicSite().then((module) => ({ default: module.Journey })))
+const Journey = lazy(() => import('./pages/Journey'))
 const NotFound = lazy(() => loadPublicSite().then((module) => ({ default: module.NotFound })))
 const Privacy = lazy(() => loadPublicSite().then((module) => ({ default: module.Privacy })))
 import WhatsAppButton from './components/layout/WhatsAppButton'
@@ -76,6 +95,12 @@ function Guard() {
   return user ? <Layout /> : <Navigate to="/login" replace />
 }
 
+// Nested inside Guard; the API enforces the same student-only rule.
+function StudentGuard() {
+  const { user } = useAuth()
+  return user.role === 'student' ? <Outlet /> : <Navigate to="/portal" replace />
+}
+
 function StaffGuard() {
   const { user, loading } = useAuth()
   if (loading) return <p className="p-8">Loading...</p>
@@ -95,8 +120,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<About />} />
             <Route path="/destinations" element={<Destinations />} />
+            <Route path="/destinations/:slug" element={<DestinationDetail />} />
             <Route path="/journey" element={<Journey />} />
             <Route path="/faqs" element={<FAQs />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<LegalPage type="terms" />} />
@@ -112,6 +139,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="/portal" element={<Documents />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile" element={<Profile />} />
+            {/* Students and staff; the page and GET /destinations/{slug} both enforce this. */}
+            <Route path="/visa" element={<VisaHub />} />
+            <Route path="/visa/:slug" element={<VisaChecklist />} />
+            <Route element={<StudentGuard />}>
+              <Route path="/study-plan" element={<StudyPlan />} />
+              <Route path="/universities" element={<Universities />} />
+              <Route path="/applications" element={<Applications />} />
+            </Route>
           </Route>
           <Route element={<StaffGuard />}>
             <Route path="/leads" element={<Leads />} />

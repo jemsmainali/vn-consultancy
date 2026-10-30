@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-export default function PasswordInput({ autoComplete = 'current-password', className = '', ...props }) {
+export default function PasswordInput({ autoComplete = 'current-password', className = '', wrapperClassName = '', ...props }) {
   const [visible, setVisible] = useState(false)
   const label = visible ? 'Hide password' : 'Show password'
 
-  return <span className="relative block">
+  return <span className={`relative block ${wrapperClassName}`}>
     <input
       {...props}
       type={visible ? 'text' : 'password'}

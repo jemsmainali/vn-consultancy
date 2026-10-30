@@ -2,100 +2,170 @@
   "slug": "japan",
   "name": "Japan",
   "currency": "JPY",
-  "lastVerified": "TODO",
+  "lastVerified": "2026-10-30",
   "nprConversion": {
-    "rate": "TODO",
-    "date": "TODO"
+    "rate": 0.967,
+    "date": "2026-10-30"
   },
   "overview": {
-    "summary": "TODO",
-    "educationSystem": "TODO"
+    "summary": "Many Nepali students begin in Japan at a Japanese language school, then move to a vocational school or university. Japanese ability shapes your study, work and career options, and the Embassy of Japan in Nepal warns applicants about brokers and false documents.",
+    "educationSystem": "Japanese language schools (1–2 years), specialised training colleges (senmon gakkō, usually 2 years), universities (4 years) and graduate schools. English-taught degrees exist mainly at graduate level and in some undergraduate programmes."
   },
   "courses": [
     {
-      "level": "TODO",
+      "level": "Japanese language school",
       "typicalDuration": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "1–2 years",
+        "label": "institution-specific"
       },
-      "description": "TODO"
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Specialised training college (senmon gakkō)",
+      "typicalDuration": {
+        "value": "Usually 2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "University (bachelor’s)",
+      "typicalDuration": {
+        "value": "4 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Graduate school (master’s)",
+      "typicalDuration": {
+        "value": "Usually 2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
     }
   ],
   "universities": {
-    "institutions": [
-      {
-        "name": "TODO",
-        "city": "TODO",
-        "url": "TODO"
-      }
-    ],
+    "institutions": [],
     "intakes": [
-      "TODO"
+      "April and October (language schools also January and July)"
     ],
     "applicationTimeline": [
-      "TODO"
+      "Apply to a language school 6–8 months before the intake.",
+      "The school applies for your Certificate of Eligibility (CoE).",
+      "After the CoE is issued, apply for the visa at the Embassy of Japan in Nepal."
     ]
   },
   "tuition": [
     {
-      "level": "TODO",
+      "level": "Japanese language school (incl. enrolment fees)",
       "annualFee": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 700000,
+        "max": 900000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Specialised training college",
+      "annualFee": {
+        "min": 800000,
+        "max": 1300000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "National university – first year incl. admission fee",
+      "annualFee": {
+        "min": 820000,
+        "max": 820000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Private university – first year",
+      "annualFee": {
+        "min": 1100000,
+        "max": 1600000,
+        "label": "estimate"
       }
     }
   ],
   "livingCosts": [
     {
-      "city": "TODO",
+      "city": "Typical student city (major cities cost more)",
       "accommodation": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 35000,
+        "max": 70000,
+        "label": "estimate"
       },
       "food": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 25000,
+        "max": 40000,
+        "label": "estimate"
       },
       "transport": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 5000,
+        "max": 15000,
+        "label": "estimate"
       },
       "utilities": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 10000,
+        "max": 18000,
+        "label": "estimate"
       },
       "personal": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 10000,
+        "max": 20000,
+        "label": "estimate"
       }
     }
   ],
   "scholarships": [
     {
-      "name": "TODO",
-      "provider": "TODO",
+      "name": "MEXT (Japanese Government) Scholarship – Embassy recommendation",
+      "provider": "Ministry of Education, Culture, Sports, Science and Technology",
       "coverage": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "Tuition, monthly allowance and travel",
+        "label": "official"
       },
-      "eligibility": "TODO",
-      "deadline": "TODO",
-      "url": "TODO"
+      "eligibility": "Applicants selected through the Embassy of Japan in Nepal or through universities",
+      "deadline": "Embassy round usually opens in spring for the following year",
+      "url": "https://www.np.emb-japan.go.jp/"
+    },
+    {
+      "name": "JASSO Monbukagakusho Honors Scholarship",
+      "provider": "JASSO",
+      "coverage": {
+        "value": "Monthly stipend for privately financed students",
+        "label": "official"
+      },
+      "eligibility": "Enrolled students recommended by their school",
+      "deadline": "Applied for through your school after enrolment",
+      "url": "https://www.studyinjapan.go.jp/en/planning/scholarships/"
+    },
+    {
+      "name": "Tuition reductions",
+      "provider": "Schools and universities",
+      "coverage": {
+        "value": "Partial tuition reductions",
+        "label": "institution-specific"
+      },
+      "eligibility": "Academic and attendance record",
+      "deadline": "After enrolment",
+      "url": "https://www.studyinjapan.go.jp/en/planning/scholarships/"
     }
   ],
   "studentVisa": {
-    "category": "TODO",
+    "category": "Student status of residence",
     "process": [
-      "TODO"
+      "Choose a school and submit application documents.",
+      "The school applies for your CoE.",
+      "Pay first-year fees after CoE approval.",
+      "Apply for the visa at the Embassy of Japan in Nepal.",
+      "Receive a residence card at the airport and register your address."
     ],
     "financialEvidence": {
-      "requirement": "TODO",
+      "requirement": "There is no single published amount. Your school and the Immigration Services Agency assess whether you or your sponsor can pay tuition and living costs when they review your Certificate of Eligibility. The Embassy of Japan in Nepal warns that part-time income alone is not enough to cover tuition and living costs.",
       "amount": {
         "min": "TODO",
         "max": "TODO",
@@ -103,7 +173,7 @@
       }
     },
     "insurance": {
-      "requirement": "TODO",
+      "requirement": "Students living in Japan join National Health Insurance.",
       "annualCost": {
         "min": "TODO",
         "max": "TODO",
@@ -111,53 +181,125 @@
       }
     },
     "documents": [
-      "TODO"
+      "Passport",
+      "Academic certificates and transcripts",
+      "Japanese study certificate and test results",
+      "Sponsor’s income, tax and bank documents",
+      "Relationship documents for the sponsor",
+      "Certificate of Eligibility (issued after the school applies)",
+      "NOC from Nepal’s Ministry of Education"
     ],
     "processingEstimate": {
-      "value": "TODO",
+      "value": "CoE processing usually takes several months; the visa stage is shorter. Times vary by intake and school.",
       "label": "TODO"
     }
   },
   "workRules": {
     "duringTerm": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Up to 28 hours a week, after getting permission",
+      "label": "official"
     },
     "duringBreaks": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Up to 8 hours a day during long school holidays, with permission",
+      "label": "official"
     },
     "conditions": [
-      "TODO"
+      "You need “permission to engage in activity other than that permitted” before working.",
+      "Up to 28 hours per week; up to 8 hours a day during long school holidays.",
+      "Working in adult entertainment businesses is prohibited.",
+      "The embassy says the maximum earnings within legal hours are roughly ¥80,000–90,000 a month, which is not enough to cover tuition and living costs. Breaking work rules can lead to deportation."
     ]
   },
   "postStudyRoutes": [
     {
-      "name": "TODO",
+      "name": "Engineer / Specialist in Humanities / International Services",
       "duration": {
-        "value": "TODO",
+        "value": "1, 3 or 5 years, renewable",
+        "label": "official"
+      },
+      "conditions": "Requires a job offer related to your degree or vocational qualification."
+    },
+    {
+      "name": "Designated Activities for job hunting",
+      "duration": {
+        "value": "Reported as up to one year with school support",
         "label": "TODO"
       },
-      "conditions": "TODO"
+      "conditions": "For graduates continuing to look for work after graduation. Check the current rule with the official source before relying on this."
+    },
+    {
+      "name": "Specified Skilled Worker",
+      "duration": {
+        "value": "Depends on the category",
+        "label": "official"
+      },
+      "conditions": "Requires passing skills and Japanese tests in designated sectors and a job offer."
     }
   ],
   "lifestyle": [
     {
-      "topic": "TODO",
-      "text": "TODO"
+      "topic": "Accommodation",
+      "text": "School dormitories or shared apartments are common at first. Renting privately often needs a guarantor and key money."
+    },
+    {
+      "topic": "Transport",
+      "text": "Excellent trains; commuter passes reduce costs."
+    },
+    {
+      "topic": "Climate",
+      "text": "Hot, humid summers and cold winters in many regions; typhoons in late summer."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "National Health Insurance covers 70% of most medical costs."
+    },
+    {
+      "topic": "Safety",
+      "text": "Very safe overall. Learn earthquake preparedness and follow rules on rubbish sorting and residence registration."
     }
   ],
   "officialLinks": [
     {
-      "label": "TODO",
-      "url": "TODO"
+      "label": "Study in Japan (official)",
+      "url": "https://www.studyinjapan.go.jp/en/"
+    },
+    {
+      "label": "Immigration Services Agency of Japan",
+      "url": "https://www.moj.go.jp/isa/"
+    },
+    {
+      "label": "Embassy of Japan in Nepal",
+      "url": "https://www.np.emb-japan.go.jp/"
+    },
+    {
+      "label": "JASSO",
+      "url": "https://www.jasso.go.jp/en/"
+    },
+    {
+      "label": "Japanese-Language Proficiency Test (JLPT)",
+      "url": "https://www.jlpt.jp/e/"
     }
   ],
   "sources": [
     {
-      "label": "TODO",
-      "url": "TODO",
-      "accessed": "TODO"
+      "label": "Study in Japan – Part-time work",
+      "url": "https://www.studyinjapan.go.jp/en/work-in-japan/part-time-jobs/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study in Japan – Academic fees",
+      "url": "https://www.studyinjapan.go.jp/en/planning/academic-fees/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study in Japan – Accommodation",
+      "url": "https://www.studyinjapan.go.jp/en/life/accomodation/",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Embassy of Japan in Nepal – Caution to those wishing to study in Japan",
+      "url": "https://www.np.emb-japan.go.jp/files/000111308.pdf",
+      "accessed": "2026-10-30"
     }
   ]
 }

@@ -50,6 +50,7 @@ const countries = [
   { name: 'Ireland', code: 'ie' },
   { name: 'Japan', code: 'jp' },
   { name: 'South Korea', code: 'kr' },
+  { name: 'New Zealand', code: 'nz' },
 ].map((country) => ({
   ...country,
   image: country.name === 'Australia' ? siteImages.australia : null,
@@ -65,7 +66,7 @@ export const siteContent = {
     name: 'VN Group Study Abroad',
     tagline: 'Clear next steps for students in Nepal exploring international education.',
     logo: siteImages.logo,
-    foundedYear: 2013,
+    foundedYear: 2012,
   },
   navigation: {
     about: [
@@ -87,15 +88,16 @@ export const siteContent = {
       { label: 'Blog', detail: 'Read answers and study guidance.', to: '/faqs' },
       { label: 'FAQs', detail: 'Browse frequently asked questions.', to: '/faqs' },
       { label: 'How It Works', detail: 'See the student journey step by step.', to: '/journey' },
+      { label: 'Gallery', detail: 'Visa successes, departures and partner visits.', to: '/gallery' },
     ],
   },
   home: {
     hero: {
       eyebrow: 'years of trusted guidance',
-      title: 'Study Abroad',
-      emphasis: 'Australia',
+      title: 'Your next chapter starts with',
+      emphasis: 'a clear plan.',
       rotatingCountries: ['Australia', 'United States', 'Canada', 'Japan', 'South Korea'],
-      description: 'We guide Nepali students to the right course, country and visa.',
+      description: 'Expert guidance for students and families in Nepal pursuing world-class education. We help you understand your options and plan your next steps.',
       primaryLabel: 'Free Counselling',
       secondaryLabel: 'Explore Destinations',
       photo: siteImages.hero,
@@ -133,10 +135,22 @@ export const siteContent = {
     partnerVisits: [
       { image: siteImages.griffin, caption: 'Visiting Griffin College, Australia' },
       { image: siteImages.sahe, caption: 'Visiting Southern Academy of Higher Education' },
+      { image: siteImages.partnerMeeting, caption: 'Meeting with a partner delegation' },
     ],
     enquiry: {
       countries: countries.map(({ name }) => name),
-      qualifications: ['Secondary school', 'High school', 'Diploma', "Bachelor's degree", "Master's degree", 'Other'],
+      // Saved to the existing education_level column. The "Intended:" prefix keeps these
+      // distinct from older enquiries, where that column held the student's last qualification.
+      studyLevels: [
+        { label: 'Foundation / pathway', value: 'Intended: Foundation / pathway' },
+        { label: 'Diploma', value: 'Intended: Diploma' },
+        { label: "Bachelor's degree", value: "Intended: Bachelor's degree" },
+        { label: "Master's degree", value: "Intended: Master's degree" },
+        { label: 'PhD / research', value: 'Intended: PhD / research' },
+        { label: 'Language course', value: 'Intended: Language course' },
+        { label: 'Not sure yet', value: 'Intended: Not sure yet' },
+      ],
+      notSureDestination: 'Not sure yet',
     },
     counsellors: [],
     faqs: [
@@ -169,19 +183,21 @@ export const siteContent = {
     },
     faqs: {
       title: 'Frequently asked questions',
-      description: 'Answers will be added after VN Group reviews the current guidance.',
+      description: 'Practical answers for students in Nepal. Rules change, so each answer points you to what to check before you apply.',
     },
   },
   footer: {
     note: 'Guidance for your next step.',
+    description: 'Honest counselling, careful document preparation and clear next steps for students in Nepal planning to study abroad.',
     explore: [
+      { label: 'Home', to: '/' },
       { label: 'About Us', to: '/about' },
       { label: 'Destinations', to: '/destinations' },
       { label: 'Services', to: '/#services' },
-      { label: 'Process', to: '/#process' },
-      { label: 'Success Stories', to: '/#services' },
-      { label: 'Blog', to: '/faqs' },
+      { label: 'How It Works', to: '/journey' },
+      { label: 'Gallery', to: '/gallery' },
       { label: 'FAQs', to: '/faqs' },
+      { label: 'Contact', to: '/contact' },
     ],
     legal: [
       { label: 'Privacy Policy', to: '/privacy' },
@@ -197,7 +213,7 @@ export const siteContent = {
     message: 'When we founded VN Group, our vision was simple yet profound: to bridge the gap between ambitious students in Nepal and world-class international education. Navigating universities abroad can feel overwhelming, but with transparent guidance, meticulous document preparation, and honest counseling, we turn uncertainty into achievement. Your aspirations are our personal mission.',
   },
   about: {
-    timeline: [{ year: 2013, title: 'VN Group founded' }],
+    timeline: [{ year: 2012, title: 'VN Group founded' }],
     institutionsEyebrow: 'Our approach',
     institutionsTitle: 'How we work with institutions',
     institutionsCopy: 'TODO_REPLACE',
@@ -210,6 +226,17 @@ export const siteContent = {
     terms: { title: 'Terms', body: 'TODO_REPLACE' },
     refund: { title: 'Refund Policy', body: 'TODO_REPLACE' },
   },
+}
+
+export const yearsOfExperience = (now = new Date()) => now.getFullYear() - siteContent.brand.foundedYear
+
+export function formatPhoneDisplay(phone) {
+  const digits = phone.replace(/\D/g, '')
+  const national = digits.startsWith('977') ? digits.slice(3) : digits
+  if (digits.startsWith('977') && national.length === 10) {
+    return `+977 ${national.slice(0, 3)} ${national.slice(3, 6)} ${national.slice(6)}`
+  }
+  return phone
 }
 
 export const siteContentReady = (value) => typeof value === 'string' && value.trim() !== '' && !value.includes('TODO_REPLACE')

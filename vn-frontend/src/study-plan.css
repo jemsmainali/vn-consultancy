@@ -1,0 +1,55 @@
+/* Student study plan, university directory and applications pages. */
+.sp-filters { display: grid; gap: 1rem; padding: 1.25rem; grid-template-columns: 2fr 1fr 1fr; }
+.sp-result-count { color: var(--vn-muted); font-size: .875rem; }
+
+.sp-uni { display: flex; flex-direction: column; gap: 1.1rem; padding: 1.5rem; }
+.sp-uni-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .75rem 1rem; }
+.sp-uni-title { min-width: 0; }
+.sp-uni-place { display: flex; align-items: center; gap: .5rem; margin-top: .3rem; color: var(--vn-muted); font-size: .9375rem; }
+.sp-uni-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+
+.sp-facts { display: grid; gap: .85rem; margin: 0; }
+.sp-facts > div { display: grid; grid-template-columns: 12rem 1fr; gap: 1rem; }
+.sp-facts dt { color: var(--vn-navy); font-size: .875rem; font-weight: 600; }
+.sp-facts dd { margin: 0; color: var(--vn-ink); font-size: .9375rem; line-height: 1.55; }
+.sp-source { display: block; margin-top: .2rem; color: var(--vn-muted); font-size: .8125rem; }
+.sp-source a, .sp-official, .sp-course-name { color: var(--vn-navy); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.sp-source a:focus-visible, .sp-official:focus-visible, .sp-course-name:focus-visible { outline: 3px solid var(--vn-gold); outline-offset: 2px; }
+.sp-official { align-self: flex-start; font-size: .9375rem; }
+
+.sp-courses { border-top: 1px solid var(--vn-line); padding-top: 1rem; }
+.sp-courses-title { margin-bottom: .5rem; color: var(--vn-navy); font-size: .9375rem; font-weight: 700; }
+.sp-course { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--vn-line); }
+.sp-course:last-child { border-bottom: 0; }
+.sp-course-main { min-width: 0; }
+.sp-course-level { margin-left: .5rem; color: var(--vn-muted); font-size: .875rem; }
+.sp-course-fact { margin-top: .35rem; color: var(--vn-ink); font-size: .9375rem; }
+
+.sp-form { display: grid; gap: 1.1rem; grid-template-columns: 1fr 1fr; }
+.sp-span, .sp-countries { grid-column: 1 / -1; }
+.sp-countries { margin: 0; padding: 0; border: 0; }
+.sp-countries legend { margin-bottom: .6rem; }
+.sp-country-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+.sp-country {
+  display: inline-flex; align-items: center; gap: .5rem; min-height: 2.5rem; padding: 0 .9rem;
+  border: 1px solid var(--vn-line-strong); border-radius: 999px; color: var(--vn-navy); background: #fff;
+  font-size: .9rem; font-weight: 500; cursor: pointer; transition: border-color .18s ease, background-color .18s ease;
+}
+.sp-country:hover { border-color: var(--vn-navy); }
+.sp-country.is-selected { border-color: var(--vn-navy); background: var(--vn-gold-soft); box-shadow: inset 0 0 0 1px var(--vn-navy); }
+.sp-country:focus-within { outline: 3px solid var(--vn-gold); outline-offset: 2px; }
+.sp-notes { min-height: 6rem; resize: vertical; }
+.sp-form-footer { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; }
+.sp-saved-note { color: #1f5f3d; font-size: .875rem; }
+
+.sp-saved-list { display: flex; flex-direction: column; }
+.sp-saved { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 0; border-bottom: 1px solid var(--vn-line); }
+.sp-saved:last-child { border-bottom: 0; }
+.sp-saved-name { color: var(--vn-navy); font-weight: 600; }
+.sp-saved-meta { margin-top: .15rem; color: var(--vn-muted); font-size: .875rem; }
+
+@media (max-width: 720px) {
+  .sp-filters, .sp-form { grid-template-columns: 1fr; }
+  .sp-facts > div { grid-template-columns: 1fr; gap: .2rem; }
+  .sp-course { flex-direction: column; }
+}

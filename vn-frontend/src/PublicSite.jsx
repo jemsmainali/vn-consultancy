@@ -4,23 +4,31 @@ import { useAuth } from './auth'
 import CeoMessage from './CeoMessage'
 import ScrollReveal from './ScrollReveal'
 import ResponsiveImage from './ResponsiveImage'
-import { siteContent, siteContentReady, siteImages } from './data/siteContent'
+import { siteContent, siteContentReady, siteImages, yearsOfExperience } from './data/siteContent'
+import { destinationBySlug, destinationPath, destinations } from './data/destinations/registry'
 import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
 import LegalPage from './components/layout/LegalPage'
 import EnquirySection from './components/home/EnquirySection'
 import FAQ from './components/home/FAQ'
-import DestinationCards from './components/home/DestinationCards'
 
 const observedSectionIds = ['destinations', 'process', 'services', 'stories', 'enquire', 'faq']
 const foundedYear = siteContent.brand.foundedYear
-const yearsExperience = new Date().getFullYear() - foundedYear
+const yearsExperience = yearsOfExperience()
+// Destination detail pages get their title from the registry; everything else is listed here.
+const metadataFor = (pathname) => {
+  const destination = pathname.startsWith('/destinations/') && destinationBySlug(pathname.split('/')[2])
+  if (destination) return [`Study in ${destination.name} from Nepal | VN Group`, `${destination.name}: costs in local currency and NPR, admission, scholarships, student visa, work rights and post-study options, with official sources.`]
+  return pageMetadata[pathname]
+}
+
 const pageMetadata = {
   '/': [`${yearsExperience}+ Years of Study Abroad Guidance | VN Group`, `${yearsExperience}+ years of study abroad guidance for students in Nepal. Explore study options and plan your next steps with VN Group.`],
   '/about': ['Leadership & Vision | VN Group', 'A message from VN Group leadership to students in Nepal exploring international education.'],
-  '/destinations': ['Study Destinations | VN Group', 'Explore destination research starting points and confirm changing requirements with official institution and government sources.'],
-  '/journey': ['The Student Journey | VN Group', 'See how enquiry, account, document, and staff messaging workflows work in the VN Group portal.'],
-  '/faqs': ['Study Abroad Questions | VN Group', 'Answers about enquiries, student accounts, documents, and checking official study requirements.'],
+  '/destinations': ['Study Destinations for Nepali Students | VN Group', 'Compare costs, visas, work rights and post-study options in 10 study destinations, with official sources and dated exchange rates.'],
+  '/journey': ['How It Works – The Student Journey | VN Group', 'Eleven stages from free counselling to arrival abroad: what you do, how VN Group helps, documents needed and what affects the timeline.'],
+  '/faqs': ['Study Abroad FAQs for Nepali Students | VN Group', 'Searchable answers on eligibility, English tests, costs, visas, part-time work and post-study options.'],
+  '/gallery': ['Gallery | VN Group', 'Visa success stories, student departures and partner visits from VN Group Study Abroad in Kathmandu.'],
   '/contact': ['Contact VN Group | Student Enquiry', 'Send a study enquiry to VN Group. Your message is saved before a confirmation is shown.'],
   '/privacy': ['Privacy Policy | VN Group', 'Privacy policy information for VN Group Study Abroad.'],
   '/terms': ['Terms | VN Group', 'Terms information for VN Group Study Abroad.'],
@@ -54,7 +62,7 @@ export function PublicLayout() {
   const dropdownGroups = [
     { id: 'about', label: 'About', items: siteContent.navigation.about },
     { id: 'services', label: 'Services', items: siteContent.navigation.services, icon: true },
-    { id: 'destinations', label: 'Destinations', items: siteContent.home.countries.map(({ name, code }) => ({ label: name, code, to: '/destinations' })), destination: true },
+    { id: 'destinations', label: 'Destinations', items: destinations.map((item) => ({ label: item.name, code: item.code, to: destinationPath(item) })), destination: true },
     { id: 'resources', label: 'Resources', items: siteContent.navigation.resources },
   ]
   const closeMenu = () => { setMenuOpen(false); setOpenDropdown('') }
@@ -85,7 +93,7 @@ export function PublicLayout() {
   }, [])
 
   useEffect(() => {
-    const [title, description] = pageMetadata[location.pathname] || ['Page not found | VN Group', 'This VN Group page is not available. Return to the homepage to continue.']
+    const [title, description] = metadataFor(location.pathname) || ['Page not found | VN Group', 'This VN Group page is not available. Return to the homepage to continue.']
     document.title = title
     document.querySelector('meta[name="description"]')?.setAttribute('content', description)
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title)
@@ -208,7 +216,7 @@ export function PublicLayout() {
           <nav ref={navRef} id="site-navigation" className={`site-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             {dropdownGroups.map((group) => {
               const isOpen = openDropdown === group.id
-              const isActive = group.id === 'about' ? location.pathname === '/about' : group.id === 'destinations' ? location.pathname === '/destinations' : group.id === 'resources' ? ['/journey', '/faqs'].includes(location.pathname) : location.hash.startsWith('#service-') || activeSection === 'services'
+              const isActive = group.id === 'about' ? location.pathname === '/about' : group.id === 'destinations' ? location.pathname.startsWith('/destinations') : group.id === 'resources' ? ['/journey', '/faqs', '/gallery'].includes(location.pathname) : location.hash.startsWith('#service-') || activeSection === 'services'
               return <div key={group.id} ref={(node) => { dropdownRefs.current[group.id] = node }} className={`about-nav${group.destination ? ' destinations-nav' : ''}${group.id === 'resources' ? ' resources-nav' : ''}${isOpen ? ' is-open' : ''}${isActive ? ' has-active-route' : ''}`} onMouseEnter={() => window.matchMedia('(min-width: 1024px)').matches && scheduleDropdown(group.id, 120, () => setOpenDropdown(group.id))} onMouseLeave={() => window.matchMedia('(min-width: 1024px)').matches && scheduleDropdown(group.id, 150, () => setOpenDropdown((value) => value === group.id ? '' : value))}>
                 <button ref={(node) => { triggerRefs.current[group.id] = node }} type="button" className="about-trigger" aria-expanded={isOpen} aria-controls={`${group.id}-subnav`} onClick={() => setOpenDropdown((value) => value === group.id ? '' : group.id)}>
                   {group.label}<svg className="about-chevron" aria-hidden="true" viewBox="0 0 20 20"><path d="m5 7.5 5 5 5-5" /></svg>
@@ -293,14 +301,7 @@ function AboutPhotos() {
   </div>
 }
 
-export function Destinations() {
-  const copy = siteContent.pages.destinations
-  return <><PageIntro eyebrow="Explore destinations" title={copy.title}>{copy.description}</PageIntro><DestinationCards /><p className="destination-data-empty">{copy.emptyMessage}</p></>
-}
-
-export function Journey() { return <><PageIntro eyebrow="How it works" title="A clear path, step by step" /> <section className="steps-list">{siteContent.home.process.map((step, index) => <article className="step-row" key={step.title}><span className="step-number">{String(index + 1).padStart(2, '0')}</span><div><h2>{step.title}</h2><p>{step.description}</p></div></article>)}</section></> }
-
-export function FAQs() { return <><PageIntro eyebrow="Questions" title={siteContent.pages.faqs.title}>{siteContent.pages.faqs.description}</PageIntro><FAQ /></> }
+export function FAQs() { return <><PageIntro eyebrow="Questions" title={siteContent.pages.faqs.title}>{siteContent.pages.faqs.description}</PageIntro><FAQ variant="full" /></> }
 
 export function Privacy() { return <LegalPage type="privacy" /> }
 

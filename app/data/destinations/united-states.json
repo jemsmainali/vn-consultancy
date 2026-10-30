@@ -2,100 +2,164 @@
   "slug": "united-states",
   "name": "United States",
   "currency": "USD",
-  "lastVerified": "TODO",
+  "lastVerified": "2026-10-30",
   "nprConversion": {
-    "rate": "TODO",
-    "date": "TODO"
+    "rate": 152.72,
+    "date": "2026-10-30"
   },
   "overview": {
-    "summary": "TODO",
-    "educationSystem": "TODO"
+    "summary": "The United States has thousands of accredited colleges and universities, flexible majors and strong research. Costs vary enormously between institutions, and several visa rules for students are changing or under court review in 2026.",
+    "educationSystem": "Community colleges offer two-year associate degrees, often with transfer pathways. Universities and colleges offer four-year bachelor’s degrees, master’s (usually 1–2 years) and doctorates. Only schools certified by the Student and Exchange Visitor Program (SEVP) can issue the Form I-20 needed for an F-1 visa."
   },
   "courses": [
     {
-      "level": "TODO",
+      "level": "Associate degree (community college)",
       "typicalDuration": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "2 years",
+        "label": "institution-specific"
       },
-      "description": "TODO"
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Bachelor’s degree",
+      "typicalDuration": {
+        "value": "4 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master’s degree",
+      "typicalDuration": {
+        "value": "1–2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
     }
   ],
   "universities": {
-    "institutions": [
-      {
-        "name": "TODO",
-        "city": "TODO",
-        "url": "TODO"
-      }
-    ],
+    "institutions": [],
     "intakes": [
-      "TODO"
+      "Fall (August/September) and Spring (January)"
     ],
     "applicationTimeline": [
-      "TODO"
+      "Start 12–15 months before a Fall intake.",
+      "Many priority and scholarship deadlines fall between November and February.",
+      "After admission, the school issues the I-20 once financial documents are approved.",
+      "Book the visa interview as early as allowed; you can enter the U.S. up to 30 days before the programme start date."
     ]
   },
   "tuition": [
     {
-      "level": "TODO",
+      "level": "Community college (associate)",
       "annualFee": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 8000,
+        "max": 20000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Public university – bachelor’s (international rate)",
+      "annualFee": {
+        "min": 25000,
+        "max": 45000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Private university – bachelor’s",
+      "annualFee": {
+        "min": 35000,
+        "max": 65000,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Master’s degree",
+      "annualFee": {
+        "min": 20000,
+        "max": 60000,
+        "label": "estimate"
       }
     }
   ],
   "livingCosts": [
     {
-      "city": "TODO",
+      "city": "Typical student city (major cities cost more)",
       "accommodation": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 700,
+        "max": 1800,
+        "label": "estimate"
       },
       "food": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 300,
+        "max": 600,
+        "label": "estimate"
       },
       "transport": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 50,
+        "max": 200,
+        "label": "estimate"
       },
       "utilities": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 100,
+        "max": 250,
+        "label": "estimate"
       },
       "personal": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 150,
+        "max": 300,
+        "label": "estimate"
       }
     }
   ],
   "scholarships": [
     {
-      "name": "TODO",
-      "provider": "TODO",
+      "name": "Fulbright Foreign Student Program (Nepal)",
+      "provider": "U.S. Government, administered by USEF-Nepal",
       "coverage": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "Usually full funding for a master’s programme",
+        "label": "official"
       },
-      "eligibility": "TODO",
-      "deadline": "TODO",
-      "url": "TODO"
+      "eligibility": "Nepali citizens with a four-year bachelor’s or equivalent, strong academic and leadership record",
+      "deadline": "Annual competition announced by USEF-Nepal",
+      "url": "https://www.usefnepal.org/"
+    },
+    {
+      "name": "University merit scholarships",
+      "provider": "Individual colleges and universities",
+      "coverage": {
+        "value": "Partial to full tuition reductions",
+        "label": "institution-specific"
+      },
+      "eligibility": "Academic merit and application strength; many are automatic with admission",
+      "deadline": "Usually with the admission application; early deadlines matter",
+      "url": "https://educationusa.state.gov/your-5-steps-us-study/finance-your-studies"
+    },
+    {
+      "name": "Graduate assistantships (RA/TA)",
+      "provider": "University departments",
+      "coverage": {
+        "value": "Often a tuition waiver plus a stipend for work hours",
+        "label": "official"
+      },
+      "eligibility": "Mostly for master’s and PhD students with relevant skills",
+      "deadline": "Ask the department; often decided after admission",
+      "url": "https://educationusa.state.gov/your-5-steps-us-study/finance-your-studies"
     }
   ],
   "studentVisa": {
-    "category": "TODO",
+    "category": "F-1 student visa",
     "process": [
-      "TODO"
+      "Receive the Form I-20 from an SEVP-certified school.",
+      "Pay the SEVIS I-901 fee (USD 350 for F applicants).",
+      "Complete the DS-160 online application.",
+      "Pay the visa application fee and book an interview.",
+      "Attend the interview with your I-20, financial documents and academic records.",
+      "If approved, collect your passport with the visa."
     ],
     "financialEvidence": {
-      "requirement": "TODO",
+      "requirement": "There is no single national amount. Your school lists the estimated cost of attendance for one academic year on your Form I-20, and you must show liquid funds to cover at least that first year, plus evidence for later years.",
       "amount": {
         "min": "TODO",
         "max": "TODO",
@@ -103,61 +167,153 @@
       }
     },
     "insurance": {
-      "requirement": "TODO",
+      "requirement": "Most universities require their student health plan or an equivalent policy.",
       "annualCost": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 1800,
+        "max": 4200,
+        "label": "estimate"
       }
     },
     "documents": [
-      "TODO"
+      "Passport",
+      "Transcripts and certificates (sometimes with a credential evaluation)",
+      "English test scores",
+      "Statement of purpose or personal essays",
+      "Letters of recommendation",
+      "CV or resume",
+      "Bank statements and sponsor letters",
+      "Form I-20 from the school",
+      "SEVIS I-901 fee receipt and DS-160 confirmation",
+      "NOC from Nepal’s Ministry of Education"
     ],
     "processingEstimate": {
-      "value": "TODO",
+      "value": "Interview wait times are published by the State Department and change often. Visa refusal rates for Nepali F-1 applicants have been high in recent years, so prepare a clear, honest study and funding plan.",
       "label": "TODO"
     }
   },
   "workRules": {
     "duringTerm": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "On campus only: up to 20 hours a week while school is in session",
+      "label": "official"
     },
     "duringBreaks": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Full-time on campus during official school breaks",
+      "label": "official"
     },
     "conditions": [
-      "TODO"
+      "On-campus jobs up to 20 hours a week while school is in session, and full-time during official breaks.",
+      "Off-campus work is only allowed with specific authorisation, such as Curricular Practical Training (CPT) or OPT.",
+      "Working without authorisation can end your status.",
+      "On-campus jobs are limited and competitive. They are not a dependable way to pay tuition or living costs, and the I-20 requires you to show funds before you travel."
     ]
   },
   "postStudyRoutes": [
     {
-      "name": "TODO",
+      "name": "Optional Practical Training (OPT)",
       "duration": {
-        "value": "TODO",
+        "value": "Up to 12 months in total",
+        "label": "official"
+      },
+      "conditions": "Work must be directly related to your major. You need an Employment Authorization Document (EAD) from USCIS before you start."
+    },
+    {
+      "name": "STEM OPT extension",
+      "duration": {
+        "value": "24 additional months",
+        "label": "official"
+      },
+      "conditions": "Degree on the DHS STEM Designated Degree Program List, an E-Verify employer, at least 20 hours a week and a Form I-983 training plan."
+    },
+    {
+      "name": "H-1B specialty occupation visa",
+      "duration": {
+        "value": "Up to 3 years initially, extendable",
         "label": "TODO"
       },
-      "conditions": "TODO"
+      "conditions": "Requires an employer petition and is subject to an annual cap and selection process. A USD 100,000 payment introduced in 2025 generally does not apply to change-of-status petitions from F-1 inside the U.S., but its future and litigation status should be checked. Check the current rule with the official source before relying on this."
+    },
+    {
+      "name": "Permanent residence",
+      "duration": {
+        "value": "—",
+        "label": "official"
+      },
+      "conditions": "Not available automatically after study. It usually requires employer or family sponsorship and long waiting times."
     }
   ],
   "lifestyle": [
     {
-      "topic": "TODO",
-      "text": "TODO"
+      "topic": "Accommodation",
+      "text": "First-year students often live in residence halls. Graduate students usually rent shared apartments; leases often run for 12 months."
+    },
+    {
+      "topic": "Transport",
+      "text": "Big cities have public transport. Many college towns and suburbs need a car or bicycle."
+    },
+    {
+      "topic": "Climate",
+      "text": "Ranges from snowy winters in the Northeast and Midwest to hot summers in Texas and Arizona."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Healthcare is expensive. Most universities require you to buy the school insurance plan or an equivalent policy."
+    },
+    {
+      "topic": "Safety",
+      "text": "Safety varies by neighbourhood. Use campus safety services, and keep copies of your I-20 and immigration documents."
     }
   ],
   "officialLinks": [
     {
-      "label": "TODO",
-      "url": "TODO"
+      "label": "U.S. Department of State – Student visa",
+      "url": "https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html"
+    },
+    {
+      "label": "U.S. Embassy in Nepal – Visas",
+      "url": "https://np.usembassy.gov/visas/"
+    },
+    {
+      "label": "Study in the States (DHS)",
+      "url": "https://studyinthestates.dhs.gov/"
+    },
+    {
+      "label": "EducationUSA",
+      "url": "https://educationusa.state.gov/"
+    },
+    {
+      "label": "USEF-Nepal (Fulbright and EducationUSA advising)",
+      "url": "https://www.usefnepal.org/"
+    },
+    {
+      "label": "College Navigator (U.S. Department of Education)",
+      "url": "https://nces.ed.gov/collegenavigator/"
     }
   ],
   "sources": [
     {
-      "label": "TODO",
-      "url": "TODO",
-      "accessed": "TODO"
+      "label": "ICE – I-901 SEVIS fee",
+      "url": "https://www.ice.gov/sevis/i901",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "ICE – Employment for F and M students",
+      "url": "https://www.ice.gov/sevis/employment",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Study in the States – STEM OPT extension overview",
+      "url": "https://studyinthestates.dhs.gov/stem-opt-hub/additional-resources/stem-opt-extension-overview",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Federal Register – Fixed time period of admission (17 July 2026)",
+      "url": "https://www.federalregister.gov/documents/2026/07/17/2026-14439/establishing-a-fixed-time-period-of-admission-and-an-extension-of-stay-procedure-for-nonimmigrant",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "U.S. Department of State – Student visa",
+      "url": "https://travel.state.gov/content/travel/en/us-visas/study/student-visa.html",
+      "accessed": "2026-10-30"
     }
   ]
 }

@@ -1,5 +1,6 @@
-import { siteContent, siteContentReady } from '../../data/siteContent'
+import { formatPhoneDisplay, siteContent, siteContentReady } from '../../data/siteContent'
 import EnquiryForm from './EnquiryForm'
+import ScrollReveal from '../../ScrollReveal'
 
 function ContactIcon({ kind }) {
   const paths = {
@@ -11,15 +12,6 @@ function ContactIcon({ kind }) {
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg>
 }
 
-function formatPhoneDisplay(phone) {
-  const digits = phone.replace(/\D/g, '')
-  const national = digits.startsWith('977') ? digits.slice(3) : digits
-  if (digits.startsWith('977') && national.length === 10) {
-    return `+977 ${national.slice(0, 3)} ${national.slice(3, 6)} ${national.slice(6)}`
-  }
-  return phone
-}
-
 export default function EnquirySection() {
   const { phone, whatsappNumber, email, whatsappMessage } = siteContent.contact
   const contactItems = [
@@ -28,22 +20,14 @@ export default function EnquirySection() {
     siteContentReady(email) && { kind: 'mail', label: 'Email us', value: email, href: `mailto:${email}` },
   ].filter(Boolean)
 
-  return <section id="enquire" className="data-section enquiry-data-section">
+  return <section id="enquire" className="data-section enquiry-data-section" aria-labelledby="enquire-title">
     <div className="data-container enquiry-data-layout">
-      <div className="enquiry-intro-column">
+      <ScrollReveal className="enquiry-intro-column" direction="left">
         <header className="enquiry-intro-heading">
           <p className="enquiry-eyebrow">FREE COUNSELLING</p>
-          <h2>Tell us what you're thinking about.</h2>
+          <h2 id="enquire-title">Book a free counselling session.</h2>
         </header>
-        <p className="enquiry-data-intro">Share your contact details and a few study preferences to start an enquiry.</p>
-        <div className="enquiry-next-steps">
-          <h3>What happens next</h3>
-          <ol>
-            <li><span aria-hidden="true">1</span><p>Send your details</p></li>
-            <li><span aria-hidden="true">2</span><p>A VN Group counsellor contacts you</p></li>
-            <li><span aria-hidden="true">3</span><p>You get a clear, personal study plan</p></li>
-          </ol>
-        </div>
+        <p className="enquiry-data-intro">Fill in the form and a VN Group counsellor will get in touch about your study plans.</p>
         {contactItems.length > 0 && <div className="enquiry-contact-divider" aria-hidden="true" />}
         {contactItems.length > 0 && <address className="enquiry-contact-block" aria-label="Contact VN Group">
           <h3>Prefer to talk directly?</h3>
@@ -57,8 +41,8 @@ export default function EnquirySection() {
             </li>)}
           </ul>
         </address>}
-      </div>
-      <div className="enquiry-data-card"><div className="enquiry-card-accent" aria-hidden="true" /><EnquiryForm /></div>
+      </ScrollReveal>
+      <ScrollReveal className="enquiry-data-card" direction="right" delay={100}><div className="enquiry-card-accent" aria-hidden="true" /><EnquiryForm /></ScrollReveal>
     </div>
   </section>
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { API_BASE, api } from '../api'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import ListSkeleton from '../components/ui/ListSkeleton'
+import { Btn, Icon, PageHeader, StatusBadge } from '../ui'
 
 const categories = [
   ['student-life', 'Student life'], ['counselling', 'Counselling'], ['events', 'Events'],
@@ -78,7 +79,7 @@ export default function GalleryAdmin() {
 
   return <div className="gallery-admin">
     <ConfirmDialog open={Boolean(removeTarget)} title="Remove this gallery image?" message={`${removeTarget?.caption || ''} will be removed along with its stored image.`} confirmLabel="Remove image" danger onCancel={() => setRemoveTarget(null)} onConfirm={async () => { await removeItem(removeTarget); setRemoveTarget(null) }} />
-    <header className="gallery-admin-heading"><div><p className="gallery-admin-eyebrow">Website content</p><h1>Gallery management</h1><p>Upload and manage images shown in the public homepage gallery. Only VN Group staff can access these controls.</p></div><button type="button" className="gallery-admin-refresh" onClick={load} disabled={loading}>Refresh list</button></header>
+    <PageHeader eyebrow="Website content" title="Gallery management" description="Upload and manage images shown in the public homepage gallery. Only VN Group staff can access these controls." actions={<Btn type="button" variant="secondary" onClick={load} disabled={loading}><Icon name="refresh" />Refresh list</Btn>} />
     <p className="gallery-admin-caution">Publish only images VN Group owns or has permission to use. Confirm consent before publishing identifiable students. Do not upload passports, application documents, personal contact information, or private student records.</p>
     {error && <p className="gallery-admin-error" role="alert">{error}</p>}
     {notice && <p className="gallery-admin-success" role="status">{notice}</p>}
@@ -100,7 +101,10 @@ export default function GalleryAdmin() {
       <div className="gallery-admin-items">{items.map((item) => {
         const draft = drafts[item.id] || item
         return <article className="gallery-admin-item" key={item.id}>
-          <img src={`${API_BASE}${item.image_url}`} alt="" width="240" height="160" />
+          <div className="gallery-admin-thumb">
+            <img src={`${API_BASE}${item.image_url}`} alt="" width="240" height="160" loading="lazy" />
+            <StatusBadge tone={item.published ? 'success' : 'neutral'}>{item.published ? 'Published' : 'Draft'}</StatusBadge>
+          </div>
           <div className="gallery-admin-edit">
             <label>Caption<input maxLength="180" value={draft.caption} onChange={(e) => updateDraft(item.id, 'caption', e.target.value)} /></label>
             <label>Alternative text<input maxLength="240" value={draft.alt_text} onChange={(e) => updateDraft(item.id, 'alt_text', e.target.value)} /></label>

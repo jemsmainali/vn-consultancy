@@ -2,72 +2,137 @@
   "slug": "france",
   "name": "France",
   "currency": "EUR",
-  "lastVerified": "TODO",
+  "lastVerified": "2026-10-30",
   "nprConversion": {
-    "rate": "TODO",
-    "date": "TODO"
+    "rate": 170.09,
+    "date": "2026-10-30"
   },
   "overview": {
-    "summary": "TODO",
-    "educationSystem": "TODO"
+    "summary": "France has state-regulated fees at public universities, respected business and engineering schools, and a growing number of English-taught master’s programmes. Most bachelor’s programmes are taught in French.",
+    "educationSystem": "Public universities follow the LMD structure: licence (bachelor’s, 3 years), master (2 years) and doctorat. Grandes écoles and business schools are selective and often charge higher fees."
   },
   "courses": [
     {
-      "level": "TODO",
+      "level": "Licence (bachelor’s)",
       "typicalDuration": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "3 years",
+        "label": "institution-specific"
       },
-      "description": "TODO"
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Master",
+      "typicalDuration": {
+        "value": "2 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
+    },
+    {
+      "level": "Doctorat",
+      "typicalDuration": {
+        "value": "Usually 3 years",
+        "label": "institution-specific"
+      },
+      "description": "Typical length; the exact duration depends on the institution and programme."
     }
   ],
   "universities": {
-    "institutions": [
-      {
-        "name": "TODO",
-        "city": "TODO",
-        "url": "TODO"
-      }
-    ],
+    "institutions": [],
     "intakes": [
-      "TODO"
+      "September, some January starts"
     ],
     "applicationTimeline": [
-      "TODO"
+      "Many applications open from October to January for the following September.",
+      "Complete the Campus France / Études en France procedure if it applies to Nepal.",
+      "Apply for the VLS-TS visa after admission.",
+      "Validate your visa online within three months of arrival."
     ]
   },
   "tuition": [
     {
-      "level": "TODO",
+      "level": "Public university – licence (per year) (differentiated fee for non-EU students, 2026–27)",
       "annualFee": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 2902,
+        "max": 2902,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Public university – master (per year) (differentiated fee for non-EU students, 2026–27)",
+      "annualFee": {
+        "min": 3950,
+        "max": 3950,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Doctorate (per year)",
+      "annualFee": {
+        "min": 398,
+        "max": 398,
+        "label": "estimate"
+      }
+    },
+    {
+      "level": "Business and private schools (per year)",
+      "annualFee": {
+        "min": 10000,
+        "max": 25000,
+        "label": "estimate"
       }
     }
   ],
   "livingCosts": [
     {
-      "city": "TODO",
+      "city": "Paris",
       "accommodation": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 600,
+        "max": 1100,
+        "label": "estimate"
       },
       "food": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 200,
+        "max": 300,
+        "label": "estimate"
       },
       "transport": {
-        "min": "TODO",
-        "max": "TODO",
-        "label": "TODO"
+        "min": 25,
+        "max": 80,
+        "label": "estimate"
       },
       "utilities": {
+        "min": 100,
+        "max": 180,
+        "label": "estimate"
+      },
+      "personal": {
         "min": "TODO",
         "max": "TODO",
         "label": "TODO"
+      }
+    },
+    {
+      "city": "Other university cities",
+      "accommodation": {
+        "min": 350,
+        "max": 650,
+        "label": "estimate"
+      },
+      "food": {
+        "min": 200,
+        "max": 300,
+        "label": "estimate"
+      },
+      "transport": {
+        "min": 25,
+        "max": 80,
+        "label": "estimate"
+      },
+      "utilities": {
+        "min": 100,
+        "max": 180,
+        "label": "estimate"
       },
       "personal": {
         "min": "TODO",
@@ -78,32 +143,58 @@
   ],
   "scholarships": [
     {
-      "name": "TODO",
-      "provider": "TODO",
+      "name": "Eiffel Excellence Scholarship",
+      "provider": "French Ministry for Europe and Foreign Affairs",
       "coverage": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "Monthly allowance, travel and other benefits for master’s and PhD students",
+        "label": "official"
       },
-      "eligibility": "TODO",
-      "deadline": "TODO",
-      "url": "TODO"
+      "eligibility": "Nominated by a French institution; applicants cannot apply directly",
+      "deadline": "Institutions apply on your behalf, usually in January",
+      "url": "https://www.campusfrance.org/en/eiffel-scholarship-program-of-excellence"
+    },
+    {
+      "name": "Campus Bourses scholarship directory",
+      "provider": "Campus France",
+      "coverage": {
+        "value": "Search engine for institution, government and company scholarships",
+        "label": "institution-specific"
+      },
+      "eligibility": "Varies",
+      "deadline": "Varies",
+      "url": "https://campusbourses.campusfrance.org/"
+    },
+    {
+      "name": "Fee exemptions",
+      "provider": "Universities",
+      "coverage": {
+        "value": "Partial or full exemption from differentiated fees",
+        "label": "institution-specific"
+      },
+      "eligibility": "Institution-specific",
+      "deadline": "With admission",
+      "url": "https://www.campusfrance.org/en/tuition-fees-France"
     }
   ],
   "studentVisa": {
-    "category": "TODO",
+    "category": "VLS-TS “étudiant”",
     "process": [
-      "TODO"
+      "Receive admission from a French institution.",
+      "Complete the Études en France procedure through Campus France if required.",
+      "Create a France-Visas application and book a submission appointment.",
+      "Submit documents and biometrics.",
+      "After arrival, validate the visa online and pay the residence tax."
     ],
     "financialEvidence": {
-      "requirement": "TODO",
+      "requirement": "You must show sufficient monthly resources for your stay. The amount commonly cited by Campus France offices is €615 per month, but sources differ. Confirm the current figure on France-Visas when you apply.",
       "amount": {
-        "min": "TODO",
-        "max": "TODO",
+        "min": 7380,
+        "max": 7380,
         "label": "TODO"
       }
     },
     "insurance": {
-      "requirement": "TODO",
+      "requirement": "Register with French social security after arrival; a complementary mutuelle is optional but common.",
       "annualCost": {
         "min": "TODO",
         "max": "TODO",
@@ -111,53 +202,113 @@
       }
     },
     "documents": [
-      "TODO"
+      "Passport",
+      "Admission letter",
+      "Academic transcripts and certificates (sometimes translated)",
+      "Language certificates",
+      "Proof of resources",
+      "Accommodation proof or attestation",
+      "CV and motivation letter",
+      "NOC from Nepal’s Ministry of Education"
     ],
     "processingEstimate": {
-      "value": "TODO",
+      "value": "Processing depends on the season and visa centre. Apply as soon as you have admission.",
       "label": "TODO"
     }
   },
   "workRules": {
     "duringTerm": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Up to 964 hours a year (about 20 hours a week)",
+      "label": "official"
     },
     "duringBreaks": {
-      "value": "TODO",
-      "label": "TODO"
+      "value": "Within the same 964-hour annual limit",
+      "label": "official"
     },
     "conditions": [
-      "TODO"
+      "Up to 964 hours per year (about 60% of full-time work) without a separate work permit.",
+      "Your employer must declare you to the prefecture before you start.",
+      "Exceeding the limit can lead to withdrawal of your residence permit.",
+      "Most part-time jobs need conversational French. Earnings are not guaranteed."
     ]
   },
   "postStudyRoutes": [
     {
-      "name": "TODO",
+      "name": "Residence permit “recherche d’emploi / création d’entreprise”",
       "duration": {
-        "value": "TODO",
-        "label": "TODO"
+        "value": "1 year, non-renewable",
+        "label": "official"
       },
-      "conditions": "TODO"
+      "conditions": "For graduates with at least a master’s-level degree (or a licence professionnelle) from France, to look for work or start a business."
+    },
+    {
+      "name": "Talent passport or salaried worker permit",
+      "duration": {
+        "value": "Depends on permit",
+        "label": "official"
+      },
+      "conditions": "Requires a qualifying job offer; salary thresholds apply for some permits."
     }
   ],
   "lifestyle": [
     {
-      "topic": "TODO",
-      "text": "TODO"
+      "topic": "Accommodation",
+      "text": "CROUS student residences are cheapest but limited. Many students rent privately and may qualify for CAF housing assistance."
+    },
+    {
+      "topic": "Transport",
+      "text": "Excellent trains and urban transport with student discounts."
+    },
+    {
+      "topic": "Climate",
+      "text": "Varies from mild Mediterranean in the south to cooler, wetter weather in the north."
+    },
+    {
+      "topic": "Healthcare",
+      "text": "Register with French social security (sécurité sociale étudiante) after arrival; a complementary mutuelle is optional but common."
+    },
+    {
+      "topic": "Safety",
+      "text": "Generally safe. Watch for pickpockets in big cities."
     }
   ],
   "officialLinks": [
     {
-      "label": "TODO",
-      "url": "TODO"
+      "label": "Campus France",
+      "url": "https://www.campusfrance.org/en"
+    },
+    {
+      "label": "France-Visas",
+      "url": "https://france-visas.gouv.fr/"
+    },
+    {
+      "label": "ANEF – visa validation and residence permits",
+      "url": "https://administration-etrangers-en-france.interieur.gouv.fr/"
+    },
+    {
+      "label": "Campus Bourses scholarship search",
+      "url": "https://campusbourses.campusfrance.org/"
+    },
+    {
+      "label": "Welcome to France",
+      "url": "https://www.welcometofrance.com/en"
     }
   ],
   "sources": [
     {
-      "label": "TODO",
-      "url": "TODO",
-      "accessed": "TODO"
+      "label": "Campus France – Tuition fees in France",
+      "url": "https://www.campusfrance.org/en/tuition-fees-France",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Campus France – Student long-stay visa",
+      "url": "https://www.campusfrance.org/en/student-long-stay-visa",
+      "accessed": "2026-10-30"
+    },
+    {
+      "label": "Ministry of Higher Education – FAQ on differentiated fees (July 2026)",
+      "url": "https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2026-07/FAQ%20DIDEEC_ENGLISH.pdf",
+      "accessed": "2026-10-30"
     }
   ]
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../auth'
 import { fetchMyPhoto, updateProfile, uploadProfilePhoto } from '../api'
-import { Card, Input, Select, Btn, Err } from '../ui'
+import { Card, Input, Select, Btn, Err, Icon, PageHeader, StatusBadge, initials } from '../ui'
 
 const ROLE_LABEL = {
   student: 'Student', principal: 'Principal', parent: 'Parent/Guardian',
@@ -10,6 +10,20 @@ const ROLE_LABEL = {
 
 const GENDERS = ['Male', 'Female', 'Other']
 const COURSE_LEVELS = ["Bachelor's", "Master's", 'PhD', 'Diploma', 'Language Course', 'Other']
+
+function Item({ label, editing, children, value, locked = false, span = false }) {
+  return (
+    <div className={`profile-item${locked ? ' profile-item--locked' : ''}${span ? ' profile-span' : ''}`}>
+      <dt>{label}</dt>
+      <dd>
+        {editing && !locked ? children : <>
+          {locked && <Icon name="lock" />}
+          {value || <span className="text-navy/40">—</span>}
+        </>}
+      </dd>
+    </div>
+  )
+}
 
 export default function Profile() {
   const { user, refresh } = useAuth()
@@ -90,135 +104,128 @@ export default function Profile() {
     setNewPhoto(null); setPreview(null); setErr(''); setEditing(false)
   }
 
+  const showStudy = user.role === 'student' || user.target_course_level || user.target_field || user.target_country
+  const avatar = preview || photoUrl
+
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="font-sans text-3xl font-bold">My profile</h1>
+    <div className="mx-auto max-w-4xl ui-stack">
+      <PageHeader
+        eyebrow="Account"
+        title="My profile"
+        description="Keep your details up to date so the VN Group team can prepare your applications accurately."
+        actions={!editing && <Btn type="button" onClick={() => setEditing(true)}><Icon name="edit" />Edit profile</Btn>}
+      />
       <Err msg={err} />
 
-      <Card className="p-6">
-        <div className="flex items-center gap-5">
-          <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border border-navy/15 bg-cream/60">
-            {(preview || photoUrl)
-              ? <img src={preview || photoUrl} alt={user.full_name} className="h-full w-full object-cover" />
-              : <div className="grid h-full w-full place-items-center text-xs text-navy/40">No photo</div>}
+      <Card className="profile-hero">
+        <div className="profile-hero-band" aria-hidden="true" />
+        <div className="profile-hero-body">
+          <div className="profile-avatar">
+            {avatar ? <img src={avatar} alt={user.full_name} /> : <span aria-hidden="true">{initials(user.full_name)}</span>}
           </div>
-          <div>
-            <div className="font-sans text-xl font-bold text-navy">{user.full_name}</div>
-            <div className="text-sm text-navy/60">{ROLE_LABEL[user.role]}</div>
-            {editing && (
-              <label className="mt-2 inline-block cursor-pointer text-sm font-medium text-navy underline">
-                Change photo
-                <input type="file" accept="image/jpeg,image/png" onChange={onPhoto} className="hidden" />
-              </label>
-            )}
-          </div>
-        </div>
-      </Card>
-
-      <Card className="space-y-6 p-6">
-        <div>
-          <h2 className="mb-3 border-b border-navy/10 pb-2 text-sm font-semibold uppercase tracking-wide text-navy/70">
-            Personal information
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Full name</label>
-              {editing ? <Input value={f.full_name} onChange={set('full_name')} /> : <p className="text-sm">{user.full_name}</p>}
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Email</label>
-              <p className="text-sm text-navy/60">{user.email} <span className="text-xs">(cannot be changed here)</span></p>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">National ID</label>
-              <p className="text-sm text-navy/60">{user.national_id || '—'}</p>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Date of birth</label>
-              <p className="text-sm text-navy/60">
-                {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : '—'}
-              </p>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Gender</label>
-              {editing
-                ? <Select value={f.gender} onChange={set('gender')}>
-                    <option value="">Not specified</option>
-                    {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
-                  </Select>
-                : <p className="text-sm">{user.gender || '—'}</p>}
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Citizenship / Nationality</label>
-              {editing ? <Input value={f.citizenship} onChange={set('citizenship')} /> : <p className="text-sm">{user.citizenship || '—'}</p>}
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Passport number</label>
-              {editing ? <Input value={f.passport_number} onChange={set('passport_number')} /> : <p className="text-sm">{user.passport_number || '—'}</p>}
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Member since</label>
-              <p className="text-sm text-navy/60">{new Date(user.created_at).toLocaleDateString()}</p>
+          <div className="profile-identity">
+            <h2 className="profile-name">{user.full_name}</h2>
+            <div className="profile-meta">
+              <StatusBadge tone="gold">{ROLE_LABEL[user.role]}</StatusBadge>
+              <span>{user.email}</span>
+              <span>Member since {new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
             </div>
           </div>
-        </div>
-
-        {(user.role === 'student' || user.target_course_level || user.target_field || user.target_country) && (
-          <div className="border-t border-navy/10 pt-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-navy/70">Study plans</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-navy/70">Intended course level</label>
-                {editing
-                  ? <Select value={f.target_course_level} onChange={set('target_course_level')}>
-                      <option value="">Not decided yet</option>
-                      {COURSE_LEVELS.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </Select>
-                  : <p className="text-sm">{user.target_course_level || '—'}</p>}
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-navy/70">Field of study</label>
-                {editing ? <Input value={f.target_field} onChange={set('target_field')} /> : <p className="text-sm">{user.target_field || '—'}</p>}
-              </div>
-              <div className="sm:col-span-2">
-                <label className="mb-1 block text-xs font-medium text-navy/70">Target country</label>
-                {editing ? <Input value={f.target_country} onChange={set('target_country')} /> : <p className="text-sm">{user.target_country || '—'}</p>}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="border-t border-navy/10 pt-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-navy/70">Parent / guardian details</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Name</label>
-              {editing ? <Input value={f.parent_name} onChange={set('parent_name')} /> : <p className="text-sm">{user.parent_name || '—'}</p>}
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-navy/70">Phone</label>
-              {editing ? <Input value={f.parent_phone} onChange={set('parent_phone')} /> : <p className="text-sm">{user.parent_phone || '—'}</p>}
-            </div>
-            <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-navy/70">Email</label>
-              {editing ? <Input type="email" value={f.parent_email} onChange={set('parent_email')} /> : <p className="text-sm">{user.parent_email || '—'}</p>}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 border-t border-navy/10 pt-4">
-          {editing ? (
-            <>
-              <button onClick={cancel} disabled={busy} className="rounded-lg border border-navy/20 px-4 py-2 text-sm hover:bg-navy/5 disabled:opacity-50">
-                Cancel
-              </button>
-              <Btn onClick={save} disabled={busy}>{busy ? 'Saving...' : 'Save changes'}</Btn>
-            </>
-          ) : (
-            <Btn onClick={() => setEditing(true)}>Edit profile</Btn>
+          {editing && (
+            <label className="ui-btn ui-btn--secondary profile-photo-btn">
+              <input type="file" accept="image/jpeg,image/png" onChange={onPhoto} className="sr-only" />
+              <Icon name="upload" />{avatar ? 'Change photo' : 'Add photo'}
+            </label>
           )}
         </div>
       </Card>
+
+      <Card>
+        <div className="ui-section-head">
+          <div>
+            <h2 className="ui-section-title">Personal information</h2>
+            <p className="ui-section-text">Fields with a lock icon can only be changed by VN Group staff.</p>
+          </div>
+        </div>
+        <dl className="profile-grid">
+          <Item label="Full name" editing={editing} value={user.full_name}>
+            <Input aria-label="Full name" value={f.full_name} onChange={set('full_name')} />
+          </Item>
+          <Item label="Email" locked value={user.email} />
+          <Item label="National ID" locked value={user.national_id} />
+          <Item label="Date of birth" locked value={user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : ''} />
+          <Item label="Gender" editing={editing} value={user.gender}>
+            <Select aria-label="Gender" value={f.gender} onChange={set('gender')}>
+              <option value="">Not specified</option>
+              {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
+            </Select>
+          </Item>
+          <Item label="Citizenship / Nationality" editing={editing} value={user.citizenship}>
+            <Input aria-label="Citizenship / Nationality" value={f.citizenship} onChange={set('citizenship')} />
+          </Item>
+          <Item label="Passport number" editing={editing} value={user.passport_number}>
+            <Input aria-label="Passport number" value={f.passport_number} onChange={set('passport_number')} />
+          </Item>
+          <Item label="Member since" locked value={new Date(user.created_at).toLocaleDateString()} />
+        </dl>
+      </Card>
+
+      {showStudy && (
+        <Card>
+          <div className="ui-section-head">
+            <div>
+              <h2 className="ui-section-title">Study plans</h2>
+              <p className="ui-section-text">Helps your counsellor shortlist courses and destinations.</p>
+            </div>
+          </div>
+          <dl className="profile-grid">
+            <Item label="Intended course level" editing={editing} value={user.target_course_level}>
+              <Select aria-label="Intended course level" value={f.target_course_level} onChange={set('target_course_level')}>
+                <option value="">Not decided yet</option>
+                {COURSE_LEVELS.map((c) => <option key={c} value={c}>{c}</option>)}
+              </Select>
+            </Item>
+            <Item label="Field of study" editing={editing} value={user.target_field}>
+              <Input aria-label="Field of study" value={f.target_field} onChange={set('target_field')} />
+            </Item>
+            <Item label="Target country" editing={editing} value={user.target_country} span>
+              <Input aria-label="Target country" value={f.target_country} onChange={set('target_country')} />
+            </Item>
+          </dl>
+        </Card>
+      )}
+
+      <Card>
+        <div className="ui-section-head">
+          <div>
+            <h2 className="ui-section-title">Parent / guardian details</h2>
+            <p className="ui-section-text">A contact we can reach about your application.</p>
+          </div>
+        </div>
+        <dl className="profile-grid">
+          <Item label="Name" editing={editing} value={user.parent_name}>
+            <Input aria-label="Parent or guardian name" value={f.parent_name} onChange={set('parent_name')} />
+          </Item>
+          <Item label="Phone" editing={editing} value={user.parent_phone}>
+            <Input aria-label="Parent or guardian phone" value={f.parent_phone} onChange={set('parent_phone')} />
+          </Item>
+          <Item label="Email" editing={editing} value={user.parent_email} span>
+            <Input aria-label="Parent or guardian email" type="email" value={f.parent_email} onChange={set('parent_email')} />
+          </Item>
+        </dl>
+      </Card>
+
+      {editing && (
+        <div className="profile-actions">
+          <p>You&apos;re editing your profile.</p>
+          <div>
+            <Btn type="button" variant="secondary" onClick={cancel} disabled={busy}>Cancel</Btn>
+            <Btn type="button" onClick={save} disabled={busy}>
+              {busy ? <><span className="ui-spin" aria-hidden="true" />Saving…</> : <><Icon name="check" />Save changes</>}
+            </Btn>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

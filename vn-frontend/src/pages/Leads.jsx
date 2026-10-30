@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { api } from '../api'
+import { PageHeader } from '../ui'
 
 const STATUSES = [
   ['new', 'New'], ['contacted', 'Contacted'], ['counselling', 'Counselling'],
@@ -93,7 +94,7 @@ export default function Leads() {
   }
 
   return <section className="leads-page">
-    <div className="leads-heading"><div><p className="eyebrow">Staff workspace</p><h1>Student enquiries</h1><p>Review, assign, and track follow-up for website enquiries.</p></div><span className="lead-total">{total} total</span></div>
+    <PageHeader eyebrow="Staff tools" title="Student enquiries" description="Review, assign, and track follow-up for website enquiries." actions={<span className="ui-count"><strong>{total}</strong> total</span>} />
     <form className="lead-filters" onSubmit={(event) => { event.preventDefault(); setPage(1); load() }}>
       <label>Search<input value={filters.search} onChange={(e) => { setPage(1); setFilters({ ...filters, search: e.target.value }) }} placeholder="Name, email, or phone"/></label>
       <label>Status<select value={filters.status} onChange={(e) => { setPage(1); setFilters({ ...filters, status: e.target.value }) }}><option value="">All statuses</option>{STATUSES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
@@ -105,11 +106,11 @@ export default function Leads() {
     {error && <p className="lead-error" role="alert">{error}</p>}
     <div className="leads-table-wrap"><table className="leads-table"><thead><tr><th>Enquiry</th><th>Study interest</th><th>Status</th><th>Assigned</th><th>Follow-up</th><th></th></tr></thead><tbody>
       {!loading && items.length === 0 && <tr><td colSpan="6" className="leads-empty">{error ? 'Enquiries are unavailable.' : 'No enquiries match these filters.'}</td></tr>}
-      {items.map((item) => <Fragment key={item.id}>
-        <tr key={item.id}>
+      {items.map((item, index) => <Fragment key={item.id}>
+        <tr key={item.id} style={{ '--i': index }} className={selected === item.id ? 'is-selected' : ''}>
           <td><strong>{item.full_name}</strong><small>{item.reference} · {formatDate(item.created_at)}</small><a href={`mailto:${item.email}`}>{item.email}</a><a href={`tel:${item.phone}`}>{item.phone}</a></td>
           <td><strong>{item.preferred_destination || 'Not specified'}</strong><small>{[item.education_level, item.study_field, item.intended_intake].filter(Boolean).join(' · ') || 'No study details'}</small></td>
-          <td><span className={`lead-status status-${item.status}`}>{STATUSES.find(([value]) => value === item.status)?.[1] || item.status}</span></td>
+          <td><span className={`lead-status status-${item.status}`}><span className="ui-badge-dot" aria-hidden="true" />{STATUSES.find(([value]) => value === item.status)?.[1] || item.status}</span></td>
           <td>{staff.find((person) => person.id === item.assigned_to_id)?.full_name || 'Unassigned'}</td>
           <td>{formatDate(item.follow_up_at)}</td>
           <td><button type="button" className="lead-review-button" onClick={() => selected === item.id ? setSelected(null) : startReview(item)}>{selected === item.id ? 'Close' : 'Review'}</button></td>

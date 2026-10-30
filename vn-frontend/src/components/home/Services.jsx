@@ -8,8 +8,8 @@ function ServiceCard({ service, index }) {
   const [available, setAvailable] = useState(true)
   if (!available) return null
   const illustrativeImage = service.image?.src.endsWith('.jfif')
-  return <ScrollReveal as="article" className={`service-data-card${index === 0 ? ' counselling-service-card' : ''}${service.image ? ' has-image' : ''}`} id={`service-${service.id}`}>
-    {service.image && <ResponsiveImage image={service.image} className={`service-data-image${illustrativeImage ? ' service-illustration-image' : ''}`} style={illustrativeImage ? { maxWidth: service.image.width, marginInline: 'auto' } : undefined} onUnavailable={() => setAvailable(false)} />}
+  return <ScrollReveal as="article" delay={(index % 3) * 80} className={`service-data-card${index === 0 ? ' counselling-service-card' : ''}${service.image ? ' has-image' : ''}`} id={`service-${service.id}`}>
+    {service.image && <ResponsiveImage image={service.image} className={`service-data-image${illustrativeImage ? ' service-illustration-image' : ''}`} onUnavailable={() => setAvailable(false)} />}
     <div className="service-data-title-row">
       <span className="service-data-icon" aria-hidden="true">{['◌', '▤', '◇', '▣', '◎', '↗'][index]}</span>
       <h3>{service.title}</h3>

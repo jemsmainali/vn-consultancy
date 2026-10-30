@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
-import { Logo, Card, Input, Select, Btn, Err } from '../ui'
+import { Err } from '../ui'
 import PasswordInput from '../components/ui/PasswordInput'
+import AuthLayout, { AuthAside } from '../components/auth/AuthLayout'
+import AuthField from '../components/auth/AuthField'
 
 const ROLES = [
   { value: 'student', label: 'Student' },
@@ -23,19 +25,17 @@ const COURSE_LEVELS = ["Bachelor's", "Master's", 'PhD', 'Diploma', 'Language Cou
 const MAX_PHOTO_MB = 10 // keep in sync with backend MAX_UPLOAD_MB
 const NID_PATTERN = /^\d{10}$/ // must match app/schemas/user.py's NID_PATTERN exactly
 
-const SectionTitle = ({ children }) => (
-  <h2 className="mb-4 border-b border-navy/10 pb-2 font-sans text-sm font-semibold uppercase tracking-wide text-navy/70">
-    {children}
-  </h2>
-)
-
-const Field = ({ label, children, span, hint }) => (
-  <div className={span ? 'sm:col-span-2' : ''}>
-    <label className="mb-1 block text-xs font-medium text-navy/70">{label}</label>
-    {children}
-    {hint && <p className="mt-1 text-xs text-navy/50">{hint}</p>}
-  </div>
-)
+function Section({ title, description, children, ...props }) {
+  return (
+    <section className="auth-section" {...props}>
+      <div className="auth-section-head">
+        <h2 className="auth-section-title">{title}</h2>
+        {description && <p className="auth-section-description">{description}</p>}
+      </div>
+      {children}
+    </section>
+  )
+}
 
 export default function Register() {
   const nav = useNavigate()
@@ -50,11 +50,20 @@ export default function Register() {
   const [agreed, setAgreed] = useState(false)
   const [photo, setPhoto] = useState(null)
   const [preview, setPreview] = useState(null)
+  const [photoErr, setPhotoErr] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [bankFieldErrors, setBankFieldErrors] = useState({})
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
   const bankDetailsVisible = REQUIRE_BANK_DETAILS && ROLES_REQUIRING_BANK_DETAILS.has(f.role)
+
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = 'Create an account | VN Group'
+    return () => { document.title = previousTitle }
+  }, [])
+
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview) }, [preview])
 
   const setBankField = (key) => (e) => {
     setF((value) => ({ ...value, [key]: e.target.value }))
@@ -73,13 +82,13 @@ export default function Register() {
 
   const onPhoto = (e) => {
     const file = e.target.files?.[0]
-    setErr('')
+    setPhotoErr('')
     if (!file) { setPhoto(null); setPreview(null); return }
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      setErr('Profile photo must be a JPEG or PNG image.'); e.target.value = ''; return
+      setPhotoErr('Profile photo must be a JPEG or PNG image.'); e.target.value = ''; return
     }
     if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
-      setErr(`Profile photo must be under ${MAX_PHOTO_MB}MB.`); e.target.value = ''; return
+      setPhotoErr(`Profile photo must be under ${MAX_PHOTO_MB}MB.`); e.target.value = ''; return
     }
     setPhoto(file)
     setPreview(URL.createObjectURL(file))
@@ -152,178 +161,221 @@ export default function Register() {
   const needsInvite = f.role === 'principal' || f.role === 'consultancy_staff'
 
   return (
-    <div className="min-h-screen bg-cream px-4 py-10">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-8 flex justify-center"><Logo /></div>
+    <AuthLayout
+      variant="register"
+      aside={(
+        <AuthAside
+          eyebrow="Create your VN Group account"
+          title="Start your study abroad journey with a clear plan."
+          description="One account for your documents, messages and application progress with VN Group."
+          points={[
+            'Fill in your profile and personal details',
+            'Verify your email with a one-time code',
+            'Share documents and talk with our team',
+          ]}
+        />
+      )}
+    >
+      <div className="auth-heading">
+        <p className="auth-kicker">Registration</p>
+        <h1 className="auth-title">Create your account</h1>
+        <p className="auth-intro">
+          It takes about five minutes. All fields are required unless marked <span className="auth-optional auth-optional--inline">Optional</span>.
+        </p>
+      </div>
 
-        <Card className="p-6 sm:p-8">
-          <div className="mb-6 text-center">
-            <h1 className="font-sans text-2xl font-bold text-navy">Create your account</h1>
-            <p className="mt-1 text-sm text-navy/60">Join VN Group to become an member!!</p>
-          </div>
-
-          <form onSubmit={submit} className="space-y-8">
-            <Err msg={err} />
-
-            {/* Photo + account type */}
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border border-navy/15 bg-cream/60">
-                {preview
-                  ? <img src={preview} alt="Preview" className="h-full w-full object-cover" />
-                  : <div className="grid h-full w-full place-items-center text-xs text-navy/40">No photo</div>}
-              </div>
-              <div className="w-full flex-1 space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-navy/70">Profile photo (JPEG or PNG, required)</label>
+      <form onSubmit={submit} className="auth-form auth-register-form">
+        <Section title="Profile" description="Your photo, account type and sign-in details.">
+          <div className="auth-photo">
+            <div className="auth-photo-preview">
+              {preview
+                ? <img src={preview} alt="Selected profile photo preview" />
+                : <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="24" cy="18" r="7.5" /><path strokeLinecap="round" d="M10 40c1.8-7 7.3-10.5 14-10.5S36.2 33 38 40" /></svg>}
+            </div>
+            <div className="auth-photo-body">
+              <p className="auth-label" id="photo-label">Profile photo</p>
+              <p className="auth-hint" id="photo-hint">A clear, front-facing photo. JPEG or PNG, up to {MAX_PHOTO_MB}MB.</p>
+              <div className="auth-photo-actions">
+                <label className="auth-upload-btn">
                   <input
                     type="file"
                     accept="image/jpeg,image/png"
                     required
                     onChange={onPhoto}
-                    className="block w-full text-sm text-navy/80 file:mr-3 file:rounded-lg file:border-0 file:bg-navy file:px-3 file:py-2 file:text-sm file:font-medium file:text-cream hover:file:bg-navy-700"
+                    className="sr-only"
+                    aria-labelledby="photo-label photo-button-text"
+                    aria-describedby={photoErr ? 'photo-error photo-hint' : 'photo-hint'}
+                    aria-invalid={photoErr ? true : undefined}
                   />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-navy/70">I am registering as</label>
-                  <Select value={f.role} onChange={changeRole}>
-                    {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
-                  </Select>
-                </div>
+                  <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7"><path strokeLinecap="round" strokeLinejoin="round" d="M10 13V4m0 0L6.5 7.5M10 4l3.5 3.5M4 13.5v1A1.5 1.5 0 0 0 5.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-1" /></svg>
+                  <span id="photo-button-text">{photo ? 'Change photo' : 'Upload photo'}</span>
+                </label>
+                {photo && <span className="auth-photo-name" title={photo.name}>{photo.name}</span>}
               </div>
-              <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${bankDetailsVisible ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} aria-hidden={!bankDetailsVisible}>
-                <div className="min-h-0 overflow-hidden">
-                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <Field label="Bank name" span>
-                      <input type="text" required={bankDetailsVisible} disabled={!bankDetailsVisible} autoComplete="off" value={f.bank_name} onChange={setBankField('bank_name')} aria-invalid={Boolean(bankFieldErrors.bank_name)} aria-describedby={bankFieldErrors.bank_name ? 'bank-name-error' : undefined} className="h-12 w-full rounded-lg border border-navy/20 bg-cream/60 px-3 text-sm placeholder:text-navy/40 focus:border-navy focus:outline-none focus:ring-2 focus:ring-gold/60 disabled:pointer-events-none" />
-                      {bankFieldErrors.bank_name && <p id="bank-name-error" className="mt-1 text-xs text-red-700">{bankFieldErrors.bank_name}</p>}
-                    </Field>
-                    <Field label="Bank account number" span>
-                      <input type="text" inputMode="numeric" required={bankDetailsVisible} disabled={!bankDetailsVisible} autoComplete="off" value={f.bank_account_number} onChange={setBankField('bank_account_number')} aria-invalid={Boolean(bankFieldErrors.bank_account_number)} aria-describedby={bankFieldErrors.bank_account_number ? 'bank-account-error' : 'bank-details-help'} className="h-12 w-full rounded-lg border border-navy/20 bg-cream/60 px-3 text-sm placeholder:text-navy/40 focus:border-navy focus:outline-none focus:ring-2 focus:ring-gold/60 disabled:pointer-events-none" />
-                      {bankFieldErrors.bank_account_number && <p id="bank-account-error" className="mt-1 text-xs text-red-700">{bankFieldErrors.bank_account_number}</p>}
-                    </Field>
-                    <p id="bank-details-help" className="flex items-center gap-1.5 text-xs text-navy/60 sm:col-span-2"><svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="8.5" width="12" height="8" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5M10 11.5v2"/></svg>Your bank details are stored encrypted and are never shown in full.</p>
-                  </div>
-                </div>
-              </div>
+              {photoErr && <p id="photo-error" className="auth-field-error" role="alert">{photoErr}</p>}
             </div>
+          </div>
 
-            {/* Personal information */}
-            <div>
-              <SectionTitle>Personal information</SectionTitle>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Full name" span>
-                  <Input required value={f.full_name} onChange={set('full_name')} />
-                </Field>
-                <Field label="Email address">
-                  <Input type="email" required value={f.email} onChange={set('email')} />
-                </Field>
-                <Field label="Password (8+ characters)">
-                  <PasswordInput autoComplete="new-password" required minLength={8} value={f.password} onChange={set('password')} />
-                </Field>
-                <Field label="Date of birth">
-                  <Input type="date" required value={f.date_of_birth} onChange={set('date_of_birth')} />
-                </Field>
-                <Field label="Gender">
-                  <Select required value={f.gender} onChange={set('gender')}>
-                    <option value="" disabled>Select gender</option>
-                    {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
-                  </Select>
-                </Field>
-                <Field label="Citizenship / Nationality">
-                  <Input required placeholder="e.g. Nepali" value={f.citizenship} onChange={set('citizenship')} />
-                </Field>
-                <Field
-                  label="National ID Card number"
-                  hint="The 10-digit number on your National ID Card (not the old citizenship certificate number)."
-                >
-                  <Input
-                    required
-                    value={f.national_id}
-                    onChange={setNationalId}
-                    inputMode="numeric"
-                    maxLength={10}
-                    placeholder="e.g. 1234567890"
-                  />
-                </Field>
-                <Field label="Passport number (optional)">
-                  <Input value={f.passport_number} onChange={set('passport_number')} />
-                </Field>
-                {needsInvite && (
-                  <Field label="Invite code from VN Group" span>
-                    <Input required value={f.invite_code} onChange={set('invite_code')} />
-                  </Field>
-                )}
-              </div>
-            </div>
-
-            {/* Study plans - students only */}
-            {f.role === 'student' && (
-              <div>
-                <SectionTitle>Study plans (optional)</SectionTitle>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field label="Intended course level">
-                    <Select value={f.target_course_level} onChange={set('target_course_level')}>
-                      <option value="">Not decided yet</option>
-                      {COURSE_LEVELS.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </Select>
-                  </Field>
-                  <Field label="Field of study">
-                    <Input placeholder="e.g. Computer Science" value={f.target_field} onChange={set('target_field')} />
-                  </Field>
-                  <Field label="Target country" span>
-                    <Input placeholder="e.g. Australia" value={f.target_country} onChange={set('target_country')} />
-                  </Field>
-                </div>
-              </div>
+          <div className="auth-grid">
+            <AuthField label="I am registering as" span={!needsInvite}>
+              <select className="auth-input auth-select" value={f.role} onChange={changeRole}>
+                {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+            </AuthField>
+            {needsInvite && (
+              <AuthField label="Invite code from VN Group">
+                <input className="auth-input" required autoComplete="off" value={f.invite_code} onChange={set('invite_code')} />
+              </AuthField>
             )}
+            <AuthField label="Full name" span>
+              <input className="auth-input" required autoComplete="name" placeholder="As shown on your passport or ID" value={f.full_name} onChange={set('full_name')} />
+            </AuthField>
+            <AuthField label="Email address">
+              <input className="auth-input" type="email" required autoComplete="email" placeholder="you@example.com" value={f.email} onChange={set('email')} />
+            </AuthField>
+            <AuthField label="Password" hint="At least 8 characters.">
+              <PasswordInput wrapperClassName="auth-password" className="auth-input" autoComplete="new-password" required minLength={8} value={f.password} onChange={set('password')} />
+            </AuthField>
+          </div>
+        </Section>
 
-            {/* Parent / guardian */}
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowParent((s) => !s)}
-                className="flex w-full items-center justify-between border-b border-navy/10 pb-2 text-left font-sans text-sm font-semibold uppercase tracking-wide text-navy/70"
-              >
-                Parent / guardian details (optional)
-                <span className="text-navy/50">{showParent ? '−' : '+'}</span>
-              </button>
-              {showParent && (
-                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field label="Name">
-                    <Input value={f.parent_name} onChange={set('parent_name')} />
-                  </Field>
-                  <Field label="Phone">
-                    <Input value={f.parent_phone} onChange={set('parent_phone')} />
-                  </Field>
-                  <Field label="Email" span>
-                    <Input type="email" value={f.parent_email} onChange={set('parent_email')} />
-                  </Field>
-                </div>
-              )}
-            </div>
-
-            <label className="flex items-start gap-2 text-sm text-navy/80">
+        <Section title="Personal information" description="Used to verify your identity and prepare your applications.">
+          <div className="auth-grid">
+            <AuthField label="Date of birth">
+              <input className="auth-input" type="date" required autoComplete="bday" value={f.date_of_birth} onChange={set('date_of_birth')} />
+            </AuthField>
+            <AuthField label="Gender">
+              <select className="auth-input auth-select" required value={f.gender} onChange={set('gender')}>
+                <option value="" disabled>Select gender</option>
+                {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </AuthField>
+            <AuthField label="Citizenship / Nationality">
+              <input className="auth-input" required placeholder="e.g. Nepali" value={f.citizenship} onChange={set('citizenship')} />
+            </AuthField>
+            <AuthField label="Passport number" optional>
+              <input className="auth-input" autoComplete="off" value={f.passport_number} onChange={set('passport_number')} />
+            </AuthField>
+            <AuthField
+              label="National ID Card number"
+              hint="The 10-digit number on your National ID Card (not the old citizenship certificate number)."
+              span
+            >
               <input
-                type="checkbox"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-navy/30 text-navy focus:ring-navy"
+                className="auth-input"
+                required
+                value={f.national_id}
+                onChange={setNationalId}
+                inputMode="numeric"
+                maxLength={10}
+                autoComplete="off"
+                placeholder="e.g. 1234567890"
               />
-              <span>
-                I agree to VN Group's{' '}
-                <Link to="/terms" target="_blank" className="font-semibold underline">Terms and Conditions</Link>{' '}
-                and consent to my information being used to process my application.
+            </AuthField>
+          </div>
+        </Section>
+
+        {bankDetailsVisible && (
+          <Section title="Bank details" description="Required for this account type.">
+            <div className="auth-grid">
+              <AuthField label="Bank name" error={bankFieldErrors.bank_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" value={f.bank_name} onChange={setBankField('bank_name')} />
+              </AuthField>
+              <AuthField label="Bank account number" error={bankFieldErrors.bank_account_number} span>
+                <input className="auth-input" type="text" inputMode="numeric" required autoComplete="off" value={f.bank_account_number} onChange={setBankField('bank_account_number')} />
+              </AuthField>
+              <p className="auth-secure-note auth-field--span">
+                <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="8.5" width="12" height="8" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5M10 11.5v2"/></svg>
+                Your bank details are stored encrypted and are never shown in full.
+              </p>
+            </div>
+          </Section>
+        )}
+
+        {f.role === 'student' && (
+          <Section title="Study preferences" description="Optional — helps your counsellor prepare before your first conversation.">
+            <div className="auth-grid">
+              <AuthField label="Intended course level" optional>
+                <select className="auth-input auth-select" value={f.target_course_level} onChange={set('target_course_level')}>
+                  <option value="">Not decided yet</option>
+                  {COURSE_LEVELS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </AuthField>
+              <AuthField label="Field of study" optional>
+                <input className="auth-input" placeholder="e.g. Computer Science" value={f.target_field} onChange={set('target_field')} />
+              </AuthField>
+              <AuthField label="Target country" optional span>
+                <input className="auth-input" placeholder="e.g. Australia" value={f.target_country} onChange={set('target_country')} />
+              </AuthField>
+            </div>
+          </Section>
+        )}
+
+        <section className="auth-section auth-section--collapsible">
+          <h2 className="auth-section-title">
+            <button
+              type="button"
+              className="auth-collapse-toggle"
+              aria-expanded={showParent}
+              aria-controls="guardian-fields"
+              onClick={() => setShowParent((s) => !s)}
+            >
+              <span className="auth-collapse-text">
+                Parent / guardian details
+                <span className="auth-optional">Optional</span>
               </span>
-            </label>
+              <span className="auth-collapse-action">
+                {showParent ? 'Remove' : 'Add details'}
+                <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="m5.5 8 4.5 4.5L14.5 8" /></svg>
+              </span>
+            </button>
+          </h2>
+          <p className="auth-section-description">Add a contact we can reach about your application.</p>
+          {/* Fields mount only while open so a hidden, invalid email can't block submit. */}
+          <div id="guardian-fields" className="auth-grid auth-reveal" hidden={!showParent}>
+            {showParent && <>
+              <AuthField label="Name" optional>
+                <input className="auth-input" autoComplete="off" value={f.parent_name} onChange={set('parent_name')} />
+              </AuthField>
+              <AuthField label="Phone" optional>
+                <input className="auth-input" type="tel" autoComplete="off" value={f.parent_phone} onChange={set('parent_phone')} />
+              </AuthField>
+              <AuthField label="Email" optional span>
+                <input className="auth-input" type="email" autoComplete="off" value={f.parent_email} onChange={set('parent_email')} />
+              </AuthField>
+            </>}
+          </div>
+        </section>
 
-            <Btn className="w-full" disabled={busy}>{busy ? 'Creating account...' : 'Create account'}</Btn>
-          </form>
+        <div className="auth-finish">
+          <label className="auth-consent">
+            <input
+              type="checkbox"
+              className="auth-checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+            />
+            <span>
+              I agree to VN Group&apos;s{' '}
+              <Link to="/terms" target="_blank" rel="noopener" className="auth-text-link auth-text-link--strong">
+                Terms and Conditions<span className="sr-only"> (opens in a new tab)</span>
+              </Link>{' '}
+              and consent to my information being used to process my application.
+            </span>
+          </label>
 
-          <p className="mt-6 text-center text-sm text-navy/70">
-            Already registered? <Link to="/login" className="font-semibold text-navy underline">Sign in</Link>
-          </p>
-        </Card>
-      </div>
-    </div>
+          <Err msg={err} />
+
+          <div className="auth-actions">
+            <button type="submit" className="auth-submit" disabled={busy} aria-busy={busy}>
+              {busy ? <><span className="auth-spinner" aria-hidden="true" />Creating account…</> : 'Create account'}
+            </button>
+            <p className="auth-switch auth-switch--inline">
+              Already registered? <Link to="/login" className="auth-text-link auth-text-link--strong">Log in</Link>
+            </p>
+          </div>
+        </div>
+      </form>
+    </AuthLayout>
   )
 }
