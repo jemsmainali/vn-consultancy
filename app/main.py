@@ -17,6 +17,7 @@ from app.api.enquiries import router as enquiries_router
 from app.api.gallery import router as gallery_router
 from app.api.directory import router as directory_router
 from app.api.study_plan import router as study_plan_router
+from app.api.destinations import router as destinations_router
 
 
 app = FastAPI(
@@ -68,6 +69,7 @@ app.include_router(enquiries_router)
 app.include_router(gallery_router)
 app.include_router(directory_router)
 app.include_router(study_plan_router)
+app.include_router(destinations_router)
 
 @app.get("/health", tags=["health"])
 async def health_check():

@@ -1,0 +1,163 @@
+{
+  "slug": "ireland",
+  "name": "Ireland",
+  "currency": "EUR",
+  "lastVerified": "TODO",
+  "nprConversion": {
+    "rate": "TODO",
+    "date": "TODO"
+  },
+  "overview": {
+    "summary": "TODO",
+    "educationSystem": "TODO"
+  },
+  "courses": [
+    {
+      "level": "TODO",
+      "typicalDuration": {
+        "value": "TODO",
+        "label": "TODO"
+      },
+      "description": "TODO"
+    }
+  ],
+  "universities": {
+    "institutions": [
+      {
+        "name": "TODO",
+        "city": "TODO",
+        "url": "TODO"
+      }
+    ],
+    "intakes": [
+      "TODO"
+    ],
+    "applicationTimeline": [
+      "TODO"
+    ]
+  },
+  "tuition": [
+    {
+      "level": "TODO",
+      "annualFee": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    }
+  ],
+  "livingCosts": [
+    {
+      "city": "TODO",
+      "accommodation": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      },
+      "food": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      },
+      "transport": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      },
+      "utilities": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      },
+      "personal": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "TODO",
+      "provider": "TODO",
+      "coverage": {
+        "value": "TODO",
+        "label": "TODO"
+      },
+      "eligibility": "TODO",
+      "deadline": "TODO",
+      "url": "TODO"
+    }
+  ],
+  "studentVisa": {
+    "category": "TODO",
+    "process": [
+      "TODO"
+    ],
+    "financialEvidence": {
+      "requirement": "TODO",
+      "amount": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "insurance": {
+      "requirement": "TODO",
+      "annualCost": {
+        "min": "TODO",
+        "max": "TODO",
+        "label": "TODO"
+      }
+    },
+    "documents": [
+      "TODO"
+    ],
+    "processingEstimate": {
+      "value": "TODO",
+      "label": "TODO"
+    }
+  },
+  "workRules": {
+    "duringTerm": {
+      "value": "TODO",
+      "label": "TODO"
+    },
+    "duringBreaks": {
+      "value": "TODO",
+      "label": "TODO"
+    },
+    "conditions": [
+      "TODO"
+    ]
+  },
+  "postStudyRoutes": [
+    {
+      "name": "TODO",
+      "duration": {
+        "value": "TODO",
+        "label": "TODO"
+      },
+      "conditions": "TODO"
+    }
+  ],
+  "lifestyle": [
+    {
+      "topic": "TODO",
+      "text": "TODO"
+    }
+  ],
+  "officialLinks": [
+    {
+      "label": "TODO",
+      "url": "TODO"
+    }
+  ],
+  "sources": [
+    {
+      "label": "TODO",
+      "url": "TODO",
+      "accessed": "TODO"
+    }
+  ]
+}
