@@ -5,6 +5,7 @@ from sqlalchemy import select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.models.document import Document
 from app.models.message import Message
 from app.models.user import User, UserRole
 from app.schemas.message import MessageCreate, MessageOut, ContactOut
@@ -30,6 +31,13 @@ async def send_message(
         recipient.role != UserRole.consultancy_staff or not recipient.is_approved
     ):
         raise HTTPException(403, "You can only message active, approved VN Group staff")
+    if payload.document_id is not None:
+        document = (await db.execute(select(Document).where(Document.id == payload.document_id))).scalar_one_or_none()
+        if not document:
+            raise HTTPException(404, "Document not found")
+        # Students can only attach their own documents; staff may reference any.
+        if current_user.role != UserRole.consultancy_staff and document.owner_id != current_user.id:
+            raise HTTPException(403, "You can only attach your own documents")
 
     message = Message(
         sender_id=current_user.id,
