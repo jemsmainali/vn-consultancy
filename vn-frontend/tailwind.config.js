@@ -1,3 +1,5 @@
+const INTER = ['"Inter Variable"', 'Inter', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif']
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
@@ -9,8 +11,8 @@ export default {
         ink: '#202938',
       },
       fontFamily: {
-        serif: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'SF Pro Display', 'Segoe UI', 'sans-serif'],
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'SF Pro Display', 'Segoe UI', 'sans-serif'],
+        serif: INTER,
+        sans: INTER,
       },
     },
   },
