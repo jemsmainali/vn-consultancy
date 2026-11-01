@@ -58,10 +58,7 @@ const supplied = {
   intakeBriefing: galleryPhoto('event-intake-briefing', 'team', 1200, 761, 'Walking students through university intake dates', 'A VN Group presenter speaking into a microphone beside a projected academic calendar'),
   maryville: galleryPhoto('counselling-maryville', 'departures', 960, 720, 'An admissions session with Maryville University', 'Three students in a session across a desk, with a Maryville University sign on the table'),
   graduation: galleryPhoto('graduation-maryville', 'departures', 556, 742, 'Graduation day at Maryville University', 'A graduate in cap and gown holding a red Maryville University diploma cover'),
-  educationEvent: galleryPhoto('team-education-event', 'team', 720, 480, 'With colleagues at an education event', 'Five men wearing event lanyards posing together at an education event'),
-  celebration1: galleryPhoto('team-celebration-2', 'team', 1200, 820, 'Celebrating a milestone with the VN Group family', 'Two men in a traditional scarf and cap laughing and shaking hands in front of balloons'),
   celebration2: galleryPhoto('team-celebration-1', 'team', 1200, 801, 'Cake, laughter and good company', 'A man playfully dabbing cake on a smiling colleague in a yellow jacket'),
-  celebration3: galleryPhoto('team-celebration-3', 'team', 1200, 967, 'A celebration that got a little messy', 'A man covered in foam spray laughing while a colleague in a cap claps behind him'),
 }
 
 export const galleryPhotos = [
@@ -72,18 +69,15 @@ export const galleryPhotos = [
   supplied.graduation,
   departures.farewell1,
   supplied.visaTeam,
-  supplied.celebration1,
   officeGuide,
   supplied.maryville,
   ...japanVisas.slice(0, 4),
   supplied.intakeBriefing,
   departures.airport2,
-  supplied.educationEvent,
   ...japanVisas.slice(4, 10),
   supplied.celebration2,
   departures.farewell2,
-  supplied.celebration3,
   ...japanVisas.slice(10),
 ]
 
-export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisa, supplied.celebration1, departures.airport2, departures.farewell2]
+export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisa, supplied.visaTeam, departures.airport2, departures.farewell2]
