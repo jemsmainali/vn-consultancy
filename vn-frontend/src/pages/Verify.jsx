@@ -10,7 +10,7 @@ export default function Verify() {
   const [params] = useSearchParams()
   const [email, setEmail] = useState(params.get('email') || '')
   const [code, setCode] = useState('')
-  const [err, setErr] = useState(params.get('mailerr') ? 'Your account was created, but we couldn't send the verification email. Use "Resend code" below.' : '')
+  const [err, setErr] = useState(params.get('mailerr') ? "Your account was created, but we couldn't send the verification email. Use \"Resend code\" below." : '')
   const [info, setInfo] = useState('')
   const [pending, setPending] = useState(false)
   const [busy, setBusy] = useState(false)
