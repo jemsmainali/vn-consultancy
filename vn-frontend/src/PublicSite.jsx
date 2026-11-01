@@ -8,6 +8,7 @@ import { siteContent, siteContentReady, siteImages, yearsOfExperience } from './
 import { destinationBySlug, destinationPath, destinations } from './data/destinations/registry'
 import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
+import ChatWidget from './components/layout/ChatWidget'
 import LegalPage from './components/layout/LegalPage'
 import EnquirySection from './components/home/EnquirySection'
 import FAQ from './components/home/FAQ'
@@ -245,6 +246,7 @@ export function PublicLayout() {
       </header>
       <main id="main" tabIndex={-1} key={location.pathname}><Outlet /></main>
       <SiteFooter />
+      <ChatWidget />
     </div>
   )
 }
