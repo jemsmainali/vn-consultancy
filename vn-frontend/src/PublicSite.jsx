@@ -52,6 +52,8 @@ export function PublicLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState('')
   const [isScrolled, setIsScrolled] = useState(() => typeof window !== 'undefined' && window.scrollY > 20)
+  // True while the header still sits over the homepage's full-screen hero photo.
+  const [isOverHero, setIsOverHero] = useState(true)
   const location = useLocation()
   const { user } = useAuth()
   const [activeSection, setActiveSection] = useState('')
@@ -82,7 +84,9 @@ export function PublicLayout() {
       frame = window.requestAnimationFrame(() => {
         frame = 0
         const nextIsScrolled = window.scrollY > 20
+        const nextIsOverHero = window.scrollY < window.innerHeight - 96
         setIsScrolled((current) => current === nextIsScrolled ? current : nextIsScrolled)
+        setIsOverHero((current) => current === nextIsOverHero ? current : nextIsOverHero)
       })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -205,7 +209,7 @@ export function PublicLayout() {
 
   return (
     <div className="public-site">
-      <header className={`site-header${isScrolled ? ' is-scrolled' : ''}`}>
+      <header className={`site-header${isScrolled ? ' is-scrolled' : ''}${isHome && isOverHero && !menuOpen ? ' is-over-hero' : ''}`}>
         <div className="site-header-inner">
           <Link className="brand" to="/" aria-label="VN Group home" onClick={closeMenu}>
             <img className="brand-image" src={siteContent.brand.logo.src} alt={siteContent.brand.logo.alt} />

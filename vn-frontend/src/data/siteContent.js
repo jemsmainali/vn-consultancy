@@ -36,7 +36,7 @@ const STEP_SIZES = '(max-width: 900px) calc(100vw - 32px), 44vw'
 
 export const siteImages = {
   logo: { src: '/images/vn-group-logo.jpg', alt: 'VN Group Study Abroad' },
-  hero: photo('hero', 'hero-main', [480, 800, 1200], 1200, 1200, 900, 'VN Group counsellors and students with a Westcliff University representative at an info session in Kathmandu', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 52vw, 620px'),
+  hero: photo('hero', 'hero-main', [480, 800, 1200], 1200, 1200, 900, 'VN Group counsellors and students with a Westcliff University representative at an info session in Kathmandu', '100vw'),
   australia: photo('destinations', 'australia-card', [480, 720], 720, 720, 405, 'Sydney Opera House, Australia', '(max-width: 560px) 45vw, (max-width: 820px) 46vw, 23vw'),
   counselling: photo('services', 'counselling-session', [480, 800, 1200], 1200, 1200, 800, 'A VN Group counsellor speaking to a group of students', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 46vw, 560px'),
   counsellingTopics: suppliedIllustration('counselling', 735, 556, 'Counselling diagram showing advice, help, empathy, and support'),
@@ -119,10 +119,10 @@ export const siteContent = {
   home: {
     hero: {
       eyebrow: 'years of trusted guidance',
-      title: 'Your next chapter starts with',
-      emphasis: 'a clear plan.',
+      title: 'Your next chapter',
+      emphasis: 'starts here.',
       rotatingCountries: ['Australia', 'United States', 'Canada', 'Japan', 'South Korea'],
-      description: 'Expert guidance for students and families in Nepal pursuing world-class education. We help you understand your options and plan your next steps.',
+      description: 'Discover global opportunities. Build your future with VN Group.',
       primaryLabel: 'Free Counselling',
       secondaryLabel: 'Explore Destinations',
       photo: siteImages.hero,
