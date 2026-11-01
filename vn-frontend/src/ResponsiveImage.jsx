@@ -5,6 +5,8 @@ export default function ResponsiveImage({ image, className = '', loading = 'lazy
   const [failed, setFailed] = useState(false)
 
   if (!image || failed) return null
+  // An image can carry its own focal point for crops; an explicit prop still wins.
+  const position = objectPosition || image.position
 
   const handleError = () => {
     setFailed(true)
@@ -22,7 +24,7 @@ export default function ResponsiveImage({ image, className = '', loading = 'lazy
         loading={loading}
         decoding="async"
         {...(fetchPriority ? { fetchpriority: fetchPriority } : {})}
-        style={objectPosition ? { objectPosition } : undefined}
+        style={position ? { objectPosition: position } : undefined}
         onLoad={() => setLoaded(true)}
         onError={handleError}
         {...props}

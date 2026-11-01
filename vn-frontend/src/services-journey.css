@@ -84,6 +84,7 @@
 .path-step-media.responsive-image { display: none; }
 
 .path-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 36px; margin-top: clamp(48px, 6vw, 76px); padding-top: 34px; border-top: 1px solid rgba(255,255,255,.12); }
+.path-section .sj-credit { color: #aab6c8; }
 .public-site .path-more { display: inline-flex; align-items: center; gap: 10px; padding-bottom: 3px; border-bottom: 1px solid #C9A45C; color: #fff; font-size: 16px; font-weight: 600; }
 
 @media (max-width: 1100px) {
