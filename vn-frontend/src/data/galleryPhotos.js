@@ -61,6 +61,14 @@ const supplied = {
   celebration2: galleryPhoto('team-celebration-1', 'team', 1200, 801, 'Cake, laughter and good company', 'A man playfully dabbing cake on a smiling colleague in a yellow jacket'),
 }
 
+const partnerVisits = {
+  melbourneArrival: galleryPhoto('partner-melbourne-arrival', 'team', 1200, 900, 'Arriving in Melbourne for partner visits', 'A VN Group representative with a suitcase beneath the Melbourne sign at Melbourne Airport'),
+  notreDame: galleryPhoto('partner-notre-dame', 'team', 1200, 1600, 'Visiting The University of Notre Dame Australia', 'A VN Group representative holding a university tote bag outside The University of Notre Dame Australia'),
+  aiihe: galleryPhoto('partner-aiihe', 'team', 1200, 1600, 'Meeting at Australian International Institute of Higher Education', 'A VN Group representative shaking hands with a host at Australian International Institute of Higher Education'),
+  sydneyCityCollege: galleryPhoto('partner-sydney-city-college', 'team', 1200, 1636, 'Visiting Sydney City College of Management', 'A VN Group representative at the reception of Sydney City College of Management'),
+  charlesSturt: galleryPhoto('partner-charles-sturt', 'team', 1200, 1041, 'With the team at Charles Sturt University', 'VN Group representatives with staff at the Charles Sturt University reception desk'),
+}
+
 export const galleryPhotos = [
   supplied.visaOffice,
   departures.airport1,
@@ -69,13 +77,18 @@ export const galleryPhotos = [
   supplied.graduation,
   departures.farewell1,
   supplied.visaTeam,
+  partnerVisits.notreDame,
   officeGuide,
   supplied.maryville,
+  partnerVisits.charlesSturt,
   ...japanVisas.slice(0, 4),
   supplied.intakeBriefing,
+  partnerVisits.aiihe,
   departures.airport2,
   ...japanVisas.slice(4, 10),
+  partnerVisits.melbourneArrival,
   supplied.celebration2,
+  partnerVisits.sydneyCityCollege,
   departures.farewell2,
   ...japanVisas.slice(10),
 ]
