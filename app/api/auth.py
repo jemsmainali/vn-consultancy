@@ -117,7 +117,10 @@ async def issue_otp(db: AsyncSession, user: User) -> None:
     try:
         await send_otp_email(user.email, code, user.full_name)
     except Exception:
-        raise HTTPException(502, "We couldn't send the email. Please try again in a minute.")
+        # Drop the undelivered code so the user can request another one straight away.
+        await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "verify"))
+        await db.commit()
+        raise HTTPException(502, "We couldn't send the verification email. Please use \"Resend code\" in a moment.")
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -306,7 +309,9 @@ async def forgot_password(request: Request, payload: ForgotPasswordRequest, db: 
     try:
         await send_password_reset_email(user.email, code, user.full_name)
     except Exception:
-        pass  # still return the generic message either way
+        # Still return the generic message (no account enumeration); the failure is logged in otp._send.
+        await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "reset"))
+        await db.commit()
 
     return generic
 

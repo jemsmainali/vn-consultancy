@@ -2,6 +2,7 @@
 Central settings object. Pulls everything from environment variables (.env)
 so no secret ever lives inside the source code itself.
 """
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,6 +39,24 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = False  # set True in production — cookies only sent over HTTPS then
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @model_validator(mode="after")
+    def check_production(self):
+        """Refuse to start a production server with development-only settings."""
+        if self.ENVIRONMENT != "production":
+            return self
+        problems = []
+        if len(self.SECRET_KEY) < 32 or self.SECRET_KEY.startswith("changeme"):
+            problems.append("SECRET_KEY must be a random value of at least 32 characters")
+        if not self.COOKIE_SECURE:
+            problems.append("COOKIE_SECURE must be true")
+        if not self.EMAIL_ENABLED or not (self.SMTP_HOST and self.SMTP_FROM):
+            problems.append("EMAIL_ENABLED, SMTP_HOST and SMTP_FROM must be set")
+        if any(o == "*" or "localhost" in o or "127.0.0.1" in o or o.startswith("http://") for o in self.cors_origins_list):
+            problems.append("CORS_ORIGINS must list only https:// production origins")
+        if problems:
+            raise ValueError("Unsafe production configuration: " + "; ".join(problems))
+        return self
 
     @property
     def cors_origins_list(self) -> list[str]:

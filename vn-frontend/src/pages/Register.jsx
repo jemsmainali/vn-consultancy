@@ -152,6 +152,8 @@ export default function Register() {
       setBankFieldErrors({})
       nav('/verify?sent=1&email=' + encodeURIComponent(f.email))
     } catch (x) {
+      // 502: the account was created but the verification email could not be sent.
+      if (x.status === 502) return nav('/verify?mailerr=1&email=' + encodeURIComponent(f.email))
       setErr(x.message)
       if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, bank_name: x.fieldErrors.bank_name || '', bank_account_number: x.fieldErrors.bank_account_number || '' }))
     }

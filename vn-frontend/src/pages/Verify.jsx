@@ -10,7 +10,7 @@ export default function Verify() {
   const [params] = useSearchParams()
   const [email, setEmail] = useState(params.get('email') || '')
   const [code, setCode] = useState('')
-  const [err, setErr] = useState('')
+  const [err, setErr] = useState(params.get('mailerr') ? 'Your account was created, but we couldn't send the verification email. Use "Resend code" below.' : '')
   const [info, setInfo] = useState('')
   const [pending, setPending] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -59,7 +59,7 @@ export default function Verify() {
     <AuthCard title="Check your email">
       <form onSubmit={submit} className="space-y-4">
         <p className="text-sm text-navy/70">
-          We sent a 6-digit code to <span className="font-semibold text-navy">{email || 'your email'}</span>. It expires in 10 minutes.
+          {params.get('mailerr') ? 'Request a 6-digit code for' : 'We sent a 6-digit code to'} <span className="font-semibold text-navy">{email || 'your email'}</span>. It expires in 10 minutes. Check your spam folder if it hasn't arrived.
         </p>
         <Err msg={err} />
         {info && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{info}</p>}
