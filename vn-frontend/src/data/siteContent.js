@@ -20,6 +20,20 @@ const suppliedIllustration = (name, width, height, alt) => ({
   sizes: '(max-width: 560px) calc(100vw - 48px), (max-width: 820px) 80vw, 320px',
 })
 
+// Licensed Unsplash photos stored locally (see PHOTO_CREDITS.md). Illustrative only, never presented as VN Group activity.
+const licensedPhoto = (name, height, alt, sizes) => ({
+  src: `/images/site/${name}-1200.jpg`,
+  webpSrc: `/images/site/${name}-1200.webp`,
+  webpSrcSet: [480, 800, 1200].map((size) => `/images/site/${name}-${size}.webp ${size}w`).join(', '),
+  sizes,
+  width: 1200,
+  height,
+  alt,
+  licensed: true,
+})
+const SERVICE_SIZES = '(max-width: 640px) calc(100vw - 32px), (max-width: 1100px) 46vw, 30vw'
+const STEP_SIZES = '(max-width: 900px) calc(100vw - 32px), 44vw'
+
 export const siteImages = {
   logo: { src: '/images/vn-group-logo.jpg', alt: 'VN Group Study Abroad' },
   hero: photo('hero', 'hero-main', [480, 800, 1200], 1200, 1200, 900, 'VN Group counsellors and students with a Westcliff University representative at an info session in Kathmandu', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 52vw, 620px'),
@@ -36,6 +50,17 @@ export const siteImages = {
   sahe: photo('partners', 'partner-sahe', [480, 800, 1200], 1200, 1200, 900, 'VN Group representatives at Southern Academy of Higher Education', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
   partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team meeting with a partner delegation', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
   events: photo('about', 'events-wide', [480, 800, 1200], 1200, 1200, 675, 'VN Group team attending an international education conference', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 90vw, 1120px'),
+  serviceCampus: licensedPhoto('service-campus', 786, 'A university campus building across a green lawn', SERVICE_SIZES),
+  serviceGraduation: licensedPhoto('service-graduation', 800, 'Graduates throwing their caps in front of a university building', SERVICE_SIZES),
+  serviceDocuments: licensedPhoto('service-documents', 801, 'Two people reviewing documents beside a laptop', SERVICE_SIZES),
+  serviceExam: licensedPhoto('service-exam', 800, 'A student filling in a test answer sheet with a pencil', SERVICE_SIZES),
+  serviceLuggage: licensedPhoto('service-luggage', 800, 'A traveller standing in a doorway with two suitcases', SERVICE_SIZES),
+  stepConsultation: licensedPhoto('step-consultation', 800, 'An adviser and a student talking across a desk', STEP_SIZES),
+  stepPlanning: licensedPhoto('step-planning', 799, 'A hand tracing a route on a world map beside a notebook', STEP_SIZES),
+  stepApplication: licensedPhoto('step-application', 800, 'A student working on an application at a laptop', STEP_SIZES),
+  stepOffer: licensedPhoto('step-offer', 900, 'A group of students celebrating good news at a laptop', STEP_SIZES),
+  stepChecklist: licensedPhoto('step-checklist', 800, 'An open notebook with a pen and glasses, ready for a checklist', STEP_SIZES),
+  stepDepartures: licensedPhoto('step-departures', 800, 'A traveller looking up at an airport departures board', STEP_SIZES),
   ceo: { src: '/images/ceo.jpg', alt: 'Portrait of VN Group managing director and founder' },
   loginGraduate: { src: '/images/login-graduate.jpg', alt: 'A smiling graduate celebrating with both arms raised', width: 360, height: 360 },
 }
@@ -116,19 +141,20 @@ export const siteContent = {
     ],
     countries,
     process: [
-      { title: 'Free Counselling', description: 'Talk through your goals, questions, and potential next steps.', icon: 'conversation' },
-      { title: 'Choose Course and Country', description: 'Compare study options against your interests and plans.', icon: 'compass', image: siteImages.choose },
-      { title: 'Apply', description: 'Prepare and submit an application to your chosen institution.', icon: 'document', image: siteImages.apply },
-      { title: 'Visa', description: 'Review the relevant visa process and organize your documents.', icon: 'passport', image: siteImages.visa },
-      { title: 'Fly', description: 'Use a pre-departure checklist as you prepare for travel.', icon: 'plane', image: siteImages.fly },
+      { title: 'Free Counselling', description: 'Talk through your goals, academic background and budget with a counsellor, and leave with clear next steps.', image: siteImages.stepConsultation },
+      { title: 'Choose Your Course and Country', description: 'Compare programmes, entry requirements, costs and destinations to build a realistic shortlist.', image: siteImages.stepPlanning },
+      { title: 'University Application', description: 'Prepare your statement of purpose and supporting documents, then apply to the universities on your shortlist.', image: siteImages.stepApplication },
+      { title: 'Receive Your Offer', description: 'Review the offer conditions, accept your place and complete any deposit or document steps the university asks for.', image: siteImages.stepOffer },
+      { title: 'Visa Preparation', description: 'Organise your financial evidence and documents against the official visa requirements for your destination.', image: siteImages.stepChecklist },
+      { title: 'Pre-departure Preparation', description: 'Plan travel, accommodation and arrival, with a briefing on what to expect in your first weeks abroad.', image: siteImages.stepDepartures },
     ],
     services: [
-      { id: 'counselling', title: 'Counselling', description: 'Talk through your study interests, questions, and potential next steps.', linkLabel: 'Learn more', image: siteImages.counselling, illustration: siteImages.counsellingTopics },
-      { id: 'admissions', title: 'Admissions', description: 'Explore course options and application requirements.', linkLabel: 'Learn more', image: siteImages.choose },
-      { id: 'scholarships', title: 'Scholarships', description: 'Review scholarship information provided by institutions.', linkLabel: 'Learn more', image: siteImages.scholarships },
-      { id: 'visa-filing', title: 'Visa Filing', description: 'Organize the visa process and its supporting documents.', linkLabel: 'Learn more', image: siteImages.apply },
-      { id: 'test-prep', title: 'IELTS/PTE Guidance', description: 'Discuss English-language test preparation and score requirements.', linkLabel: 'Learn more', image: siteImages.ielts },
-      { id: 'pre-departure', title: 'Pre-departure Briefing', description: 'Review a practical checklist for preparing to study abroad.', linkLabel: 'Learn more', image: siteImages.fly },
+      { id: 'counselling', title: 'Career & Study Counselling', description: 'A free, one-to-one conversation about your grades, interests, budget and career goals, so you can compare courses and countries with clear information before you commit.', points: ['Course and career direction', 'Country and budget comparison', 'A realistic timeline and next steps'], linkLabel: 'Book free counselling', to: '/#enquire', image: siteImages.counselling },
+      { id: 'admissions', title: 'University Admissions', description: 'Shortlisting programmes that fit your academic record, checking entry requirements and preparing complete applications.', linkLabel: 'Explore destinations', to: '/destinations', image: siteImages.serviceCampus },
+      { id: 'scholarships', title: 'Scholarship Guidance', description: 'Finding scholarships you may be eligible for and understanding their criteria and deadlines. Awards are decided by institutions and funders.', linkLabel: 'Read scholarship FAQs', to: '/faqs', image: siteImages.serviceGraduation },
+      { id: 'visa-filing', title: 'Visa Application Support', description: 'Understanding your destination’s visa requirements, organising financial and academic documents, and reviewing your file before you submit.', linkLabel: 'See the full process', to: '/journey', image: siteImages.serviceDocuments },
+      { id: 'test-prep', title: 'IELTS/PTE Preparation', description: 'Which English test your universities and visa accept, the scores to aim for, and how to plan your preparation.', linkLabel: 'Read English test FAQs', to: '/faqs', image: siteImages.serviceExam },
+      { id: 'pre-departure', title: 'Pre-departure Guidance', description: 'A practical briefing before you fly: travel documents, accommodation, money, packing and your first weeks abroad.', linkLabel: 'See the full process', to: '/journey', image: siteImages.serviceLuggage },
     ],
     successStories: [],
     partnerLogos: [],
