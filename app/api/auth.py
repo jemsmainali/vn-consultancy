@@ -74,13 +74,13 @@ def _set_auth_cookies(response: Response, t: TokenPair) -> None:
         secure=settings.COOKIE_SECURE,
         samesite="lax",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-        path="/auth",  # only ever sent back to /auth/* routes - narrows its exposure
+        path=f"{settings.API_PATH_PREFIX}/auth",  # only ever sent back to /auth/* routes - narrows its exposure
     )
 
 
 def _clear_auth_cookies(response: Response) -> None:
     response.delete_cookie("access_token", path="/")
-    response.delete_cookie("refresh_token", path="/auth")
+    response.delete_cookie("refresh_token", path=f"{settings.API_PATH_PREFIX}/auth")
 
 
 async def _find_user(db: AsyncSession, email: str) -> User | None:
@@ -132,7 +132,7 @@ async def register(
     password: str = Form(...),
     role: UserRole = Form(UserRole.student),
     invite_code: str | None = Form(None),
-    national_id: str = Form(...),
+    national_id: str | None = Form(None),
     date_of_birth: str = Form(...),
     gender: str = Form(...),
     citizenship: str = Form(...),
@@ -143,8 +143,10 @@ async def register(
     parent_name: str | None = Form(None),
     parent_phone: str | None = Form(None),
     parent_email: str | None = Form(None),
+    bank_account_name: str | None = Form(None),
     bank_name: str | None = Form(None),
     bank_account_number: str | None = Form(None),
+    bank_nominee_name: str | None = Form(None),
     terms_accepted: bool = Form(...),
     photo: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
@@ -167,8 +169,10 @@ async def register(
             parent_name=parent_name,
             parent_phone=parent_phone,
             parent_email=parent_email or None,
+            bank_account_name=bank_account_name,
             bank_name=bank_name,
             bank_account_number=bank_account_number,
+            bank_nominee_name=bank_nominee_name,
             terms_accepted=terms_accepted,
         )
     except ValidationError as e:
@@ -191,20 +195,23 @@ async def register(
     if await _find_user(db, payload.email):
         raise HTTPException(400, "Email already registered")
 
-    existing_nid = await db.execute(select(User).where(User.national_id == payload.national_id))
-    if existing_nid.scalar_one_or_none():
-        raise HTTPException(400, "This National ID is already registered")
+    if payload.national_id:
+        existing_nid = await db.execute(select(User).where(User.national_id == payload.national_id))
+        if existing_nid.scalar_one_or_none():
+            raise HTTPException(400, "This National ID is already registered")
 
     bank_values = None
-    if settings.REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS and payload.role in ROLES_REQUIRING_BANK_DETAILS:
+    if payload.role in ROLES_REQUIRING_BANK_DETAILS:
         try:
             encrypted_account_number = encrypt_bank_account_number(payload.bank_account_number)
         except ValueError:
             raise HTTPException(503, "Bank details registration is temporarily unavailable.") from None
         bank_values = {
+            "account_name": payload.bank_account_name,
             "bank_name": payload.bank_name,
             "account_number_encrypted": encrypted_account_number,
             "account_last4": payload.bank_account_number[-4:],
+            "nominee_name": payload.bank_nominee_name,
         }
 
     saved = await validate_and_save_upload(photo, subfolder="profile_photos", allowed_mimes=PROFILE_PHOTO_MIMES)

@@ -13,8 +13,10 @@ const ROLES = [
   { value: 'other', label: 'Other' },
   { value: 'consultancy_staff', label: 'VN Group Staff' },
 ]
-const ROLES_REQUIRING_BANK_DETAILS = new Set(ROLES.filter((role) => role.value !== 'student').map((role) => role.value))
-const REQUIRE_BANK_DETAILS = import.meta.env.VITE_REQUIRE_BANK_DETAILS === 'true'
+const ROLES_REQUIRING_BANK_DETAILS = new Set(['other']) // keep in sync with app/schemas/user.py
+const BANK_FIELDS = ['bank_account_name', 'bank_name', 'bank_account_number', 'bank_nominee_name']
+const EMPTY_BANK = { bank_account_name: '', bank_name: '', bank_account_number: '', bank_nominee_name: '' }
+const BANK_PERSON_NAME = /^[\p{L}\p{N} .,'&()\-]+$/u
 const BANK_ACCOUNT_NUMBER_MIN_LENGTH = 8
 const BANK_ACCOUNT_NUMBER_MAX_LENGTH = 24
 
@@ -44,7 +46,7 @@ export default function Register() {
     national_id: '', date_of_birth: '', gender: '', citizenship: '', passport_number: '',
     target_course_level: '', target_field: '', target_country: '',
     parent_name: '', parent_phone: '', parent_email: '',
-    bank_name: '', bank_account_number: '',
+    ...EMPTY_BANK,
   })
   const [showParent, setShowParent] = useState(false)
   const [agreed, setAgreed] = useState(false)
@@ -55,7 +57,7 @@ export default function Register() {
   const [busy, setBusy] = useState(false)
   const [bankFieldErrors, setBankFieldErrors] = useState({})
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
-  const bankDetailsVisible = REQUIRE_BANK_DETAILS && ROLES_REQUIRING_BANK_DETAILS.has(f.role)
+  const bankDetailsVisible = ROLES_REQUIRING_BANK_DETAILS.has(f.role)
 
   useEffect(() => {
     const previousTitle = document.title
@@ -71,7 +73,7 @@ export default function Register() {
   }
 
   const changeRole = (e) => {
-    setF((value) => ({ ...value, role: e.target.value, bank_name: '', bank_account_number: '' }))
+    setF((value) => ({ ...value, role: e.target.value, ...EMPTY_BANK }))
     setBankFieldErrors({})
   }
 
@@ -98,14 +100,26 @@ export default function Register() {
     e.preventDefault(); setErr('')
     if (!agreed) { setErr('Please accept the Terms and Conditions to continue.'); return }
     if (!photo) { setErr('Please upload a profile photo.'); return }
-    if (!NID_PATTERN.test(f.national_id)) {
+    if (f.national_id && !NID_PATTERN.test(f.national_id)) {
       setErr('National ID must be exactly 10 digits — the number on your National ID Card.')
       return
     }
     if (bankDetailsVisible) {
+      const accountName = f.bank_account_name.trim().replace(/\s+/g, ' ')
+      const nomineeName = f.bank_nominee_name.trim().replace(/\s+/g, ' ')
       const name = f.bank_name.trim()
       const accountNumber = f.bank_account_number.replace(/[ -]/g, '')
       const nextErrors = {}
+      const personNameError = (value, label) => {
+        if (!value) return `Enter the ${label.toLowerCase()}.`
+        if (value.length < 2 || value.length > 100) return `${label} must be 2 to 100 characters.`
+        if (!BANK_PERSON_NAME.test(value)) return 'Use letters, numbers, spaces, periods, commas, apostrophes, ampersands, hyphens, and parentheses only.'
+        return ''
+      }
+      const accountNameError = personNameError(accountName, 'Bank account name')
+      if (accountNameError) nextErrors.bank_account_name = accountNameError
+      const nomineeNameError = personNameError(nomineeName, 'Nominee name')
+      if (nomineeNameError) nextErrors.bank_nominee_name = nomineeNameError
       if (!name) nextErrors.bank_name = 'Enter the bank name.'
       else if (name.length < 2 || name.length > 100) nextErrors.bank_name = 'Bank name must be 2 to 100 characters.'
       else if (!/^[\p{L}\p{N} .&()\-]+$/u.test(name)) nextErrors.bank_name = 'Use letters, numbers, spaces, periods, ampersands, hyphens, and parentheses only.'
@@ -124,7 +138,7 @@ export default function Register() {
       formData.append('email', f.email)
       formData.append('password', f.password)
       formData.append('role', f.role)
-      formData.append('national_id', f.national_id)
+      if (f.national_id) formData.append('national_id', f.national_id)
       formData.append('date_of_birth', f.date_of_birth)
       formData.append('gender', f.gender)
       formData.append('citizenship', f.citizenship)
@@ -137,8 +151,10 @@ export default function Register() {
       }
       if (f.role === 'principal' || f.role === 'consultancy_staff') formData.append('invite_code', f.invite_code)
       if (bankDetailsVisible) {
+        formData.append('bank_account_name', f.bank_account_name.trim().replace(/\s+/g, ' '))
         formData.append('bank_name', f.bank_name.trim())
         formData.append('bank_account_number', f.bank_account_number.replace(/[ -]/g, ''))
+        formData.append('bank_nominee_name', f.bank_nominee_name.trim().replace(/\s+/g, ' '))
       }
       if (showParent) {
         if (f.parent_name) formData.append('parent_name', f.parent_name)
@@ -148,14 +164,14 @@ export default function Register() {
       formData.append('photo', photo)
 
       await api('/auth/register', { method: 'POST', body: formData })
-      setF((value) => ({ ...value, bank_name: '', bank_account_number: '' }))
+      setF((value) => ({ ...value, ...EMPTY_BANK }))
       setBankFieldErrors({})
       nav('/verify?sent=1&email=' + encodeURIComponent(f.email))
     } catch (x) {
       // 502: the account was created but the verification email could not be sent.
       if (x.status === 502) return nav('/verify?mailerr=1&email=' + encodeURIComponent(f.email))
       setErr(x.message)
-      if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, bank_name: x.fieldErrors.bank_name || '', bank_account_number: x.fieldErrors.bank_account_number || '' }))
+      if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, ...Object.fromEntries(BANK_FIELDS.map((key) => [key, x.fieldErrors[key] || ''])) }))
     }
     setBusy(false)
   }
@@ -261,11 +277,11 @@ export default function Register() {
             <AuthField
               label="National ID Card number"
               hint="The 10-digit number on your National ID Card (not the old citizenship certificate number)."
+              optional
               span
             >
               <input
                 className="auth-input"
-                required
                 value={f.national_id}
                 onChange={setNationalId}
                 inputMode="numeric"
@@ -280,11 +296,17 @@ export default function Register() {
         {bankDetailsVisible && (
           <Section title="Bank details" description="Required for this account type.">
             <div className="auth-grid">
-              <AuthField label="Bank name" error={bankFieldErrors.bank_name} span>
-                <input className="auth-input" type="text" required autoComplete="off" value={f.bank_name} onChange={setBankField('bank_name')} />
+              <AuthField label="Bank account name" hint="The account holder's name exactly as the bank shows it." error={bankFieldErrors.bank_account_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="e.g. Sita Sharma" value={f.bank_account_name} onChange={setBankField('bank_account_name')} />
               </AuthField>
-              <AuthField label="Bank account number" error={bankFieldErrors.bank_account_number} span>
-                <input className="auth-input" type="text" inputMode="numeric" required autoComplete="off" value={f.bank_account_number} onChange={setBankField('bank_account_number')} />
+              <AuthField label="Bank name" error={bankFieldErrors.bank_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="Full name of your bank" value={f.bank_name} onChange={setBankField('bank_name')} />
+              </AuthField>
+              <AuthField label="Bank account number" hint="8 to 24 digits." error={bankFieldErrors.bank_account_number} span>
+                <input className="auth-input" type="text" inputMode="numeric" required autoComplete="off" placeholder="Digits only" value={f.bank_account_number} onChange={setBankField('bank_account_number')} />
+              </AuthField>
+              <AuthField label="Nominee name" hint="The nominee registered on this bank account." error={bankFieldErrors.bank_nominee_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="e.g. Hari Sharma" value={f.bank_nominee_name} onChange={setBankField('bank_nominee_name')} />
               </AuthField>
               <p className="auth-secure-note auth-field--span">
                 <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="8.5" width="12" height="8" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5M10 11.5v2"/></svg>

@@ -4,14 +4,13 @@ from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator
-from app.core.config import settings
 
 from app.models.user import UserRole
 
 NID_PATTERN = re.compile(r"^\d{10}$")
 BANK_ACCOUNT_NUMBER_MIN_LENGTH = 8
 BANK_ACCOUNT_NUMBER_MAX_LENGTH = 24
-ROLES_REQUIRING_BANK_DETAILS = frozenset(role for role in UserRole if role != UserRole.student)
+ROLES_REQUIRING_BANK_DETAILS = frozenset({UserRole.other})
 
 
 class UserCreate(BaseModel):
@@ -20,13 +19,14 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     role: UserRole = UserRole.student
     invite_code: Optional[str] = None
+    bank_account_name: Optional[str] = Field(default=None, validate_default=True)
     bank_name: Optional[str] = Field(default=None, validate_default=True)
     bank_account_number: Optional[str] = Field(default=None, validate_default=True)
+    bank_nominee_name: Optional[str] = Field(default=None, validate_default=True)
 
-    national_id: str = Field(
-        min_length=10,
-        max_length=10,
-        description="10-digit National ID Card number",
+    national_id: Optional[str] = Field(
+        default=None,
+        description="Optional 10-digit National ID Card number",
     )
     date_of_birth: date
     gender: str
@@ -43,11 +43,25 @@ class UserCreate(BaseModel):
 
     terms_accepted: bool
 
+    @field_validator("bank_account_name", "bank_nominee_name", mode="before")
+    @classmethod
+    def validate_bank_person_name(cls, value: str | None, info: ValidationInfo) -> str | None:
+        if info.data.get("role", UserRole.student) not in ROLES_REQUIRING_BANK_DETAILS:
+            return None
+        label = "Bank account name" if info.field_name == "bank_account_name" else "Nominee name"
+        if value is None or not str(value).strip():
+            raise ValueError(f"{label} is required.")
+        name = " ".join(str(value).split())
+        if not 2 <= len(name) <= 100:
+            raise ValueError(f"{label} must be 2 to 100 characters.")
+        if not all(char.isalnum() or char in " .,'&-()" for char in name):
+            raise ValueError("Use letters, numbers, spaces, periods, commas, apostrophes, ampersands, hyphens, and parentheses only.")
+        return name
+
     @field_validator("bank_name", mode="before")
     @classmethod
     def validate_bank_name(cls, value: str | None, info: ValidationInfo) -> str | None:
-        role = info.data.get("role", UserRole.student)
-        if not settings.REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS or role not in ROLES_REQUIRING_BANK_DETAILS:
+        if info.data.get("role", UserRole.student) not in ROLES_REQUIRING_BANK_DETAILS:
             return None
         if value is None or not str(value).strip():
             raise ValueError("Bank name is required.")
@@ -61,8 +75,7 @@ class UserCreate(BaseModel):
     @field_validator("bank_account_number", mode="before")
     @classmethod
     def validate_bank_account_number(cls, value: str | None, info: ValidationInfo) -> str | None:
-        role = info.data.get("role", UserRole.student)
-        if not settings.REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS or role not in ROLES_REQUIRING_BANK_DETAILS:
+        if info.data.get("role", UserRole.student) not in ROLES_REQUIRING_BANK_DETAILS:
             return None
         if value is None or not str(value).strip():
             raise ValueError("Bank account number is required.")
@@ -75,8 +88,11 @@ class UserCreate(BaseModel):
 
     @field_validator("national_id")
     @classmethod
-    def validate_national_id(cls, v: str) -> str:
-        v = v.strip()
+    def validate_national_id(cls, v: str | None) -> str | None:
+        # Blank means "not provided"; store NULL so the unique constraint allows many.
+        v = (v or "").strip()
+        if not v:
+            return None
         if not NID_PATTERN.match(v):
             raise ValueError(
                 "National ID must be the 10-digit number on your National ID Card "
@@ -109,9 +125,9 @@ class UserOut(BaseModel):
     full_name: str
     email: EmailStr
     role: UserRole
-    national_id: str
     # These columns are nullable in the database (older/incomplete accounts
-    # can legitimately have no profile details yet).
+    # can legitimately have no profile details yet; National ID is optional).
+    national_id: Optional[str] = None
     date_of_birth: Optional[date] = None
     gender: Optional[str] = None
     citizenship: Optional[str] = None
