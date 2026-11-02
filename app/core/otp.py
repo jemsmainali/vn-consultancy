@@ -46,11 +46,11 @@ def _html(heading: str, body_html: str, code: str | None = None, note: str = "")
 
 async def _send(to_email: str, subject: str, text: str, html: str) -> None:
     if not settings.EMAIL_ENABLED:
-        if settings.ENVIRONMENT == "production":
+        if settings.ENVIRONMENT == "production" and not settings.DEMO_MODE:
             # Never fall back to printing codes on a live server.
             raise EmailNotConfigured("EMAIL_ENABLED is false in production")
-        # Development only: show the email in the server terminal instead of sending it.
-        print(f"[DEV] Email to {to_email} - {subject}\n{text}")
+        # Development / synthetic-data demo only: show the email in the server log instead of sending it.
+        print(f"[DEV] Email to {to_email} - {subject}\n{text}", flush=True)
         return
 
     msg = EmailMessage()

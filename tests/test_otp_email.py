@@ -43,6 +43,20 @@ class OtpEmailTests(unittest.TestCase):
                  COOKIE_SECURE=True, EMAIL_ENABLED=True, SMTP_HOST="smtp.example.com",
                  SMTP_FROM="no-reply@example.com", CORS_ORIGINS="https://example.com")
 
+    def test_demo_mode_runs_production_without_smtp_but_keeps_other_checks(self):
+        Settings(_env_file=None, SECRET_KEY="x" * 40, DATABASE_URL="postgresql://x", ENVIRONMENT="production",
+                 DEMO_MODE=True, COOKIE_SECURE=True, CORS_ORIGINS="https://example.com")
+        with self.assertRaises(ValueError):
+            Settings(_env_file=None, SECRET_KEY="x" * 40, DATABASE_URL="postgresql://x", ENVIRONMENT="production",
+                     DEMO_MODE=True, COOKIE_SECURE=False, CORS_ORIGINS="https://example.com")
+
+    def test_demo_mode_logs_email_in_production(self):
+        out = io.StringIO()
+        with patch.object(otp.settings, "EMAIL_ENABLED", False), patch.object(otp.settings, "ENVIRONMENT", "production"), \
+                patch.object(otp.settings, "DEMO_MODE", True), redirect_stdout(out):
+            asyncio.run(otp.send_otp_email("a@example.com", "123456", "A"))
+        self.assertIn("123456", out.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

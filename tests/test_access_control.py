@@ -24,6 +24,7 @@ from http.cookiejar import CookieJar
 from unittest.mock import patch
 
 import uvicorn
+from cryptography.fernet import Fernet
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -46,7 +47,7 @@ PDF = b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
 
 def _engine():
     return create_async_engine(
-        settings.DATABASE_URL,
+        settings.async_database_url,
         connect_args={"server_settings": {"search_path": SCHEMA}},
     )
 
@@ -60,7 +61,7 @@ async def _create_schema():
 
 
 async def _drop_schema():
-    engine = create_async_engine(settings.DATABASE_URL)
+    engine = create_async_engine(settings.async_database_url)
     async with engine.begin() as conn:
         await conn.execute(text(f'DROP SCHEMA IF EXISTS "{SCHEMA}" CASCADE'))
     await engine.dispose()
@@ -133,7 +134,6 @@ class AccessControlTests(unittest.TestCase):
         cls.patches = [
             patch.object(settings, "UPLOAD_DIR", cls.upload_dir),
             patch.object(settings, "STAFF_INVITE_CODE", "test-staff-invite"),
-            patch.object(settings, "REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS", False),
             patch.object(auth_api, "send_otp_email", capture_otp),
             patch.object(limiter, "enabled", False),
         ]
@@ -185,6 +185,7 @@ class AccessControlTests(unittest.TestCase):
         if role == UserRole.consultancy_staff:
             fields["invite_code"] = "test-staff-invite"
         fields.update(overrides)
+        fields = {key: value for key, value in fields.items() if value is not None}
         status, body = client.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PNG, "image/png")})
         return email, status, body
 
@@ -344,6 +345,54 @@ class AccessControlTests(unittest.TestCase):
                   "citizenship": "Nepali", "terms_accepted": "true"}
         status, _ = client.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PDF, "image/png")})
         self.assertEqual(status, 400, "photo content must be sniffed, not trusted")
+
+    def test_register_without_national_id(self):
+        client = self.anon()
+        for label, nid in (("no-nid", None), ("blank-nid", "")):
+            with self.subTest(nid=nid):
+                _, status, body = self._register(client, label, UserRole.student, national_id=nid)
+                self.assertEqual(status, 201, body)
+                self.assertIsNone(body["national_id"])
+
+    def test_other_signup_stores_encrypted_bank_details(self):
+        key = Fernet.generate_key()
+        bank = {
+            "bank_account_name": "Sita Sharma",
+            "bank_name": "Example Bank",
+            "bank_account_number": "0012 3456-7890",
+            "bank_nominee_name": "Hari Sharma",
+        }
+        client = self.anon()
+        with patch.object(settings, "BANK_DATA_ENCRYPTION_KEY", key.decode("ascii")):
+            _, status, body = self._register(client, "other-nobank", UserRole.other)
+            self.assertEqual(status, 422, body)
+            self.assertNotIn("0012", json.dumps(body))
+
+            _, status, body = self._register(client, "other-badbank", UserRole.other, **{**bank, "bank_account_name": "<b>"})
+            self.assertEqual(status, 422, body)
+
+            _, status, body = self._register(client, "parent-nobank", UserRole.parent)
+            self.assertEqual(status, 201, body)
+
+            email, status, body = self._register(client, "other-bank", UserRole.other, **bank)
+        self.assertEqual(status, 201, body)
+        self.assertFalse({"bank_account_name", "bank_name", "bank_account_number", "bank_nominee_name"} & set(body))
+        self.assertNotIn("001234567890", json.dumps(body))
+
+        async def stored():
+            engine = _engine()
+            async with engine.connect() as conn:
+                row = (await conn.execute(text(
+                    "SELECT b.account_name, b.bank_name, b.account_number_encrypted, b.account_last4, b.nominee_name "
+                    "FROM user_bank_details b JOIN users u ON u.id = b.user_id WHERE u.email = :e"
+                ), {"e": email})).one()
+            await engine.dispose()
+            return row
+
+        account_name, bank_name, encrypted, last4, nominee = asyncio.run(stored())
+        self.assertEqual((account_name, bank_name, last4, nominee), ("Sita Sharma", "Example Bank", "7890", "Hari Sharma"))
+        self.assertNotIn("001234567890", encrypted)
+        self.assertEqual(Fernet(key).decrypt(encrypted.encode("ascii")).decode("ascii"), "001234567890")
 
     def test_staff_signup_needs_approval_before_login(self):
         client = self.anon()

@@ -1,4 +1,6 @@
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+// Without VITE_API_URL, call the API on the same host the page was opened from (localhost or LAN IP):
+// the auth cookies are SameSite=Lax, so a different host would silently drop them after login.
+export const API_BASE = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:8000`
 const PUBLIC_ROUTES = new Set([
   '/', '/about', '/destinations', '/journey', '/faqs', '/gallery', '/contact', '/privacy',
   '/login', '/register', '/verify', '/forgot-password', '/reset-password', '/terms',

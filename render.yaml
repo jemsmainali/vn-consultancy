@@ -1,0 +1,65 @@
+# Render Blueprint for the public DEMO (synthetic data only).
+# Frontend and API share one origin: the static site rewrites /api/* to the API service,
+# so the SameSite=Lax auth cookies stay first-party (Safari blocks cross-site cookies).
+# If Render gives the API a different hostname than vn-group-api.onrender.com,
+# update the /api/* destination below.
+services:
+  - type: web
+    name: vn-group-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: API_PATH_PREFIX
+        value: /api
+      - key: CORS_ORIGINS
+        value: https://vn-group-demo.onrender.com
+      - key: EMAIL_ENABLED
+        value: "false"
+      - key: UPLOAD_DIR
+        value: /app/uploads
+      - key: SECRET_KEY
+        generateValue: true
+      - key: STAFF_INVITE_CODE
+        generateValue: true
+      - key: PRINCIPAL_INVITE_CODE
+        generateValue: true
+      # Secrets entered in the Render dashboard on first Blueprint sync:
+      - key: DATABASE_URL          # Neon *demo* database, pooled connection string
+        sync: false
+      - key: DATABASE_URL_UNPOOLED # same database, direct connection (used by migrations)
+        sync: false
+      - key: BANK_DATA_ENCRYPTION_KEY # Fernet key; back it up or stored numbers become unreadable
+        sync: false
+
+  - type: web
+    name: vn-group-demo
+    runtime: static
+    buildCommand: cd vn-frontend && npm ci && npm run build
+    staticPublishPath: ./vn-frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+      - key: VITE_DEMO_MODE
+        value: "true"
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://vn-group-api.onrender.com/*
+      - type: rewrite
+        source: /*
+        destination: /index.html

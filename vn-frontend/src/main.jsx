@@ -110,10 +110,18 @@ function StaffGuard() {
   return <Layout />
 }
 
+// Public demo build only (VITE_DEMO_MODE=true): make clear nothing here is a real record.
+const DemoNotice = () => import.meta.env.VITE_DEMO_MODE === 'true' ? (
+  <div role="note" style={{ background: '#102544', color: '#FFFFFF', textAlign: 'center', fontSize: 14, padding: '6px 16px' }}>
+    Demo site: sample data only. Please do not enter real personal, document or bank details.
+  </div>
+) : null
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <SkipNavigation />
+      <DemoNotice />
       <AuthProvider>
         <Suspense fallback={<RouteFallback />}>
         <Routes>
