@@ -42,8 +42,10 @@ services:
   - type: web
     name: vn-group-demo
     runtime: static
-    buildCommand: cd vn-frontend && npm ci && npm run build
-    staticPublishPath: ./vn-frontend/dist
+    # Build inside vn-frontend: from the repo root Render sees requirements.txt and tries to pip-install the API.
+    rootDir: vn-frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         value: /api
