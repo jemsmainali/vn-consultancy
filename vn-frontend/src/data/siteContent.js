@@ -36,6 +36,7 @@ const STEP_SIZES = '(max-width: 900px) calc(100vw - 32px), 44vw'
 
 export const siteImages = {
   logo: { src: '/images/vn-group-logo.jpg', alt: 'VN Group Study Abroad' },
+  lightLogo: { src: '/images/vn-group-logo-light.png', alt: 'VN Group Study Abroad' },
   hero: photo('hero', 'hero-main', [480, 800, 1200], 1200, 1195, 819, 'VN Group counsellors and students with a Westcliff University representative at an info session in Kathmandu', '100vw'),
   australia: photo('destinations', 'australia-card', [480, 720], 720, 720, 405, 'Sydney Opera House, Australia', '(max-width: 560px) 45vw, (max-width: 820px) 46vw, 23vw'),
   counselling: photo('services', 'counselling-session', [480, 800, 1200], 1200, 1200, 800, 'A VN Group counsellor speaking to a group of students', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 46vw, 560px'),
@@ -101,14 +102,15 @@ export const siteContent = {
     name: 'VN Group Study Abroad',
     tagline: 'Clear next steps for students in Nepal exploring international education.',
     logo: siteImages.logo,
+    lightLogo: siteImages.lightLogo,
     foundedYear: 2012,
   },
   navigation: {
     about: [
-      { label: 'Our Story', detail: 'Meet VN Group and its leadership.', to: '/about' },
-      { label: 'Our Team', detail: 'Learn about the people at VN Group.', to: '/about' },
-      { label: 'Why VN Group', detail: 'Read our approach to study guidance.', to: '/about' },
-      { label: 'Partner Universities', detail: 'See partner visits and institutions.', to: '/#partner-visits-title' },
+      { label: 'Our Story', detail: 'Meet VN Group and its leadership.', icon: 'story', to: '/about' },
+      { label: 'Our Team', detail: 'Learn about the people at VN Group.', icon: 'team', to: '/about' },
+      { label: 'Why VN Group', detail: 'Read our approach to study guidance.', icon: 'shield', to: '/about' },
+      { label: 'Partner Universities', detail: 'See partner visits and institutions.', icon: 'university', to: '/#partner-visits-title' },
     ],
     services: [
       { label: 'Counselling', detail: 'Talk through your interests and next steps.', icon: 'conversation', to: '/#service-counselling' },
@@ -119,11 +121,11 @@ export const siteContent = {
       { label: 'Pre-departure Briefing', detail: 'Review a practical preparation checklist.', icon: 'plane', to: '/#service-pre-departure' },
     ],
     resources: [
-      { label: 'Success Stories', detail: 'Explore student support and outcomes.', to: '/#services' },
-      { label: 'Blog', detail: 'Read answers and study guidance.', to: '/faqs' },
-      { label: 'FAQs', detail: 'Browse frequently asked questions.', to: '/faqs' },
-      { label: 'How It Works', detail: 'See the student journey step by step.', to: '/journey' },
-      { label: 'Gallery', detail: 'Visa successes, departures and partner visits.', to: '/gallery' },
+      { label: 'Success Stories', detail: 'Explore student support and outcomes.', icon: 'star', to: '/#services' },
+      { label: 'Blog', detail: 'Read answers and study guidance.', icon: 'pen', to: '/faqs' },
+      { label: 'FAQs', detail: 'Browse frequently asked questions.', icon: 'question', to: '/faqs' },
+      { label: 'How It Works', detail: 'See the student journey step by step.', icon: 'route', to: '/journey' },
+      { label: 'Gallery', detail: 'Visa successes, departures and partner visits.', icon: 'gallery', to: '/gallery' },
     ],
   },
   home: {

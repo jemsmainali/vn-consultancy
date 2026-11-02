@@ -170,13 +170,21 @@
 .services-dropdown { left: 50%; width: min(560px,calc(100vw - 32px)); transform: translate(-50%,4px); }
 .services-nav.is-open .services-dropdown { transform: translate(-50%,0); }
 .services-dropdown ul { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3px 6px; }
-.nav-item-icon { width: 19px; height: 19px; flex: 0 0 19px; color: var(--site-gold-deep,#a98543); }
+.nav-item-icon { width: 34px; height: 34px; flex: 0 0 34px; align-self: center; padding: 8px; border-radius: 9px; color: var(--site-gold-deep,#a98543); background: rgb(201 164 92 / .13); }
 .destinations-dropdown { left: 50%; width: min(390px,calc(100vw - 32px)); transform: translate(-50%,4px); }
 .destinations-nav.is-open .destinations-dropdown { transform: translate(-50%,0); }
 .destinations-dropdown ul { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .destinations-dropdown .country-flag { flex: 0 0 auto; }
 .view-destinations-link { justify-content: space-between; margin-top: 7px; border-top: 1px solid #10254414; color: var(--site-navy) !important; font-weight: 700; }
 .resources-nav .about-dropdown { right: 0; left: auto; }
+/* The header's scroll blur lives on a layer behind it: a blurred ancestor would stop the frosted dropdowns from blurring the page. */
+.site-header.is-scrolled { backdrop-filter: none; }
+.site-header::before { position: absolute; inset: 0; z-index: -1; pointer-events: none; content: ""; }
+.site-header.is-scrolled::before { backdrop-filter: blur(12px); }
+@media (min-width: 1024px) {
+  .about-dropdown { border-color: rgb(16 37 68 / .1); background: rgb(255 255 255 / .8); backdrop-filter: blur(20px) saturate(1.4); }
+  .about-dropdown a:hover, .about-dropdown a:focus-visible { background: rgb(16 37 68 / .05); }
+}
 .site-nav-actions { display: flex; flex: none; flex-direction: row; align-items: center; gap: 15px; margin-top: 0; }
 .student-login-link { display: inline-flex; align-items: center; gap: 6px; color: var(--site-navy); font-size: 14px; font-weight: 600; white-space: nowrap; }
 .student-login-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }

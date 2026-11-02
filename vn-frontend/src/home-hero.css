@@ -49,9 +49,22 @@
 
 /* Header over the hero: transparent at the top, navy glass once the page starts moving. */
 .public-site:has(.vn-hero) .site-header.is-over-hero { border-bottom-color: transparent; background: transparent; box-shadow: none; backdrop-filter: none; }
-.public-site:has(.vn-hero) .site-header.is-over-hero.is-scrolled { background: rgb(11 26 49 / .6); box-shadow: 0 1px 0 rgb(255 255 255 / .08); backdrop-filter: blur(16px) saturate(1.2); }
-/* The logo is a JPG on an off-white ground, so it sits on a matching plate rather than being recoloured. */
-.public-site:has(.vn-hero) .site-header.is-over-hero .brand-image { border-radius: 3px; box-shadow: 0 0 0 5px #fbfdfc, 0 12px 30px rgb(0 0 0 / .28); }
+.public-site:has(.vn-hero) .site-header.is-over-hero.is-scrolled { background: rgb(11 26 49 / .6); box-shadow: 0 1px 0 rgb(255 255 255 / .08); backdrop-filter: none; }
+.public-site:has(.vn-hero) .site-header.is-over-hero.is-scrolled::before { backdrop-filter: blur(16px) saturate(1.2); }
+/* Dropdowns over the photo: navy glass with white type and gold icons. */
+@media (min-width: 1024px) {
+  .public-site:has(.vn-hero) .site-header.is-over-hero .about-dropdown { border-color: rgb(255 255 255 / .14); background: rgb(11 26 49 / .62); box-shadow: 0 24px 48px rgb(0 0 0 / .32); }
+  .public-site:has(.vn-hero) .site-header.is-over-hero .about-dropdown a:hover,
+  .public-site:has(.vn-hero) .site-header.is-over-hero .about-dropdown a:focus-visible { background: rgb(255 255 255 / .08); }
+  .public-site:has(.vn-hero) .site-header.is-over-hero .about-menu-copy strong { color: #fff; }
+  .public-site:has(.vn-hero) .site-header.is-over-hero .about-menu-copy small { color: rgb(255 255 255 / .68); }
+  .public-site:has(.vn-hero) .site-header.is-over-hero .nav-item-icon { color: var(--home-gold); background: rgb(201 164 92 / .16); }
+  .public-site:has(.vn-hero) .site-header.is-over-hero .view-destinations-link { border-top-color: rgb(255 255 255 / .12); color: #fff !important; }
+}
+/* Over the photo the transparent white-ink logo replaces the off-white JPG; the JPG returns once the header turns white. */
+.site-header .brand-image-light { display: none; }
+.public-site:has(.vn-hero) .site-header.is-over-hero .brand-image:not(.brand-image-light) { display: none; }
+.public-site:has(.vn-hero) .site-header.is-over-hero .brand-image-light { display: block; filter: drop-shadow(0 2px 10px rgb(0 0 0 / .35)); }
 .public-site:has(.vn-hero) .site-header.is-over-hero .site-nav > .about-nav > .about-trigger,
 .public-site:has(.vn-hero) .site-header.is-over-hero .site-nav > .site-nav-link,
 .public-site:has(.vn-hero) .site-header.is-over-hero .student-login-link { color: #fff !important; }

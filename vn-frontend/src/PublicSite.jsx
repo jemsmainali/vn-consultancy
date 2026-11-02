@@ -44,6 +44,15 @@ function NavIcon({ name }) {
     passport: <><rect x="4" y="2.8" width="12" height="14.4" rx="1.5"/><circle cx="10" cy="8" r="2.4"/><path d="M6.5 13h7"/></>,
     language: <><circle cx="10" cy="10" r="7"/><path d="M3.5 10h13M10 3c2 2 2 12 0 14m0-14c-2 2-2 12 0 14"/></>,
     plane: <><path d="m2.5 11 15-6-5.3 12-2.5-4.2z"/><path d="m9.7 12.8 3.5-3.5"/></>,
+    story: <><path d="M10 5.5C8.5 4.3 6.3 3.8 3 4v11.5c3.3-.2 5.5.3 7 1.5 1.5-1.2 3.7-1.7 7-1.5V4c-3.3-.2-5.5.3-7 1.5z"/><path d="M10 5.5V17"/></>,
+    team: <><circle cx="7.5" cy="7" r="2.7"/><path d="M2.5 16.5c.4-3 2.1-4.5 5-4.5s4.6 1.5 5 4.5"/><path d="M12.8 4.6a2.5 2.5 0 0 1 0 4.8m1.8 2.9c1.6.5 2.6 1.9 2.9 4.2"/></>,
+    shield: <><path d="M10 2.8 4 5v4.6c0 3.7 2.5 6.4 6 7.6 3.5-1.2 6-3.9 6-7.6V5z"/><path d="m7.4 10 1.8 1.8 3.5-3.6"/></>,
+    university: <><path d="M2.8 7 10 3.2 17.2 7z"/><path d="M4.5 7.5V14m3.8-6.5V14m3.4-6.5V14m3.8-6.5V14M3 16.8h14"/></>,
+    star: <path d="m10 3 2.1 4.4 4.7.6-3.4 3.3.9 4.7L10 13.7 5.7 16l.9-4.7L3.2 8l4.7-.6z"/>,
+    pen: <><path d="M3.5 16.5h13"/><path d="M12.6 3.9a1.6 1.6 0 0 1 2.3 2.3l-7.4 7.4-3 .8.8-3z"/></>,
+    question: <><circle cx="10" cy="10" r="7"/><path d="M8 7.9a2.1 2.1 0 0 1 4 .7c0 1.4-2 1.8-2 3m0 2.6h.01"/></>,
+    route: <><circle cx="5" cy="15" r="1.8"/><circle cx="15" cy="5" r="1.8"/><path d="M6.8 15h5.7a2.5 2.5 0 0 0 0-5h-5a2.5 2.5 0 0 1 0-5h5.7"/></>,
+    gallery: <><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.3" cy="8.2" r="1.3"/><path d="m3.5 14.5 4-4 3 3 2-2 4 4"/></>,
   }
   return <svg className="nav-item-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>
 }
@@ -63,10 +72,10 @@ export function PublicLayout() {
   const navRef = useRef(null)
   const hoverTimers = useRef({})
   const dropdownGroups = [
-    { id: 'about', label: 'About', items: siteContent.navigation.about },
+    { id: 'about', label: 'About', items: siteContent.navigation.about, icon: true },
     { id: 'services', label: 'Services', items: siteContent.navigation.services, icon: true },
     { id: 'destinations', label: 'Destinations', items: destinations.map((item) => ({ label: item.name, code: item.code, to: destinationPath(item) })), destination: true },
-    { id: 'resources', label: 'Resources', items: siteContent.navigation.resources },
+    { id: 'resources', label: 'Resources', items: siteContent.navigation.resources, icon: true },
   ]
   const closeMenu = () => { setMenuOpen(false); setOpenDropdown('') }
   const isHome = location.pathname === '/'
@@ -213,6 +222,7 @@ export function PublicLayout() {
         <div className="site-header-inner">
           <Link className="brand" to="/" aria-label="VN Group home" onClick={closeMenu}>
             <img className="brand-image" src={siteContent.brand.logo.src} alt={siteContent.brand.logo.alt} />
+            {isHome && siteContent.brand.lightLogo && <img className="brand-image brand-image-light" src={siteContent.brand.lightLogo.src} alt={siteContent.brand.lightLogo.alt} />}
           </Link>
           <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-navigation" onClick={() => { setMenuOpen(!menuOpen); setOpenDropdown('') }}>
             <span className="sr-only">{menuOpen ? 'Close' : 'Open'} navigation menu</span>
