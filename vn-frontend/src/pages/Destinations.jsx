@@ -136,7 +136,7 @@ function DisclaimerBand({ country }) {
         <h2>{country ? `Planning to study in ${country.name}?` : 'Not sure which country fits you?'}</h2>
         <p>Talk it through with a VN Group counsellor. Admission and visa decisions are made by institutions and governments; we help you prepare a clear, honest application.</p>
       </div>
-      <Link className="home-button" to={enquiryHref(country?.name || '')}>Book free counselling</Link>
+      <Link className="home-button glow-cta" to={enquiryHref(country?.name || '')}>Book free counselling</Link>
     </div>
   </section>
 }
@@ -245,8 +245,8 @@ export function DestinationDetail() {
         <h1><CountryFlag code={country.code} name="" size={30} />Study in {country.name}</h1>
         <p>{country.intro}</p>
         <div className="destination-detail-actions">
-          <Link className="home-button" to={enquiryHref(country.name)}>Get free advice for {country.name}</Link>
-          <Link className="home-button home-button-ghost" to="#costs">See costs<span aria-hidden="true">↓</span></Link>
+          <Link className="home-button glow-cta" to={enquiryHref(country.name)}>Get free advice for {country.name}</Link>
+          <Link className="home-button home-button-ghost" to="#costs">See costs</Link>
         </div>
         <p className="destination-updated">Research checked {researchDate} · Rules change: always confirm with the official sources linked on this page.</p>
       </div>

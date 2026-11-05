@@ -33,6 +33,45 @@
   :is(.home-button, .public-site .button, .public-site button, .vn-hero-button, .vn-footer-cta-button, .svc-cta, .path-more, .home-text-link, .view-destinations-link):active:not(:disabled) { transform: none; }
 }
 
+/* Glow edge: gold rim that fades up from the bottom edge, with a soft blurred glow underneath */
+:is(.home-button, .public-site .button, .vn-hero-button, .vn-footer-cta-button, .svc-cta) {
+  --rim: linear-gradient(90deg, #8a6a2f, #C9A45C 25%, #f3e0b0 50%, #C9A45C 75%, #8a6a2f);
+  --halo: linear-gradient(90deg, #d9a84200, #d9a842 25%, #f6d98f 50%, #d9a842 75%, #d9a84200);
+  position: relative; isolation: isolate;
+}
+:is(.vn-hero-button, .vn-footer-cta-button, .svc-cta):not(.vn-hero-button-ghost) {
+  --rim: linear-gradient(90deg, #102544, #7a5a22 20%, #fff6dc 50%, #7a5a22 80%, #102544);
+}
+:is(.home-button, .public-site .button, .vn-hero-button, .vn-footer-cta-button, .svc-cta)::before {
+  content: ""; position: absolute; inset: 0; padding: 2px; border-radius: inherit; pointer-events: none;
+  background: var(--rim); background-size: 200% 100%;
+  -webkit-mask: linear-gradient(to top, #000 30%, #0000 85%), linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: source-in, xor;
+  mask: linear-gradient(to top, #000 30%, #0000 85%), linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: intersect, exclude;
+  opacity: 1; transition: opacity .25s ease;
+}
+:is(.home-button, .public-site .button, .vn-hero-button, .vn-footer-cta-button, .svc-cta)::after {
+  content: ""; position: absolute; z-index: -1; left: 10%; right: 10%; top: calc(100% - 8px); height: 22px; border-radius: 50%; pointer-events: none;
+  background: var(--halo); background-size: 200% 100%; filter: blur(14px); opacity: .6;
+  transition: opacity .3s ease, transform .3s var(--ease-out);
+}
+@media (hover: hover) {
+  :is(.home-button, .public-site .button, .vn-hero-button, .vn-footer-cta-button, .svc-cta):hover::before { opacity: 1; }
+  :is(.home-button, .public-site .button, .vn-hero-button, .vn-footer-cta-button, .svc-cta):hover::after { opacity: .95; transform: scaleX(1.1); }
+}
+:is(.home-button, .public-site .button, .vn-hero-button, .vn-footer-cta-button, .svc-cta):active::after { opacity: .9; transform: scaleX(.92); }
+:is(.home-button, .public-site .button):disabled::before, :is(.home-button, .public-site .button):disabled::after { opacity: 0; }
+
+/* Free counselling: the rim light travels along the edge and the glow breathes */
+.glow-cta::before { animation: glowSweep 3.2s linear infinite; }
+.glow-cta::after { animation: glowSweep 3.2s linear infinite, glowBreathe 2.6s ease-in-out infinite; }
+@keyframes glowSweep { from { background-position: 0% 0; } to { background-position: 200% 0; } }
+@keyframes glowBreathe { 0%, 100% { opacity: .55; transform: scaleX(.94); } 50% { opacity: 1; transform: scaleX(1.08); } }
+@media (prefers-reduced-motion: reduce) {
+  .glow-cta::before, .glow-cta::after { animation: none; }
+}
+
 /* Navigation: animated underline */
 @media (min-width: 1024px) {
   .site-nav .about-trigger::after, .site-nav .site-nav-link::after { position: absolute; right: 0; bottom: 2px; left: 0; height: 2px; border-radius: 2px; background: var(--site-gold); content: ""; transform: scaleX(0); transform-origin: left; transition: transform .25s var(--ease-out); }

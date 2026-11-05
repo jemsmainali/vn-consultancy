@@ -77,7 +77,7 @@ function HomeHero() {
       <div className="vn-hero-foot">
         <p className="vn-hero-lede" data-hero-fade>{hero.description}</p>
         <div className="vn-hero-actions" data-hero-fade>
-          <Link className="vn-hero-button" to="/#enquire">{hero.primaryLabel}<span aria-hidden="true">↗</span></Link>
+          <Link className="vn-hero-button glow-cta" to="/#enquire">{hero.primaryLabel}</Link>
           <Link className="vn-hero-button vn-hero-button-ghost" to="/destinations">{hero.secondaryLabel}</Link>
         </div>
       </div>

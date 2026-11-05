@@ -41,7 +41,7 @@ export default function SiteFooter() {
         <p className="vn-footer-eyebrow">Free counselling</p>
         <h2>Ready to plan your study abroad journey?</h2>
       </div>
-      <Link className="vn-footer-cta-button" to="/#enquire">Book free counselling</Link>
+      <Link className="vn-footer-cta-button glow-cta" to="/#enquire">Book free counselling</Link>
     </div>}
 
     <div className="vn-footer-main">

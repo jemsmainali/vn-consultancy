@@ -243,7 +243,7 @@ export function PublicLayout() {
             <Link to="/#enquire" onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</Link>
             <div className="site-nav-actions">
               <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu} aria-label={user ? undefined : 'Login'}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>{user ? 'My account' : 'Login'}</Link>
-              <Link className="button button-small" to="/#enquire" onClick={closeMenu}>Free Counselling</Link>
+              <Link className="button button-small glow-cta" to="/#enquire" onClick={closeMenu}>Free Counselling</Link>
             </div>
           </nav>
         </div>

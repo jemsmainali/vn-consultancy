@@ -150,7 +150,7 @@ export default function Gallery() {
           <h2>Your photo could be next.</h2>
           <p>Book a free counselling session and start planning your study abroad journey.</p>
         </div>
-        <Link className="button" to="/#enquire">Free Counselling</Link>
+        <Link className="button glow-cta" to="/#enquire">Free Counselling</Link>
       </div>
     </section>
 
