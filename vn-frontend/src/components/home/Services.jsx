@@ -6,7 +6,7 @@ import { gsap, revealOnScroll } from './sectionMotion'
 import '../../services-journey.css'
 
 function ServiceLink({ service, className }) {
-  const label = <>{service.linkLabel}<span aria-hidden="true">→</span></>
+  const label = <>{service.linkLabel}</>
   // Hash links go through the router too; ScrollManager scrolls to the section.
   return <Link className={className} to={service.to}>{label}</Link>
 }

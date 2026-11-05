@@ -85,7 +85,7 @@ export default function Journey() {
           <h2>Ready for stage one?</h2>
           <p>Book a free counselling session and we’ll map out the stages for your plans and timeline. You can also <Link to="/destinations">compare destinations</Link> or read our <Link to="/faqs">FAQs</Link>.</p>
         </div>
-        <Link className="home-button" to="/#enquire">Book free counselling<span aria-hidden="true">→</span></Link>
+        <Link className="home-button" to="/#enquire">Book free counselling</Link>
       </div>
     </section>
   </div>

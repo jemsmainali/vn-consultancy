@@ -167,7 +167,7 @@ export default function EnquiryForm() {
     {fieldError('privacy_consent')}
     <label className="data-honeypot" aria-hidden="true">Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={update} /></label>
     {failure && <p className="data-form-error" role="alert">{failure} {retryable && <button type="button" className="enquiry-retry" onClick={sendEnquiry} disabled={sending}>{sending ? 'Retrying…' : 'Try again'}</button>}</p>}
-    <button type="submit" className="button enquiry-submit" disabled={sending}>{sending ? <><span className="enquiry-spinner" aria-hidden="true" />Sending…</> : <>Book free counselling <span aria-hidden="true">→</span></>}</button>
+    <button type="submit" className="button enquiry-submit" disabled={sending}>{sending ? <><span className="enquiry-spinner" aria-hidden="true" />Sending…</> : <>Book free counselling</>}</button>
     <p className="enquiry-privacy-note"><svg aria-hidden="true" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>Your details are only used to respond to your enquiry.</p>
   </form>
 }

@@ -117,7 +117,7 @@ export function DestinationsHub() {
                   <span><small>Visa</small>{country.visa.name}</span>
                   <span><small>Work</small>{quickFact(country, 'Work while studying')}</span>
                 </span>
-                <span className="destination-guide-cta">Read the {country.name} guide<span aria-hidden="true">→</span></span>
+                <span className="destination-guide-cta">Read the {country.name} guide</span>
               </span>
             </Link>
           </ScrollReveal>)}
@@ -136,7 +136,7 @@ function DisclaimerBand({ country }) {
         <h2>{country ? `Planning to study in ${country.name}?` : 'Not sure which country fits you?'}</h2>
         <p>Talk it through with a VN Group counsellor. Admission and visa decisions are made by institutions and governments; we help you prepare a clear, honest application.</p>
       </div>
-      <Link className="home-button" to={enquiryHref(country?.name || '')}>Book free counselling<span aria-hidden="true">→</span></Link>
+      <Link className="home-button" to={enquiryHref(country?.name || '')}>Book free counselling</Link>
     </div>
   </section>
 }
@@ -230,7 +230,7 @@ export function DestinationDetail() {
 
   if (!country) return <div className="destinations-page"><header className="destinations-hero"><div className="data-container">
     <p className="data-eyebrow">Destination not found</p><h1>We don’t have a guide for that destination yet.</h1>
-    <p><Link className="home-text-link" to="/destinations">See all destination guides<span aria-hidden="true">→</span></Link></p>
+    <p><Link className="home-text-link" to="/destinations">See all destination guides</Link></p>
   </div></header></div>
 
   const index = countryProfiles.indexOf(country)
@@ -245,7 +245,7 @@ export function DestinationDetail() {
         <h1><CountryFlag code={country.code} name="" size={30} />Study in {country.name}</h1>
         <p>{country.intro}</p>
         <div className="destination-detail-actions">
-          <Link className="home-button" to={enquiryHref(country.name)}>Get free advice for {country.name}<span aria-hidden="true">→</span></Link>
+          <Link className="home-button" to={enquiryHref(country.name)}>Get free advice for {country.name}</Link>
           <Link className="home-button home-button-ghost" to="#costs">See costs<span aria-hidden="true">↓</span></Link>
         </div>
         <p className="destination-updated">Research checked {researchDate} · Rules change: always confirm with the official sources linked on this page.</p>
@@ -315,9 +315,9 @@ export function DestinationDetail() {
       </DetailSection>
 
       <nav className="destination-pager" aria-label="Other destinations">
-        <Link to={destinationPath(previous)}><small>Previous</small><span aria-hidden="true">←</span> {previous.name}</Link>
+        <Link to={destinationPath(previous)}><small>Previous</small>{previous.name}</Link>
         <Link to="/destinations" className="is-all">All destinations</Link>
-        <Link to={destinationPath(next)}><small>Next</small>{next.name} <span aria-hidden="true">→</span></Link>
+        <Link to={destinationPath(next)}><small>Next</small>{next.name}</Link>
       </nav>
     </div>
     <DisclaimerBand country={country} />

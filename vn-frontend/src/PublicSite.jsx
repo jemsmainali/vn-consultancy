@@ -236,7 +236,7 @@ export function PublicLayout() {
                       </Link>
                     </li>)}
                   </ul>
-                  {group.destination && <Link className="view-destinations-link" to="/destinations" onClick={closeMenu}>View all destinations <span aria-hidden="true">→</span></Link>}
+                  {group.destination && <Link className="view-destinations-link" to="/destinations" onClick={closeMenu}>View all destinations</Link>}
                 </div>
               </div>
             })}

@@ -78,7 +78,7 @@ function HomeHero() {
         <p className="vn-hero-lede" data-hero-fade>{hero.description}</p>
         <div className="vn-hero-actions" data-hero-fade>
           <Link className="vn-hero-button" to="/#enquire">{hero.primaryLabel}<span aria-hidden="true">↗</span></Link>
-          <Link className="vn-hero-button vn-hero-button-ghost" to="/destinations">{hero.secondaryLabel}<span aria-hidden="true">→</span></Link>
+          <Link className="vn-hero-button vn-hero-button-ghost" to="/destinations">{hero.secondaryLabel}</Link>
         </div>
       </div>
     </div>
@@ -112,7 +112,7 @@ function HomeAbout() {
         <dl className="home-about-facts">
           {facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd><CountUp value={fact.value} suffix={fact.suffix} /></dd></div>)}
         </dl>
-        <Link className="home-text-link" to="/about">Meet our founder<span aria-hidden="true">→</span></Link>
+        <Link className="home-text-link" to="/about">Meet our founder</Link>
       </ScrollReveal>
     </div>
   </section>

@@ -222,7 +222,7 @@ export default function JourneyGallery() {
               <div className="journey-end">
                 <span className="journey-end-icon" aria-hidden="true">✈</span>
                 <strong>Your journey could be next.</strong>
-                <Link className="home-button" to="/gallery">View the full gallery<span aria-hidden="true">→</span></Link>
+                <Link className="home-button" to="/gallery">View the full gallery</Link>
               </div>
             </li>
           </ol>
