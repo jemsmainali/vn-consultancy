@@ -48,7 +48,7 @@ class UserCreate(BaseModel):
     def validate_bank_person_name(cls, value: str | None, info: ValidationInfo) -> str | None:
         if info.data.get("role", UserRole.student) not in ROLES_REQUIRING_BANK_DETAILS:
             return None
-        label = "Bank account name" if info.field_name == "bank_account_name" else "Nominee name"
+        label = "Account holder name" if info.field_name == "bank_account_name" else "Nominee name"
         if value is None or not str(value).strip():
             raise ValueError(f"{label} is required.")
         name = " ".join(str(value).split())

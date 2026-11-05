@@ -116,7 +116,7 @@ export default function Register() {
         if (!BANK_PERSON_NAME.test(value)) return 'Use letters, numbers, spaces, periods, commas, apostrophes, ampersands, hyphens, and parentheses only.'
         return ''
       }
-      const accountNameError = personNameError(accountName, 'Bank account name')
+      const accountNameError = personNameError(accountName, 'Account holder name')
       if (accountNameError) nextErrors.bank_account_name = accountNameError
       const nomineeNameError = personNameError(nomineeName, 'Nominee name')
       if (nomineeNameError) nextErrors.bank_nominee_name = nomineeNameError
@@ -296,7 +296,7 @@ export default function Register() {
         {bankDetailsVisible && (
           <Section title="Bank details" description="Required for this account type.">
             <div className="auth-grid">
-              <AuthField label="Bank account name" hint="The account holder's name exactly as the bank shows it." error={bankFieldErrors.bank_account_name} span>
+              <AuthField label="Account holder name" hint="Exactly as the bank shows it." error={bankFieldErrors.bank_account_name} span>
                 <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="e.g. Sita Sharma" value={f.bank_account_name} onChange={setBankField('bank_account_name')} />
               </AuthField>
               <AuthField label="Bank name" error={bankFieldErrors.bank_name} span>
