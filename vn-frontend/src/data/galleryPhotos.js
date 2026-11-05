@@ -36,10 +36,32 @@ const japanVisaStudents = [
   'Dipa Rokaya', 'Niroj Bogati', 'Nischal Thakuri', 'Sushila Kumari Mahato', 'Nirajan Kumar Karn',
 ]
 
+const slug = (name) => name.toLowerCase().replace(/\s+/g, '-')
+
+// Students whose poster was redesigned; the rest keep their original poster.
+const redesignedJapanPosters = new Set([
+  'Aashika Dahal', 'Neten Gole Tamang', 'Mamita Tamang', 'Narendra Budha', 'Bishal Karki',
+  'Prinjila Tadi', 'Ambika Gurmachhan', 'Dipa Pun Magar', 'Saroj Pasman', 'Govind Yadav',
+  'Niraj Paswan', 'Rohit Basnet', 'Sarita Tamang', 'Ranisha Ray', 'Niraj Karki',
+  'Dipa Rokaya', 'Niroj Bogati',
+])
+
 const japanVisas = japanVisaStudents.map((student, index) => galleryPhoto(
-  `visa-japan-${index + 1}`, 'visa', 1200, 1698,
+  ...(redesignedJapanPosters.has(student) ? [`visa-japan-${slug(student)}`, 'visa', 1200, 1500] : [`visa-japan-${index + 1}`, 'visa', 1200, 1698]),
   `${student} — Japan visa granted`,
   `VN Group congratulations poster for ${student} on receiving a Japan student visa`,
+))
+
+// Posters that do not name a destination country, so captions do not name one either.
+const studentVisaStudents = [
+  'Aayusha Katwal', 'Pranish GC', 'Swekshya Yadav', 'Priyanka Mahaseth', 'Anil Adhikari',
+  'Rabin Gautam', 'Aakash Thapa', 'Richa Yadav', 'Sanjaya Basnet', 'Ritika Khatri',
+]
+
+const studentVisas = studentVisaStudents.map((student) => galleryPhoto(
+  `visa-student-${slug(student)}`, 'visa', 1200, 1500,
+  `${student} — student visa granted`,
+  `VN Group congratulations poster for ${student} on receiving a student visa`,
 ))
 
 const departures = {
@@ -66,10 +88,14 @@ const partnerVisits = {
   aiihe: galleryPhoto('partner-aiihe', 'team', 1200, 1600, 'Meeting at Australian International Institute of Higher Education', 'A VN Group representative shaking hands with a host at Australian International Institute of Higher Education'),
   sydneyCityCollege: galleryPhoto('partner-sydney-city-college', 'team', 1200, 1636, 'Visiting Sydney City College of Management', 'A VN Group representative at the reception of Sydney City College of Management'),
   charlesSturt: galleryPhoto('partner-charles-sturt', 'team', 1200, 1041, 'With the team at Charles Sturt University', 'VN Group representatives with staff at the Charles Sturt University reception desk'),
+  machhapuchchhreBank: galleryPhoto('partner-machhapuchchhre-bank', 'team', 1200, 900, 'With Machhapuchchhre Bank Limited at the VN Group office', 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office'),
+  officeVisit: galleryPhoto('partner-office-visit', 'team', 720, 960, 'Welcoming a visiting guest to the VN Group office', 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office'),
 }
 
 export const galleryPhotos = [
   supplied.visaOffice,
+  partnerVisits.machhapuchchhreBank,
+  partnerVisits.officeVisit,
   departures.airport1,
   supplied.westcliff,
   australiaVisa,
@@ -81,14 +107,17 @@ export const galleryPhotos = [
   supplied.maryville,
   partnerVisits.charlesSturt,
   ...japanVisas.slice(0, 4),
+  ...studentVisas.slice(0, 3),
   supplied.intakeBriefing,
   partnerVisits.aiihe,
   departures.airport2,
   ...japanVisas.slice(4, 10),
+  ...studentVisas.slice(3, 7),
   partnerVisits.melbourneArrival,
   partnerVisits.sydneyCityCollege,
   departures.farewell2,
   ...japanVisas.slice(10),
+  ...studentVisas.slice(7),
 ]
 
 export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisa, supplied.visaTeam, departures.airport2, departures.farewell2]
