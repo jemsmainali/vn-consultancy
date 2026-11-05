@@ -91,6 +91,9 @@ function HomeHero() {
   </section>
 }
 
+// Same photo as the Career & Study Counselling card, sized for the About column.
+const aboutImage = { ...siteImages.counselling, sizes: '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px' }
+
 function HomeAbout() {
   const facts = [
     { value: yearsExperience, suffix: '+', label: 'Years guiding students' },
@@ -100,7 +103,7 @@ function HomeAbout() {
   return <section id="about-vn" className="data-section home-about-section" aria-labelledby="home-about-title">
     <div className="data-container home-about-grid">
       <ScrollReveal className="home-about-media" direction="left">
-        <ResponsiveImage image={siteImages.partnerMeeting} className="home-about-photo" />
+        <ResponsiveImage image={aboutImage} className="home-about-photo" />
       </ScrollReveal>
       <ScrollReveal className="home-about-copy" direction="right" delay={80}>
         <p className="data-eyebrow">About VN Group</p>

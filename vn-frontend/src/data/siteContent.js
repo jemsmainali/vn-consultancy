@@ -54,6 +54,9 @@ export const siteImages = {
   aiihe: photo('partners', 'partner-aiihe', [480, 800, 1200], 1200, 1200, 900, 'VN Group representative shaking hands with a host at Australian International Institute of Higher Education', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
   sydneyCityCollege: photo('partners', 'partner-sydney-city-college', [480, 800, 1200], 1200, 1200, 900, 'VN Group representative at the reception of Sydney City College of Management', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
   charlesSturt: photo('partners', 'partner-charles-sturt', [480, 800, 1200], 1200, 1200, 900, 'VN Group representatives with staff at the Charles Sturt University reception desk', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  // JPEG only (no WebP set); ResponsiveImage falls back to src.
+  machhapuchchhreBank: { src: '/images/gallery/partner-machhapuchchhre-bank-1200.jpg', width: 1200, height: 900, alt: 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office' },
+  officeVisit: { src: '/images/gallery/partner-office-visit-1200.jpg', width: 720, height: 960, alt: 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office', position: 'center 30%' },
   partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team meeting with a partner delegation', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
   events: photo('about', 'events-wide', [480, 800, 1200], 1200, 1200, 675, 'VN Group team attending an international education conference', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 90vw, 1120px'),
   admissionsSession: { ...photo('services', 'admissions-westcliff-session', [480, 800, 1200], 1200, 1200, 1600, 'A Westcliff University representative presenting to students at a VN Group info session in Kathmandu', SERVICE_SIZES), position: 'center 30%' },
@@ -171,6 +174,8 @@ export const siteContent = {
     successStories: [],
     partnerLogos: [],
     partnerVisits: [
+      { image: siteImages.machhapuchchhreBank, caption: 'With Machhapuchchhre Bank Limited' },
+      { image: siteImages.officeVisit, caption: 'Welcoming a visiting guest to our office' },
       { image: siteImages.griffin, caption: 'Visiting Griffin College, Australia' },
       { image: siteImages.sahe, caption: 'Visiting Southern Academy of Higher Education' },
       { image: siteImages.partnerMeeting, caption: 'Meeting with a partner delegation' },
