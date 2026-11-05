@@ -78,15 +78,5 @@ export default function Journey() {
         </li>)}
       </ol>
     </div>
-
-    <section className="destination-cta-band">
-      <div className="data-container destination-cta-inner">
-        <div>
-          <h2>Ready for stage one?</h2>
-          <p>Book a free counselling session and we’ll map out the stages for your plans and timeline. You can also <Link to="/destinations">compare destinations</Link> or read our <Link to="/faqs">FAQs</Link>.</p>
-        </div>
-        <Link className="home-button glow-cta" to="/#enquire">Book free counselling</Link>
-      </div>
-    </section>
   </div>
 }

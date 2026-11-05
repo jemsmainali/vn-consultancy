@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { API_BASE } from '../api'
 import ScrollReveal from '../ScrollReveal'
 import { fromManagedItem, galleryCategories, galleryPhotos } from '../data/galleryPhotos'
@@ -144,14 +143,6 @@ export default function Gallery() {
       <ul key={filter} className="gallery-grid">
         {visible.map((photo, index) => <GalleryTile key={photo.id} photo={photo} index={index} onOpen={setOpenId} />)}
       </ul>
-
-      <div className="gallery-cta">
-        <div>
-          <h2>Your photo could be next.</h2>
-          <p>Book a free counselling session and start planning your study abroad journey.</p>
-        </div>
-        <Link className="button glow-cta" to="/#enquire">Free Counselling</Link>
-      </div>
     </section>
 
     {openIndex >= 0 && <Lightbox photos={visible} index={openIndex} onClose={close} onMove={move} />}

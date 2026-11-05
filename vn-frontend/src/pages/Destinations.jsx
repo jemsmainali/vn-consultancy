@@ -125,20 +125,7 @@ export function DestinationsHub() {
       </div>
     </section>
     <CompareDestinations />
-    <DisclaimerBand />
   </div>
-}
-
-function DisclaimerBand({ country }) {
-  return <section className="destination-cta-band">
-    <div className="data-container destination-cta-inner">
-      <div>
-        <h2>{country ? `Planning to study in ${country.name}?` : 'Not sure which country fits you?'}</h2>
-        <p>Talk it through with a VN Group counsellor. Admission and visa decisions are made by institutions and governments; we help you prepare a clear, honest application.</p>
-      </div>
-      <Link className="home-button glow-cta" to={enquiryHref(country?.name || '')}>Book free counselling</Link>
-    </div>
-  </section>
 }
 
 // ---------- Detail ----------
@@ -320,6 +307,5 @@ export function DestinationDetail() {
         <Link to={destinationPath(next)}><small>Next</small>{next.name}</Link>
       </nav>
     </div>
-    <DisclaimerBand country={country} />
   </div>
 }
