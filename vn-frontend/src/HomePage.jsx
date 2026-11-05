@@ -21,11 +21,11 @@ import './home-hero.css'
 const hero = siteContent.home.hero
 const foundedYear = siteContent.brand.foundedYear
 const yearsExperience = yearsOfExperience()
-const visibleCountryName = (country) => country.name === 'United States' ? 'USA' : country.name === 'South Korea' ? 'Korea' : country.name
+const visibleCountryName = (country) => country.name === 'United States' ? 'USA' : country.name === 'South Korea' ? 'Korea' : country.name === 'United Kingdom' ? 'UK' : country.name
 const popularCountries = hero.rotatingCountries
   .map((name) => siteContent.home.countries.find((country) => country.name === name))
   .filter(Boolean)
-  .slice(0, 5)
+  .slice(0, 6)
 
 function HeroCountry({ country }) {
   const guide = destinationByName(country.name)

@@ -16,7 +16,7 @@
 .vn-hero-eyebrow { display: flex; align-items: center; gap: 14px; margin: 0 0 clamp(18px, 3vh, 30px); color: rgb(255 255 255 / .82); font-size: 12px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; }
 .vn-hero-eyebrow::before { width: 44px; height: 1px; flex: none; background: var(--home-gold); content: ""; }
 .vn-hero-eyebrow span { color: var(--home-gold); }
-.vn-hero-title { margin: 0; color: #fff; font-size: clamp(56px, 9vw, 156px); font-weight: 300; letter-spacing: -.055em; line-height: .94; text-wrap: balance; }
+.vn-hero-title { margin: 0; color: #fff; font-size: clamp(52px, 7.2vw, 128px); font-weight: 300; letter-spacing: -.055em; line-height: .94; text-wrap: balance; }
 /* Each line is masked so the GSAP intro can raise it from below the baseline. */
 .vn-hero-line { display: block; overflow: hidden; padding-bottom: .1em; margin-bottom: -.1em; }
 .vn-hero-line > * { display: inline-block; }

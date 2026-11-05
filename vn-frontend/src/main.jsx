@@ -56,6 +56,7 @@ const NotFound = lazy(() => loadPublicSite().then((module) => ({ default: module
 const Privacy = lazy(() => loadPublicSite().then((module) => ({ default: module.Privacy })))
 import WhatsAppButton from './components/layout/WhatsAppButton'
 import ScrollManager from './components/layout/ScrollManager'
+import PaymentNotice from './components/layout/PaymentNotice'
 
 function SkipNavigation() {
   const location = useLocation()
@@ -122,6 +123,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ScrollManager />
       <SkipNavigation />
       <DemoNotice />
+      <PaymentNotice />
       <AuthProvider>
         <Suspense fallback={<RouteFallback />}>
         <Routes>

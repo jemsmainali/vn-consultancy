@@ -134,9 +134,9 @@ export const siteContent = {
   home: {
     hero: {
       eyebrow: 'years of trusted guidance',
-      title: 'Your next chapter',
-      emphasis: 'starts here.',
-      rotatingCountries: ['Australia', 'United States', 'Canada', 'Japan', 'South Korea'],
+      title: 'Think of study abroad,',
+      emphasis: 'choose VN Group.',
+      rotatingCountries: ['Australia', 'United States', 'United Kingdom', 'Canada', 'Japan', 'South Korea'],
       description: 'Discover global opportunities. Build your future with VN Group.',
       primaryLabel: 'Free Counselling',
       secondaryLabel: 'Explore Destinations',
