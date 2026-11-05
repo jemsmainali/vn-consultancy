@@ -4,6 +4,7 @@ import { useAuth } from './auth'
 import { api } from './api'
 import { siteContent } from './data/siteContent'
 import ConfirmDialog from './components/ui/ConfirmDialog'
+import HomeLink from './components/layout/HomeLink'
 
 export const Logo = () => (
   <div className="flex items-center">
@@ -231,9 +232,9 @@ export function Layout() {
       <ConfirmDialog open={confirmLogout} title="Sign out?" message="You will need to sign in again to access your account." confirmLabel="Sign out" danger onCancel={() => setConfirmLogout(false)} onConfirm={async () => { await logout(); setConfirmLogout(false); nav('/login') }} />
 
       <header className="portal-topbar">
-        <NavLink to="/portal" className="portal-topbar-logo" aria-label="VN Group portal home">
+        <HomeLink className="portal-topbar-logo" aria-label="VN Group home">
           <img src={siteContent.brand.logo.src} alt="" width="132" height="56" />
-        </NavLink>
+        </HomeLink>
         <button ref={menuButtonRef} type="button" className="portal-menu-button" aria-expanded={menuOpen} aria-controls="portal-sidebar" onClick={() => setMenuOpen((open) => !open)}>
           <Icon name={menuOpen ? 'close' : 'menu'} />
           <span className="sr-only">{menuOpen ? 'Close menu' : 'Open menu'}{staff && pendingCount > 0 && !menuOpen ? `, ${pendingCount} pending ${pendingCount === 1 ? 'approval' : 'approvals'}` : ''}</span>
@@ -244,9 +245,9 @@ export function Layout() {
       <button type="button" className={`portal-scrim${menuOpen ? ' is-visible' : ''}`} aria-hidden="true" tabIndex={-1} onClick={() => setMenuOpen(false)} />
 
       <aside id="portal-sidebar" ref={sidebarRef} className={`portal-sidebar${menuOpen ? ' is-open' : ''}`} aria-label="Portal navigation" {...(!desktop && !menuOpen ? { inert: '' } : {})}>
-        <NavLink to="/portal" className="portal-sidebar-logo" aria-label="VN Group portal home">
+        <HomeLink className="portal-sidebar-logo" aria-label="VN Group home">
           <img src={siteContent.brand.logo.src} alt="" width="168" height="71" />
-        </NavLink>
+        </HomeLink>
 
         <nav className="portal-nav">
           <p className="portal-nav-heading">Workspace</p>

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useLocation, useNavigationType } from 'react-router-dom'
 
 // Owns all route scrolling (the browser's own restoration races lazy pages and GSAP pin spacers):
-// - PUSH/REPLACE without a hash: top of the page.
+// - PUSH/REPLACE without a hash: top of the page (smoothly when staying on the same page).
 // - PUSH/REPLACE with a hash (a link the visitor clicked): that section.
 // - POP (Back/Forward, reload): the position saved for that history entry.
 // - First load with a hash and no saved position (a shared deep link): that section.
@@ -102,7 +102,7 @@ export default function ScrollManager() {
       return firstLoad ? undefined : restore(0)
     }
     if (location.hash) return scrollToHash(location.hash, samePage)
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.scrollTo({ top: 0, behavior: samePage && !reducedMotion() ? 'smooth' : 'instant' })
     return undefined
   }, [location.key])
 

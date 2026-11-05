@@ -8,6 +8,7 @@ import { siteContent, siteContentReady, siteImages, yearsOfExperience } from './
 import { destinationBySlug, destinationPath, destinations } from './data/destinations/registry'
 import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
+import HomeLink from './components/layout/HomeLink'
 import ChatWidget from './components/layout/ChatWidget'
 import LegalPage from './components/layout/LegalPage'
 import EnquirySection from './components/home/EnquirySection'
@@ -209,10 +210,10 @@ export function PublicLayout() {
     <div className="public-site">
       <header className={`site-header${isScrolled ? ' is-scrolled' : ''}${isHome && isOverHero && !menuOpen ? ' is-over-hero' : ''}`}>
         <div className="site-header-inner">
-          <Link className="brand" to="/" aria-label="VN Group home" onClick={closeMenu}>
+          <HomeLink className="brand" aria-label="VN Group home" onClick={closeMenu}>
             <img className="brand-image" src={siteContent.brand.logo.src} alt={siteContent.brand.logo.alt} />
             {isHome && siteContent.brand.lightLogo && <img className="brand-image brand-image-light" src={siteContent.brand.lightLogo.src} alt={siteContent.brand.lightLogo.alt} />}
-          </Link>
+          </HomeLink>
           <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-navigation" onClick={() => { setMenuOpen(!menuOpen); setOpenDropdown('') }}>
             <span className="sr-only">{menuOpen ? 'Close' : 'Open'} navigation menu</span>
             <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
