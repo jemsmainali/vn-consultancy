@@ -3,7 +3,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
-from sqlalchemy import select
+from sqlalchemy import false, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_role
@@ -31,6 +31,7 @@ def _out(item: GalleryItem, staff: bool = False) -> GalleryItemOut:
         category=item.category,
         position=item.position,
         published=item.published,
+        is_success_story=bool(item.is_success_story),
         image_url=f"/gallery/{'staff/' if staff else ''}{item.id}/image",
         created_at=item.created_at,
     )
@@ -43,6 +44,7 @@ def _staff_out(item: GalleryItem) -> GalleryStaffItemOut:
 @router.get("", response_model=list[GalleryItemOut])
 async def public_gallery(
     category: str | None = Query(default=None),
+    success_story: bool | None = Query(default=None),
     db: AsyncSession = Depends(get_db),
 ):
     if category is not None and category not in GALLERY_CATEGORIES:
@@ -50,6 +52,8 @@ async def public_gallery(
     query = select(GalleryItem).where(GalleryItem.published.is_(True))
     if category:
         query = query.where(GalleryItem.category == category)
+    if success_story is not None:
+        query = query.where(func.coalesce(GalleryItem.is_success_story, false()) == success_story)
     rows = await db.execute(query.order_by(GalleryItem.position, GalleryItem.created_at.desc()).limit(100))
     return [_out(item) for item in rows.scalars().all()]
 

@@ -277,6 +277,32 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertTrue(previews)
 
+    def test_gallery_success_story_flag_is_staff_only_and_filters_public_list(self):
+        def create(published):
+            status, item = self.staff.json(
+                "POST", "/gallery",
+                fields={"caption": "Visa granted", "alt_text": "Student holding a visa letter", "category": "student-life",
+                        "published": str(published).lower(), "publication_authorized": "true"},
+                files={"file": ("s.png", PNG, "image/png")},
+            )
+            self.assertEqual(status, 201, item)
+            self.assertFalse(item["is_success_story"])
+            return item["id"]
+
+        marked, unmarked, draft = create(True), create(True), create(False)
+        self.assertEqual(self.student_a.json("PATCH", f"/gallery/{marked}", json_body={"is_success_story": True})[0], 403)
+        for item_id in (marked, draft):
+            status, body = self.staff.json("PATCH", f"/gallery/{item_id}", json_body={"is_success_story": True})
+            self.assertEqual(status, 200, body)
+            self.assertTrue(body["is_success_story"])
+        self.assertEqual(self.staff.json("PATCH", f"/gallery/{marked}", json_body={"is_success_story": None})[0], 422)
+
+        anon = self.anon()
+        ids = lambda query: {item["id"] for item in anon.json("GET", f"/gallery{query}")[1]}
+        self.assertEqual(ids("?success_story=true") & {marked, unmarked, draft}, {marked})
+        self.assertEqual(ids("?success_story=false") & {marked, unmarked, draft}, {unmarked})
+        self.assertEqual(ids("") & {marked, unmarked, draft}, {marked, unmarked})
+
     # ---- enquiry ---------------------------------------------------------
 
     def test_enquiry_submit_anonymous_and_idempotent(self):

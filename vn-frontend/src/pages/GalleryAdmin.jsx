@@ -30,6 +30,7 @@ export default function GalleryAdmin() {
       setDrafts(Object.fromEntries(rows.map((item) => [item.id, {
         caption: item.caption, alt_text: item.alt_text, category: item.category,
         position: item.position, published: item.published, publication_authorized: item.publication_authorized,
+        is_success_story: Boolean(item.is_success_story),
       }])))
     } catch (err) { setError(err.message || 'Gallery records could not be loaded.') }
     finally { setLoading(false) }
@@ -111,6 +112,7 @@ export default function GalleryAdmin() {
             <div className="gallery-admin-edit-row"><label>Category<select value={draft.category} onChange={(e) => updateDraft(item.id, 'category', e.target.value)}>{categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Order<input type="number" min="0" max="10000" value={draft.position} onChange={(e) => updateDraft(item.id, 'position', e.target.value)} /></label></div>
             <label className="gallery-admin-check"><input type="checkbox" checked={Boolean(draft.published)} onChange={(e) => updateDraft(item.id, 'published', e.target.checked)} /> Published on website</label>
             <label className="gallery-admin-check"><input type="checkbox" checked={Boolean(draft.publication_authorized)} onChange={(e) => updateDraft(item.id, 'publication_authorized', e.target.checked)} /> Image rights and consent confirmed</label>
+            <label className="gallery-admin-check"><input type="checkbox" checked={Boolean(draft.is_success_story)} onChange={(e) => updateDraft(item.id, 'is_success_story', e.target.checked)} /> Show in Success Stories (only while published)</label>
             <div className="gallery-admin-item-actions"><button type="button" onClick={() => saveItem(item.id)}>Save changes</button><button type="button" className="gallery-admin-danger" onClick={() => setRemoveTarget(item)}>Delete</button></div>
           </div>
         </article>
