@@ -7,10 +7,8 @@ import '../../services-journey.css'
 
 function ServiceLink({ service, className }) {
   const label = <>{service.linkLabel}<span aria-hidden="true">→</span></>
-  // In-page anchors use <a> so the browser scrolls; routes use <Link>.
-  return service.to.startsWith('/#')
-    ? <a className={className} href={service.to}>{label}</a>
-    : <Link className={className} to={service.to}>{label}</Link>
+  // Hash links go through the router too; ScrollManager scrolls to the section.
+  return <Link className={className} to={service.to}>{label}</Link>
 }
 
 function ServiceCard({ service, index }) {

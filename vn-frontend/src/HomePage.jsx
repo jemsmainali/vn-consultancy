@@ -77,7 +77,7 @@ function HomeHero() {
       <div className="vn-hero-foot">
         <p className="vn-hero-lede" data-hero-fade>{hero.description}</p>
         <div className="vn-hero-actions" data-hero-fade>
-          <a className="vn-hero-button" href="#enquire">{hero.primaryLabel}<span aria-hidden="true">↗</span></a>
+          <Link className="vn-hero-button" to="/#enquire">{hero.primaryLabel}<span aria-hidden="true">↗</span></Link>
           <Link className="vn-hero-button vn-hero-button-ghost" to="/destinations">{hero.secondaryLabel}<span aria-hidden="true">→</span></Link>
         </div>
       </div>
@@ -86,7 +86,7 @@ function HomeHero() {
       <nav className="vn-hero-countries" aria-label="Popular study destinations">
         {popularCountries.map((country) => <HeroCountry key={country.name} country={country} />)}
       </nav>
-      <a className="vn-hero-scroll" href="#about-vn"><span>Scroll</span><i aria-hidden="true" /></a>
+      <Link className="vn-hero-scroll" to="/#about-vn"><span>Scroll</span><i aria-hidden="true" /></Link>
     </div>
   </section>
 }

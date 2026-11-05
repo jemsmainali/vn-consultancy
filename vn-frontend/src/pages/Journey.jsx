@@ -49,7 +49,7 @@ export default function Journey() {
         <h1>Your study abroad journey, step by step</h1>
         <p>Eleven stages from your first counselling session to your first weeks abroad: what you do, how we help, which documents you may need and what can affect the timeline.</p>
         <nav className="journey-jump" aria-label="Jump to a stage">
-          <ol>{journeySteps.map((step, index) => <li key={step.id}><a href={`#step-${step.id}`}><span>{index + 1}</span>{step.title}</a></li>)}</ol>
+          <ol>{journeySteps.map((step, index) => <li key={step.id}><Link to={`#step-${step.id}`}><span>{index + 1}</span>{step.title}</Link></li>)}</ol>
         </nav>
       </div>
     </header>
@@ -85,7 +85,7 @@ export default function Journey() {
           <h2>Ready for stage one?</h2>
           <p>Book a free counselling session and we’ll map out the stages for your plans and timeline. You can also <Link to="/destinations">compare destinations</Link> or read our <Link to="/faqs">FAQs</Link>.</p>
         </div>
-        <a className="home-button" href="/#enquire">Book free counselling<span aria-hidden="true">→</span></a>
+        <Link className="home-button" to="/#enquire">Book free counselling<span aria-hidden="true">→</span></Link>
       </div>
     </section>
   </div>

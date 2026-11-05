@@ -78,7 +78,7 @@ export default function FAQ({ variant = 'preview' }) {
         : <div className="faq-empty"><p>No questions match your search.</p><button type="button" onClick={() => { setQuery(''); setCategory('all') }}>Clear search</button></div>}
       <div className="faq-footer">
         {!full && <Link className="home-text-link" to="/faqs">See all {faqs.length} questions<span aria-hidden="true">→</span></Link>}
-        <p>Still unsure? <a href="/#enquire">Book a free counselling session</a>.</p>
+        <p>Still unsure? <Link to="/#enquire">Book a free counselling session</Link>.</p>
       </div>
     </div>
   </section>

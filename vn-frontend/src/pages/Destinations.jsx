@@ -136,7 +136,7 @@ function DisclaimerBand({ country }) {
         <h2>{country ? `Planning to study in ${country.name}?` : 'Not sure which country fits you?'}</h2>
         <p>Talk it through with a VN Group counsellor. Admission and visa decisions are made by institutions and governments; we help you prepare a clear, honest application.</p>
       </div>
-      <a className="home-button" href={enquiryHref(country?.name || '')}>Book free counselling<span aria-hidden="true">→</span></a>
+      <Link className="home-button" to={enquiryHref(country?.name || '')}>Book free counselling<span aria-hidden="true">→</span></Link>
     </div>
   </section>
 }
@@ -245,8 +245,8 @@ export function DestinationDetail() {
         <h1><CountryFlag code={country.code} name="" size={30} />Study in {country.name}</h1>
         <p>{country.intro}</p>
         <div className="destination-detail-actions">
-          <a className="home-button" href={enquiryHref(country.name)}>Get free advice for {country.name}<span aria-hidden="true">→</span></a>
-          <a className="home-button home-button-ghost" href="#costs">See costs<span aria-hidden="true">↓</span></a>
+          <Link className="home-button" to={enquiryHref(country.name)}>Get free advice for {country.name}<span aria-hidden="true">→</span></Link>
+          <Link className="home-button home-button-ghost" to="#costs">See costs<span aria-hidden="true">↓</span></Link>
         </div>
         <p className="destination-updated">Research checked {researchDate} · Rules change: always confirm with the official sources linked on this page.</p>
       </div>
@@ -258,7 +258,7 @@ export function DestinationDetail() {
     </dl>
 
     <nav className="destination-section-nav" aria-label={`${country.name} guide sections`}>
-      <div className="data-container"><ul>{sections.map((section) => <li key={section.id}><a href={`#${section.id}`} aria-current={active === section.id ? 'true' : undefined}>{section.label}</a></li>)}</ul></div>
+      <div className="data-container"><ul>{sections.map((section) => <li key={section.id}><Link to={`#${section.id}`} aria-current={active === section.id ? 'true' : undefined}>{section.label}</Link></li>)}</ul></div>
     </nav>
 
     <div className="data-container destination-detail-body">

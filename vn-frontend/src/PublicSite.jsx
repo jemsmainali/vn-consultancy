@@ -79,7 +79,6 @@ export function PublicLayout() {
   ]
   const closeMenu = () => { setMenuOpen(false); setOpenDropdown('') }
   const isHome = location.pathname === '/'
-  const linkTo = (to) => to.startsWith('/#') && location.pathname !== '/' ? `/${to.slice(1)}` : to
 
   const scheduleDropdown = (id, delay, action) => {
     window.clearTimeout(hoverTimers.current[id])
@@ -137,16 +136,6 @@ export function PublicLayout() {
     document.head.append(script)
     return () => script.remove()
   }, [isHome])
-
-  useEffect(() => {
-    if (!location.hash) return undefined
-    const frame = requestAnimationFrame(() => {
-      const target = document.getElementById(decodeURIComponent(location.hash.slice(1)))
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [location.pathname, location.hash])
 
   useEffect(() => {
     if (!isHome || !('IntersectionObserver' in window)) return undefined
@@ -239,7 +228,7 @@ export function PublicLayout() {
                 <div id={`${group.id}-subnav`} className={`about-dropdown${group.destination ? ' destinations-dropdown' : ''}${group.id === 'services' ? ' services-dropdown' : ''}`} aria-label={group.label} aria-hidden={!isOpen}>
                   <ul>
                     {group.items.map((item) => <li key={item.label}>
-                      <Link to={linkTo(item.to)} onClick={closeMenu}>
+                      <Link to={item.to} onClick={closeMenu}>
                         {group.icon && <NavIcon name={item.icon} />}
                         {group.destination && <CountryFlag code={item.code} name={item.label} size={20} />}
                         <span className="about-menu-copy"><strong>{item.label}</strong>{item.detail && <small>{item.detail}</small>}</span>
@@ -250,10 +239,10 @@ export function PublicLayout() {
                 </div>
               </div>
             })}
-            <a href={isHome ? '#enquire' : '/#enquire'} onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</a>
+            <Link to="/#enquire" onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</Link>
             <div className="site-nav-actions">
               <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu} aria-label={user ? undefined : 'Login'}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>{user ? 'My account' : 'Login'}</Link>
-              <a className="button button-small" href={`${isHome ? '' : '/'}#enquire`} onClick={closeMenu}>Free Counselling</a>
+              <Link className="button button-small" to="/#enquire" onClick={closeMenu}>Free Counselling</Link>
             </div>
           </nav>
         </div>

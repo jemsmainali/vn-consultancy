@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { API_BASE } from '../api'
 import ScrollReveal from '../ScrollReveal'
 import { fromManagedItem, galleryCategories, galleryPhotos } from '../data/galleryPhotos'
@@ -149,7 +150,7 @@ export default function Gallery() {
           <h2>Your photo could be next.</h2>
           <p>Book a free counselling session and start planning your study abroad journey.</p>
         </div>
-        <a className="button" href="/#enquire">Free Counselling</a>
+        <Link className="button" to="/#enquire">Free Counselling</Link>
       </div>
     </section>
 

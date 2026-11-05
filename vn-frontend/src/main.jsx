@@ -55,6 +55,7 @@ const Journey = lazy(() => import('./pages/Journey'))
 const NotFound = lazy(() => loadPublicSite().then((module) => ({ default: module.NotFound })))
 const Privacy = lazy(() => loadPublicSite().then((module) => ({ default: module.Privacy })))
 import WhatsAppButton from './components/layout/WhatsAppButton'
+import ScrollManager from './components/layout/ScrollManager'
 
 function SkipNavigation() {
   const location = useLocation()
@@ -66,11 +67,8 @@ function SkipNavigation() {
       main.focus({ preventScroll: true })
       return true
     }
+    // Scrolling is ScrollManager's job; this only moves focus to the new page.
     const frame = window.requestAnimationFrame(() => {
-      if (!location.hash) {
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' })
-      }
       if (focusMain()) return
       const root = document.getElementById('root')
       if (!root) return
@@ -83,7 +81,8 @@ function SkipNavigation() {
     return () => window.cancelAnimationFrame(frame)
   }, [location.pathname])
 
-  return <a className="skip-link" href="#main">Skip to content</a>
+  // Focus (and scroll to) main without adding a #main history entry.
+  return <a className="skip-link" href="#main" onClick={(event) => { event.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
 }
 
 function RouteFallback() {
@@ -120,6 +119,7 @@ const DemoNotice = () => import.meta.env.VITE_DEMO_MODE === 'true' ? (
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
+      <ScrollManager />
       <SkipNavigation />
       <DemoNotice />
       <AuthProvider>

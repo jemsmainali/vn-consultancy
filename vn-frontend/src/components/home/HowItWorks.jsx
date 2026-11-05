@@ -83,7 +83,7 @@ export default function HowItWorks() {
       </div>
 
       <div className="path-foot" data-path-reveal>
-        <a className="svc-cta" href="#enquire">Start with free counselling<span aria-hidden="true">→</span></a>
+        <Link className="svc-cta" to="/#enquire">Start with free counselling<span aria-hidden="true">→</span></Link>
         <Link className="path-more" to="/journey">See all {journeySteps.length} stages in detail<span aria-hidden="true">→</span></Link>
       </div>
       {steps.some((step) => step.image?.licensed) && <p className="sj-credit">Counselling, course and visa photos: VN Group. Other photographs are illustrative stock images.</p>}
