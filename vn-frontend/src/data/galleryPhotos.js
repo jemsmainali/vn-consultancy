@@ -58,7 +58,6 @@ const supplied = {
   intakeBriefing: galleryPhoto('event-intake-briefing', 'team', 1200, 761, 'Walking students through university intake dates', 'A VN Group presenter speaking into a microphone beside a projected academic calendar'),
   maryville: galleryPhoto('counselling-maryville', 'departures', 960, 720, 'An admissions session with Maryville University', 'Three students in a session across a desk, with a Maryville University sign on the table'),
   graduation: galleryPhoto('graduation-maryville', 'departures', 556, 742, 'Graduation day at Maryville University', 'A graduate in cap and gown holding a red Maryville University diploma cover'),
-  celebration2: galleryPhoto('team-celebration-1', 'team', 1200, 801, 'Cake, laughter and good company', 'A man playfully dabbing cake on a smiling colleague in a yellow jacket'),
 }
 
 const partnerVisits = {
@@ -87,7 +86,6 @@ export const galleryPhotos = [
   departures.airport2,
   ...japanVisas.slice(4, 10),
   partnerVisits.melbourneArrival,
-  supplied.celebration2,
   partnerVisits.sydneyCityCollege,
   departures.farewell2,
   ...japanVisas.slice(10),
