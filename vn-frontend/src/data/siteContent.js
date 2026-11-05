@@ -122,7 +122,7 @@ export const siteContent = {
     ],
     resources: [
       { label: 'Success Stories', detail: 'Explore student support and outcomes.', icon: 'star', to: '/#services' },
-      { label: 'Blog', detail: 'Read answers and study guidance.', icon: 'pen', to: '/faqs' },
+      // Blog link hidden until a /blog route with real posts exists (it pointed at /faqs).
       { label: 'FAQs', detail: 'Browse frequently asked questions.', icon: 'question', to: '/faqs' },
       { label: 'How It Works', detail: 'See the student journey step by step.', icon: 'route', to: '/journey' },
       { label: 'Gallery', detail: 'Visa successes, departures and partner visits.', icon: 'gallery', to: '/gallery' },
