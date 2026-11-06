@@ -43,7 +43,8 @@ const webpPhoto = (folder, name, widths, width, height, alt, sizes) => {
     alt,
   }
 }
-const PICNIC_SIZES = '(max-width: 760px) 50vw, 380px'
+const VISIT_SIZES = '(max-width: 640px) 78vw, 400px'
+const PICNIC_SIZES ='(max-width: 760px) 50vw, 380px'
 const SERVICE_SIZES ='(max-width: 640px) calc(100vw - 32px), (max-width: 1100px) 46vw, 30vw'
 const STEP_SIZES = '(max-width: 900px) calc(100vw - 32px), 44vw'
 
@@ -70,6 +71,11 @@ export const siteImages = {
   // JPEG only (no WebP set); ResponsiveImage falls back to src.
   machhapuchchhreBank: { src: '/images/gallery/partner-machhapuchchhre-bank-1200.jpg', width: 1200, height: 900, alt: 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office' },
   officeVisit: { src: '/images/gallery/partner-office-visit-1200.jpg', width: 720, height: 960, alt: 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office', position: 'center 30%' },
+  partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team meeting with a partner delegation', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
+  // Partner visits and official meetings (homepage).
+  nepalEmbassyCanberra: { ...photo('partners', 'visit-nepal-embassy-canberra', [480, 800, 1200], 800, 1200, 1600, 'A VN Group representative with H.E. Kailash Raj Pokharel, Ambassador of Nepal to Australia, at the Embassy of Nepal in Canberra', VISIT_SIZES), position: 'center 35%' },
+  tafeQueensland: { ...photo('partners', 'visit-tafe-queensland', [480, 800, 1200], 800, 1200, 1600, 'A VN Group representative with a TAFE Queensland staff member beside a TAFE Queensland campus information sign', VISIT_SIZES), position: 'center 55%' },
+  australianEmbassyKathmandu: photo('partners', 'visit-australian-embassy-kathmandu', [480, 800, 1080], 800, 1080, 810, 'The FECON team with H.E. Peter Budd, Ambassador of Australia to Nepal, in a meeting room at the Australian Embassy in Kathmandu', VISIT_SIZES),
   admissionsSession: { ...photo('services', 'admissions-westcliff-session', [480, 800, 1200], 1200, 1200, 1600, 'A Westcliff University representative presenting to students at a VN Group info session in Kathmandu', SERVICE_SIZES), position: 'center 30%' },
   visaGrantTeam: { ...photo('services', 'visa-grant-team', [480, 800, 1200], 1200, 1200, 900, 'A student holding a visa grant letter with two VN Group team members at the VN Group office', SERVICE_SIZES), position: 'center 35%' },
   stepCounselling: photo('steps', 'counselling-maryville', [480, 800, 960], 960, 960, 720, 'Students in an admissions session at a desk with a Maryville University sign', STEP_SIZES),
@@ -184,17 +190,28 @@ export const siteContent = {
     ],
     successStories: [],
     partnerLogos: [],
+    // "Partner visits and official meetings". Shown newest first by `date` ('YYYY-MM'); undated items follow
+    // in this order. Optional fields (place, date, description, tag) are hidden when empty, and an item
+    // without a photo is hidden. Embassies and consulates are official meetings, never "partners".
+    // tag: 'Institution visit' | 'Official meeting'.
     partnerVisits: [
-      { image: siteImages.machhapuchchhreBank, caption: 'With Machhapuchchhre Bank Limited' },
-      { image: siteImages.officeVisit, caption: 'Welcoming a visiting guest to our office' },
-      { image: siteImages.griffin, caption: 'Visiting Griffin College, Australia' },
-      { image: siteImages.sahe, caption: 'Visiting Southern Academy of Higher Education' },
-      { image: siteImages.partnerMeeting, caption: 'Meeting with a partner delegation' },
-      { image: siteImages.notreDame, caption: 'Visiting The University of Notre Dame Australia' },
-      { image: siteImages.aiihe, caption: 'Meeting at Australian International Institute of Higher Education' },
-      { image: siteImages.charlesSturt, caption: 'With the team at Charles Sturt University' },
-      { image: siteImages.sydneyCityCollege, caption: 'Visiting Sydney City College of Management' },
-      { image: siteImages.melbourneArrival, caption: 'Arriving in Melbourne for partner visits' },
+      { image: siteImages.nepalEmbassyCanberra, title: 'Meeting with H.E. Kailash Raj Pokharel, Ambassador of Nepal to Australia and New Zealand', place: 'Embassy of Nepal, Canberra', date: '2024-05', description: 'Our FECON delegation met the Ambassador to discuss student concerns.', tag: 'Official meeting' },
+      { image: siteImages.tafeQueensland, title: 'Visit to TAFE Queensland', date: '2024-05', description: 'Learning about the courses offered to international students during the FECON FAM Trip 2024.', tag: 'Institution visit' },
+      // No photo supplied yet: hidden until `image` is set.
+      { image: null, title: 'Meeting with H.E. Mahesh Dahal, Ambassador of Nepal to Australia', place: 'Embassy of Nepal, Australia', date: '2020-02', description: 'A successful meeting of the FECON delegation.', tag: 'Official meeting' },
+      // Photo to be supplied; spelling "Yonzon" awaiting confirmation (posts also use "Younjan").
+      { image: null, title: 'Meeting with Mr. Chandra Yonzon, Consul General of Nepal in Victoria', place: 'Victoria, Australia', date: '2020-02', description: '', tag: 'Official meeting' },
+      { image: siteImages.australianEmbassyKathmandu, title: 'Meeting with H.E. Peter Budd, Ambassador of Australia to Nepal', place: 'Australian Embassy, Kathmandu', date: '2020-01', description: 'A meeting with the FECON team.', tag: 'Official meeting' },
+      { image: siteImages.machhapuchchhreBank, title: 'With Machhapuchchhre Bank Limited' },
+      { image: siteImages.officeVisit, title: 'Welcoming a visiting guest to our office' },
+      { image: siteImages.griffin, title: 'Visiting Griffin College, Australia', tag: 'Institution visit' },
+      { image: siteImages.sahe, title: 'Visiting Southern Academy of Higher Education', tag: 'Institution visit' },
+      { image: siteImages.partnerMeeting, title: 'Meeting with a partner delegation' },
+      { image: siteImages.notreDame, title: 'Visiting The University of Notre Dame Australia', tag: 'Institution visit' },
+      { image: siteImages.aiihe, title: 'Meeting at Australian International Institute of Higher Education', tag: 'Institution visit' },
+      { image: siteImages.charlesSturt, title: 'With the team at Charles Sturt University', tag: 'Institution visit' },
+      { image: siteImages.sydneyCityCollege, title: 'Visiting Sydney City College of Management', tag: 'Institution visit' },
+      { image: siteImages.melbourneArrival, title: 'Arriving in Melbourne for partner visits' },
     ],
     enquiry: {
       countries: countries.map(({ name }) => name),

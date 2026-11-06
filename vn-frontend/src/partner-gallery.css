@@ -13,10 +13,11 @@
 .partner-marquee-image, .partner-marquee-image img { display: block; width: 100%; height: 100%; }
 .partner-marquee-image img { object-fit: cover; transition: transform .7s var(--ease-out), opacity .5s ease; }
 @media (hover: hover) { .partner-marquee-card:hover .partner-marquee-image img { transform: scale(1.06); } }
-.partner-marquee-card figcaption { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: var(--site-navy); font-size: 14px; font-weight: 650; line-height: 1.45; }
-.partner-marquee-card figcaption::before { width: 18px; height: 2px; flex: 0 0 18px; border-radius: 2px; background: var(--site-gold); content: ""; }
-.partner-marquee-placeholder { display: grid; width: 100%; height: 100%; place-content: center; justify-items: center; gap: 10px; color: #6b7a8f; background: repeating-linear-gradient(135deg, #eef2f6 0 14px, #e7ecf2 14px 28px); font-size: 13px; font-weight: 600; }
-.partner-marquee-placeholder svg { width: 34px; height: 34px; color: #9b783f; }
+.partner-marquee-tag { position: absolute; z-index: 1; top: 12px; left: 12px; padding: 5px 10px; border-radius: 999px; color: var(--site-navy); background: #fffffff0; font-size: 12px; font-weight: 650; line-height: 1.2; }
+.partner-marquee-body { margin-top: 14px; padding-left: 14px; border-left: 2px solid var(--site-gold); }
+.partner-marquee-body h3 { margin: 0; color: var(--site-navy); font-size: 15px; font-weight: 650; line-height: 1.4; }
+.partner-marquee-meta { margin: 6px 0 0; color: #80602e; font-size: 13px; font-weight: 600; line-height: 1.4; }
+.partner-marquee-description { margin: 6px 0 0; color: var(--site-muted); font-size: 14px; line-height: 1.55; }
 .partner-marquee-controls { display: flex; justify-content: center; margin-top: 22px; }
 .partner-marquee-toggle { display: inline-flex; min-height: 40px; align-items: center; gap: 8px; padding: 0 16px; border: 1px solid #10254426; border-radius: 999px; color: var(--site-navy); background: #fff; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: border-color .18s ease, box-shadow .2s ease; }
 .partner-marquee-toggle svg { width: 14px; height: 14px; fill: currentColor; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
