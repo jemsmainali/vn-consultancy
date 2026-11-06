@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import '../../payment-notice.css'
+import { paymentNotice } from '../../data/legalContent'
 
 const STORAGE_KEY = 'vn-payment-notice-seen'
 
@@ -26,10 +27,10 @@ export default function PaymentNotice() {
   if (!open) return null
   return <div className="payment-notice-backdrop" onClick={close}>
     <div className="payment-notice" role="dialog" aria-modal="true" aria-labelledby="payment-notice-title" onClick={(event) => event.stopPropagation()}>
-      <p className="payment-notice-eyebrow">Important notice</p>
-      <h2 id="payment-notice-title">Pay only through VN Group's official channels</h2>
-      <p>Please make every payment directly through VN Group's official office and channels. Payments made to any other person or account are not valid.</p>
-      <p lang="ne" className="payment-notice-ne">कृपया सबै भुक्तानी VN Group को आधिकारिक माध्यमबाट मात्र गर्नुहोस्। अन्य कुनै व्यक्ति वा खातामा गरिएको भुक्तानी मान्य हुने छैन।</p>
+      <p className="payment-notice-eyebrow">{paymentNotice.en.eyebrow}</p>
+      <h2 id="payment-notice-title">{paymentNotice.en.title}</h2>
+      <p>{paymentNotice.en.body}</p>
+      <p lang="ne" className="payment-notice-ne">{paymentNotice.ne.body}</p>
       <button ref={buttonRef} type="button" onClick={close}>I understand</button>
     </div>
   </div>

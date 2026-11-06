@@ -7,3 +7,16 @@
 .payment-notice button { width: 100%; margin-top: 8px; border: 0; border-radius: 10px; background: #102544; color: #FFFFFF; font: inherit; font-weight: 600; padding: 13px 18px; cursor: pointer; }
 .payment-notice button:hover { background: #1a3766; }
 .payment-notice button:focus-visible { outline: 3px solid #C9A45C; outline-offset: 2px; }
+
+/* Account-creation notice (Register): same card, plus a language toggle and two actions. */
+.account-notice:focus { outline: none; }
+.account-notice-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.account-notice-head .payment-notice-eyebrow { margin: 6px 0 0; }
+.account-notice .account-notice-lang { display: inline-flex; flex: 0 0 auto; padding: 3px; border: 1px solid #10254426; border-radius: 999px; }
+.account-notice .account-notice-lang button { width: auto; min-height: 32px; margin: 0; padding: 4px 12px; border-radius: 999px; color: #102544; background: transparent; font-size: 14px; }
+.account-notice .account-notice-lang button[aria-pressed="true"] { color: #FFFFFF; background: #102544; }
+.account-notice .account-notice-lang button:hover:not([aria-pressed="true"]) { background: #10254414; }
+.account-notice-actions { display: flex; flex-wrap: wrap-reverse; gap: 10px; margin-top: 8px; }
+.account-notice .account-notice-actions button { flex: 1 1 180px; margin: 0; }
+.account-notice .account-notice-actions .account-notice-cancel { border: 1px solid #10254433; color: #102544; background: #FFFFFF; }
+.account-notice .account-notice-actions .account-notice-cancel:hover { background: #F6F8FC; }

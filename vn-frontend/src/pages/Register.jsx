@@ -5,6 +5,7 @@ import { Err } from '../ui'
 import PasswordInput from '../components/ui/PasswordInput'
 import AuthLayout, { AuthAside } from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
+import AccountNoticeDialog from '../components/auth/AccountNoticeDialog'
 
 const ROLES = [
   { value: 'student', label: 'Student' },
@@ -55,6 +56,7 @@ export default function Register() {
   const [photoErr, setPhotoErr] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [noticeOpen, setNoticeOpen] = useState(false)
   const [bankFieldErrors, setBankFieldErrors] = useState({})
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
   const bankDetailsVisible = ROLES_REQUIRING_BANK_DETAILS.has(f.role)
@@ -96,8 +98,10 @@ export default function Register() {
     setPreview(URL.createObjectURL(file))
   }
 
-  const submit = async (e) => {
+  // Client validation only; when it passes, the official-payments notice opens and nothing is sent yet.
+  const submit = (e) => {
     e.preventDefault(); setErr('')
+    if (busy) return
     if (!agreed) { setErr('Please accept the Terms and Conditions to continue.'); return }
     if (!photo) { setErr('Please upload a profile photo.'); return }
     if (f.national_id && !NID_PATTERN.test(f.national_id)) {
@@ -131,6 +135,12 @@ export default function Register() {
       setBankFieldErrors(nextErrors)
       if (Object.keys(nextErrors).length) return
     }
+    setNoticeOpen(true)
+  }
+
+  // Runs only after "I understand and continue" in the notice.
+  const createAccount = async () => {
+    setNoticeOpen(false)
     setBusy(true)
     try {
       const formData = new FormData()
@@ -400,6 +410,7 @@ export default function Register() {
           </div>
         </div>
       </form>
+      <AccountNoticeDialog open={noticeOpen} onConfirm={createAccount} onCancel={() => setNoticeOpen(false)} />
     </AuthLayout>
   )
 }
