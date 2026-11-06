@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { API_BASE } from '../../api'
-import { fromManagedItem, galleryCategories, galleryPreview } from '../../data/galleryPhotos'
+import { fromManagedItem, galleryPreview, galleryTagFor } from '../../data/galleryPhotos'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const PIN_QUERY = '(min-width: 900px) and (prefers-reduced-motion: no-preference)'
-const categoryLabel = (id) => galleryCategories.find((item) => item.id === id)?.label
 
 // Threads a smooth curve through every card's dot, measured from the live layout.
 function buildJourneyPath(track, svg, path) {
@@ -47,7 +46,7 @@ function JourneyCard({ photo, index, onReady }) {
         <img src={photo.thumbSrc} srcSet={photo.srcSet} sizes="(max-width: 899px) 70vw, 320px" alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" onLoad={onReady} onError={() => { setFailed(true); onReady() }} />
       </span>
       <span className="journey-card-body">
-        <span className="journey-card-meta"><span className="journey-card-step">{String(index + 1).padStart(2, '0')}</span><span className="journey-card-tag">{categoryLabel(photo.category)}</span></span>
+        <span className="journey-card-meta"><span className="journey-card-step">{String(index + 1).padStart(2, '0')}</span><span className="journey-card-tag">{galleryTagFor(photo)}</span></span>
         <strong>{photo.caption}</strong>
       </span>
     </Link>

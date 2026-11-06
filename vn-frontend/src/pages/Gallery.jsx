@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { API_BASE } from '../api'
 import ScrollReveal from '../ScrollReveal'
-import { fromManagedItem, galleryCategories, galleryPhotos } from '../data/galleryPhotos'
+import { fromManagedItem, galleryCategories, galleryPhotos, galleryTagFor } from '../data/galleryPhotos'
 
 const gridSizes = '(max-width: 560px) calc(50vw - 26px), (max-width: 1024px) calc(33vw - 30px), 280px'
 
@@ -26,7 +26,7 @@ function GalleryTile({ photo, index, onOpen }) {
           onError={() => setFailed(true)}
         />
         <span className="gallery-tile-caption" aria-hidden="true">
-          <span className="gallery-tile-tag">{galleryCategories.find((item) => item.id === photo.category)?.label}</span>
+          <span className="gallery-tile-tag">{galleryTagFor(photo)}</span>
           {photo.caption}
         </span>
         <span className="gallery-tile-zoom" aria-hidden="true">
@@ -96,7 +96,12 @@ export default function Gallery() {
   const [openId, setOpenId] = useState(null)
   const [managed, setManaged] = useState([])
   const allPhotos = [...galleryPhotos.slice(0, 4), ...managed, ...galleryPhotos.slice(4)]
-  const visible = filter === 'all' ? allPhotos : allPhotos.filter((photo) => photo.category === filter)
+  // Filters with no photos (e.g. UK until posters are added) are not shown.
+  const filters = galleryCategories
+    .map((category) => ({ ...category, count: allPhotos.filter(category.match).length }))
+    .filter((category) => category.id === 'all' || category.count > 0)
+  const activeFilter = filters.find((category) => category.id === filter) || filters[0]
+  const visible = allPhotos.filter(activeFilter.match)
   const openIndex = visible.findIndex((photo) => photo.id === openId)
   const visaCount = allPhotos.filter((photo) => photo.category === 'visa').length
 
@@ -132,15 +137,12 @@ export default function Gallery() {
 
     <section className="gallery-section" aria-label="Photo gallery">
       <div className="gallery-filters" role="group" aria-label="Filter photos">
-        {galleryCategories.map((category) => {
-          const count = category.id === 'all' ? allPhotos.length : allPhotos.filter((photo) => photo.category === category.id).length
-          return <button key={category.id} type="button" className={`gallery-filter${filter === category.id ? ' is-active' : ''}`} aria-pressed={filter === category.id} onClick={() => setFilter(category.id)}>
-            {category.label}<span>{count}</span>
-          </button>
-        })}
+        {filters.map((category) => <button key={category.id} type="button" className={`gallery-filter${activeFilter.id === category.id ? ' is-active' : ''}`} aria-pressed={activeFilter.id === category.id} onClick={() => setFilter(category.id)}>
+          {category.label}<span>{category.count}</span>
+        </button>)}
       </div>
 
-      <ul key={filter} className="gallery-grid">
+      <ul key={activeFilter.id} className="gallery-grid">
         {visible.map((photo, index) => <GalleryTile key={photo.id} photo={photo} index={index} onOpen={setOpenId} />)}
       </ul>
     </section>

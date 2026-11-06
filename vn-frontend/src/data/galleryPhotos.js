@@ -1,9 +1,17 @@
+export const galleryCountries = { australia: 'Australia', usa: 'USA', uk: 'UK', japan: 'Japan', denmark: 'Denmark' }
+
+// Filters. Country filters match visa posters (and graduations) by `country`; the gallery hides any filter with no photos.
+const byCountry = (country) => (photo) => photo.country === country
 export const galleryCategories = [
-  { id: 'all', label: 'All photos' },
-  { id: 'visa', label: 'Visa success' },
-  { id: 'departures', label: 'Student life' },
-  { id: 'team', label: 'Team & events' },
+  { id: 'all', label: 'All photos', match: () => true },
+  ...Object.entries(galleryCountries).map(([id, label]) => ({ id, label, match: byCountry(id) })),
+  { id: 'visa', label: 'All visas', match: (photo) => photo.category === 'visa' },
+  { id: 'departures', label: 'Student life', match: (photo) => photo.category === 'departures' },
+  { id: 'team', label: 'Team & events', match: (photo) => photo.category === 'team' },
 ]
+
+const categoryLabels = { visa: 'Visa success', departures: 'Student life', team: 'Team & events' }
+export const galleryTagFor = (photo) => galleryCountries[photo.country] || categoryLabels[photo.category]
 
 // Staff-managed gallery items use the backend categories; map them onto the public filters.
 const managedCategoryMap = { 'student-life': 'departures', counselling: 'team', events: 'team', workshops: 'team', team: 'team', campus: 'team' }
@@ -17,12 +25,14 @@ export const fromManagedItem = (item, apiBase) => ({
   alt: item.alt_text,
 })
 
-const galleryPhoto = (name, category, width, height, caption, alt) => ({
+// `large` is the file suffix of the full-size JPEG (1080 for posters exported at their native width).
+const galleryPhoto = (name, category, width, height, caption, alt, { country, large = 1200 } = {}) => ({
   id: name,
   category,
-  src: `/images/gallery/${name}-1200.jpg`,
+  ...(country ? { country } : {}),
+  src: `/images/gallery/${name}-${large}.jpg`,
   thumbSrc: `/images/gallery/${name}-480.jpg`,
-  srcSet: `/images/gallery/${name}-480.jpg 480w, /images/gallery/${name}-1200.jpg ${width}w`,
+  srcSet: `/images/gallery/${name}-480.jpg 480w, /images/gallery/${name}-${large}.jpg ${width}w`,
   width,
   height,
   caption,
@@ -50,19 +60,48 @@ const japanVisas = japanVisaStudents.map((student, index) => galleryPhoto(
   ...(redesignedJapanPosters.has(student) ? [`visa-japan-${slug(student)}`, 'visa', 1200, 1500] : [`visa-japan-${index + 1}`, 'visa', 1200, 1698]),
   `${student} — Japan visa granted`,
   `VN Group congratulations poster for ${student} on receiving a Japan student visa`,
+  { country: 'japan' },
 ))
+
+// Posters from VN_Group_Visa_Posts_All_33.pdf (1080x1350). The two Denmark posters (Bishal KC,
+// Yubraj GC) still show an empty "Add photo" placeholder, so they are left out until finished.
+const poster = (name, caption, alt, country) => galleryPhoto(name, 'visa', 1080, 1350, caption, alt, { country, large: 1080 })
+
+const australiaVisas = [
+  'Anusha Katwal', 'Utsav Kushwaha', 'Anil Adhikari', 'Ankita Karki', 'Aayusha Katwal', 'Priyanka Mahaseth',
+  'Anup Gurung', 'Sanju Basnet', 'Broney Lama', 'Rohan Bhandari', 'Ashma Aryal',
+].map((student) => poster(
+  `visa-australia-${slug(student)}`,
+  `${student} — Australian student visa granted`,
+  `VN Group congratulations poster for ${student} on receiving an Australian student visa`,
+  'australia',
+))
+
+const usaVisas = ['Pranish GC', 'Ritika Khatri', 'Sanjeev Tamang', 'Bishal Deula', 'Asmita Aryal', 'Rashmi Shah'].map((student) => poster(
+  `visa-usa-${slug(student)}`,
+  `${student} — USA student visa granted`,
+  `VN Group congratulations poster for ${student} on receiving a USA student visa`,
+  'usa',
+))
+
+const usaGraduation = galleryPhoto('graduation-usa-arjun-khanal', 'departures', 1080, 1350,
+  'Arjun Khanal — graduated from Maryville University',
+  'VN Group congratulations poster for Arjun Khanal on graduating from Maryville University, St. Louis, Missouri',
+  { country: 'usa', large: 1080 })
 
 // Posters that do not name a destination country, so captions do not name one either.
-const studentVisaStudents = [
-  'Aayusha Katwal', 'Pranish GC', 'Swekshya Yadav', 'Priyanka Mahaseth', 'Anil Adhikari',
-  'Rabin Gautam', 'Aakash Thapa', 'Richa Yadav', 'Sanjaya Basnet', 'Ritika Khatri',
-]
-
-const studentVisas = studentVisaStudents.map((student) => galleryPhoto(
-  `visa-student-${slug(student)}`, 'visa', 1200, 1500,
+const studentVisas = [
+  'Swekshya Yadav', 'Ganga Adhikari', 'Richa Yadav', 'Rabin Gautam', 'Aakash Thapa',
+  'Bhishan Rajbhandari', 'Sandesh Sapkota', 'Anwarul Ansari', 'Anita Pun Magar', 'Sanjaya Basnet',
+].map((student) => poster(
+  `visa-student-${slug(student)}`,
   `${student} — student visa granted`,
   `VN Group congratulations poster for ${student} on receiving a student visa`,
-))
+)).concat([1, 2, 3].map((n) => poster(
+  `visa-student-proud-${n}`,
+  'Student visa granted',
+  'VN Group congratulations poster for a student on receiving a student visa',
+)))
 
 const departures = {
   airport1: galleryPhoto('departure-airport-1', 'departures', 1200, 1600, 'Ready to fly — a student at the airport with VN Group', 'A VN Group student wearing farewell scarves with luggage at the airport'),
@@ -71,7 +110,6 @@ const departures = {
   farewell2: galleryPhoto('departure-farewell-2', 'departures', 960, 1280, 'Celebrating a student on departure day', 'A VN Group counsellor congratulating a departing student outside the airport'),
 }
 const officeGuide = galleryPhoto('team-office-guide', 'team', 960, 1280, 'Welcoming students at the VN Group office', 'VN Group team member handing a student guide to a visitor at the VN Group office')
-const australiaVisa = galleryPhoto('visa-australia-utsav-kushwaha', 'visa', 1024, 1280, 'Utsav Kushwaha — Australian student visa granted', 'VN Group congratulations poster for Utsav Kushwaha on receiving an Australian student visa')
 
 const supplied = {
   visaOffice: galleryPhoto('visa-grant-office', 'visa', 1200, 1600, 'Visa granted — celebrating at the VN Group office', 'A smiling student in a farewell scarf holding a visa grant letter with a VN Group counsellor at the VN Group office'),
@@ -98,8 +136,10 @@ export const galleryPhotos = [
   partnerVisits.officeVisit,
   departures.airport1,
   supplied.westcliff,
-  australiaVisa,
+  australiaVisas[0],
+  usaVisas[0],
   supplied.graduation,
+  usaGraduation,
   departures.farewell1,
   supplied.visaTeam,
   partnerVisits.notreDame,
@@ -107,17 +147,22 @@ export const galleryPhotos = [
   supplied.maryville,
   partnerVisits.charlesSturt,
   ...japanVisas.slice(0, 4),
+  ...australiaVisas.slice(1, 5),
+  ...usaVisas.slice(1, 3),
   ...studentVisas.slice(0, 3),
   supplied.intakeBriefing,
   partnerVisits.aiihe,
   departures.airport2,
   ...japanVisas.slice(4, 10),
-  ...studentVisas.slice(3, 7),
+  ...australiaVisas.slice(5, 8),
+  ...usaVisas.slice(3),
+  ...studentVisas.slice(3, 8),
   partnerVisits.melbourneArrival,
   partnerVisits.sydneyCityCollege,
   departures.farewell2,
   ...japanVisas.slice(10),
-  ...studentVisas.slice(7),
+  ...australiaVisas.slice(8),
+  ...studentVisas.slice(8),
 ]
 
-export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisa, supplied.visaTeam, departures.airport2, departures.farewell2]
+export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisas[1], supplied.visaTeam, departures.airport2, departures.farewell2]
