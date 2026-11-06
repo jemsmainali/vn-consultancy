@@ -1,16 +1,11 @@
 import { useState } from 'react'
 import ResponsiveImage from '../../ResponsiveImage'
-import { siteContentReady, siteContent } from '../../data/siteContent'
+import { formatMonthYear as formatVisitDate, partnerVisitsWithPhotos, siteContentReady, siteContent } from '../../data/siteContent'
 import SectionHeading from './SectionHeading'
 
 const VISIT_IMAGE_SIZES = '(max-width: 640px) 78vw, 400px'
 // Each half of the looping track needs enough cards to cover wide screens.
 const MIN_CARDS_PER_LOOP = 8
-const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-const formatVisitDate = (value) => monthYear.format(new Date(`${value}-01T00:00:00Z`))
-
-// Newest first by 'YYYY-MM'; undated visits keep their listed order after the dated ones.
-const byNewest = (a, b) => (b.date || '').localeCompare(a.date || '')
 
 function VisitCard({ visit, decorative, onUnavailable }) {
   const { image, title, place, date, description, tag } = visit
@@ -34,9 +29,7 @@ function PartnerVisits() {
   const [paused, setPaused] = useState(false)
   // Titles of visits whose photo failed to load; those cards are hidden like visits without a photo.
   const [unavailable, setUnavailable] = useState(() => new Set())
-  const visits = siteContent.home.partnerVisits
-    .filter((visit) => visit.image && visit.title && !unavailable.has(visit.title))
-    .sort(byNewest)
+  const visits = partnerVisitsWithPhotos().filter((visit) => !unavailable.has(visit.title))
   if (!visits.length) return null
   const hide = (title) => setUnavailable((current) => current.has(title) ? current : new Set(current).add(title))
   const repeats = Math.ceil(MIN_CARDS_PER_LOOP / visits.length)

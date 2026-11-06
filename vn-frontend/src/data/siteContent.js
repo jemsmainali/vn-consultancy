@@ -286,7 +286,9 @@ export const siteContent = {
     ceoTitle: 'Managing Director',
     ceoPhoto: siteImages.ceo,
     // The About page shows the message only once VN Group has approved this exact text.
-    ceoMessageApproved: false,
+    ceoMessageApproved: true,
+    // Photo folder beside the message: the partner-visit photos (VN Group confirmed Pawan is in all of them).
+    ceoAlbumTitle: 'Pawan with partners and officials',
     // {foundedYear} is filled in from brand.foundedYear.
     ceoMessage: 'Welcome to VN Group. Since {foundedYear}, our team has helped students and families in Nepal take confident steps towards studying abroad. We believe every student deserves honest advice, a clear plan and a team that stays with them from the first conversation to the day they fly. We meet universities, embassies and education partners in person, so the guidance we give you is based on what we have seen ourselves. Studying abroad is a big decision, and we treat it that way. Whether you are just exploring or ready to apply, we would be glad to talk with you.',
     // "Life at VN Group" strip: 2 to 6 photos; the strip is hidden when none load.
@@ -312,6 +314,15 @@ export const siteContent = {
     refund: { title: 'Refund Policy', body: 'TODO_REPLACE' },
   },
 }
+
+const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+// 'YYYY-MM' -> 'May 2024'.
+export const formatMonthYear = (value) => monthYear.format(new Date(`${value}-01T00:00:00Z`))
+
+// Partner visits that have a photo, newest first by 'YYYY-MM'; undated ones keep their listed order after.
+export const partnerVisitsWithPhotos = () => siteContent.home.partnerVisits
+  .filter((visit) => visit.image && visit.title)
+  .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
 
 export const yearsOfExperience = (now = new Date()) => now.getFullYear() - siteContent.brand.foundedYear
 
