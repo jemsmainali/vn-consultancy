@@ -1,13 +1,21 @@
-.ceo-message { scroll-margin-top: 92px; }
-.ceo-portrait-scene { position: relative; isolation: isolate; perspective: 1200px; }
-.ceo-portrait-scene::before { position: absolute; z-index: -1; inset: 17px -15px 62px 17px; border: 1px solid rgb(201 164 92 / .75); border-radius: 1.25rem; background: linear-gradient(145deg, rgb(201 164 92 / .2), rgb(16 37 68 / .08)); content: ""; transform: rotate(2deg); }
-.ceo-portrait-scene::after { position: absolute; z-index: -2; inset: -22px 20px 80px -20px; border-radius: 50%; background: rgb(201 164 92 / .2); content: ""; filter: blur(36px); }
-.ceo-portrait-card { transform: rotateY(3deg) rotateX(1deg); transform-style: preserve-3d; transition: transform .55s cubic-bezier(.2,.7,.2,1), box-shadow .55s ease; }
-.ceo-portrait-scene:hover .ceo-portrait-card, .ceo-portrait-scene:focus-within .ceo-portrait-card { transform: translateY(-7px) rotateY(0) rotateX(0); box-shadow: 0 34px 70px -26px rgb(16 37 68 / .36); }
-.ceo-caption { min-height: 154px; }
-.ceo-photo-note { display: block; margin: 26px 0 0 16px; color: #657184; font-size: 11px; letter-spacing: .03em; }
-.ceo-signature { color: #102544; font-family: "Brush Script MT", "Segoe Script", cursive; font-size: 30px; font-style: italic; line-height: 1; transform: rotate(-5deg); }
-.ceo-message-copy { animation: ceo-message-enter .65s ease both; }
-@keyframes ceo-message-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 1023px) { .ceo-portrait-card { transform: none; } }
-@media (prefers-reduced-motion: reduce) { .ceo-message-copy { animation: none; } .ceo-portrait-card { transition: none; transform: none; } .ceo-portrait-scene:hover .ceo-portrait-card, .ceo-portrait-scene:focus-within .ceo-portrait-card { transform: none; } }
+/* About page: editorial message from the managing director (portrait beside text, no card). */
+.ceo-message { scroll-margin-top: 92px; padding: clamp(56px, 8vw, 96px) 0; background: #fff; }
+.ceo-message-inner { display: grid; width: min(1120px, calc(100% - 48px)); margin-inline: auto; grid-template-columns: minmax(220px, 340px) minmax(0, 1fr); align-items: start; gap: clamp(32px, 6vw, 80px); }
+.ceo-message-inner.is-text-only { max-width: 760px; grid-template-columns: minmax(0, 1fr); }
+.ceo-message-portrait { margin: 0; }
+.ceo-message-portrait img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 12px; object-fit: cover; }
+.ceo-message-copy { min-width: 0; padding-top: 8px; }
+.ceo-message-copy .eyebrow { color: #80602e; }
+.ceo-message-copy h2 { max-width: 560px; margin: 0; color: var(--site-navy); font-size: clamp(30px, 3.6vw, 42px); font-weight: 540; letter-spacing: -.04em; line-height: 1.12; }
+.ceo-message-text { max-width: 62ch; margin: 28px 0 0; padding-left: 24px; border-left: 2px solid var(--site-gold); }
+.ceo-message-text p { margin: 0; color: #202938; font-size: 17px; line-height: 1.8; }
+.ceo-message-sign { display: grid; gap: 4px; margin: 28px 0 0; }
+.ceo-message-sign strong { color: var(--site-navy); font-size: 17px; font-weight: 650; }
+.ceo-message-sign span { color: var(--site-muted); font-size: 14px; }
+
+@media (max-width: 760px) {
+  .ceo-message-inner { width: calc(100% - 40px); grid-template-columns: 1fr; gap: 28px; }
+  .ceo-message-portrait { max-width: 280px; }
+  .ceo-message-text { padding-left: 18px; }
+  .ceo-message-text p { font-size: 16px; }
+}

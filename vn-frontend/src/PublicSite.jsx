@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from './auth'
 import CeoMessage from './CeoMessage'
-import ScrollReveal from './ScrollReveal'
 import ResponsiveImage from './ResponsiveImage'
-import { siteContent, siteContentReady, siteImages, yearsOfExperience } from './data/siteContent'
+import { siteContent, siteContentReady, yearsOfExperience } from './data/siteContent'
 import { destinationBySlug, destinationPath, destinations } from './data/destinations/registry'
 import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
@@ -26,7 +25,7 @@ const metadataFor = (pathname) => {
 
 const pageMetadata = {
   '/': [`${yearsExperience}+ Years of Study Abroad Guidance | VN Group`, `${yearsExperience}+ years of study abroad guidance for students in Nepal. Explore study options and plan your next steps with VN Group.`],
-  '/about': ['Leadership & Vision | VN Group', 'A message from VN Group leadership to students in Nepal exploring international education.'],
+  '/about': ['About Us | VN Group', 'About VN Group Study Abroad: our journey, how we work with institutions and life at VN Group.'],
   '/destinations': ['Study Destinations for Nepali Students | VN Group', 'Compare costs, visas, work rights and post-study options in 10 study destinations, with official sources and dated exchange rates.'],
   '/journey': ['How It Works – The Student Journey | VN Group', 'Eleven stages from free counselling to arrival abroad: what you do, how VN Group helps, documents needed and what affects the timeline.'],
   '/faqs': ['Study Abroad FAQs for Nepali Students | VN Group', 'Searchable answers on eligibility, English tests, costs, visas, part-time work and post-study options.'],
@@ -259,12 +258,14 @@ function Eyebrow({ children }) { return <p className="eyebrow">{children}</p> }
 function PageIntro({ eyebrow, title, children }) {
   return <section className="page-intro"><Eyebrow>{eyebrow}</Eyebrow><h1>{title}</h1>{children && <p>{children}</p>}</section>
 }
+// About page photos: only the managing director's portrait (inside CeoMessage) and the "Life at VN Group" strip.
 export function About() {
-  const leadership = siteContent.leadership
   return <>
-    <CeoMessage name={leadership.name} title={leadership.title} credentials={leadership.credentials} imageSrc={leadership.image.src} imageAlt={leadership.image.alt} message={leadership.message} />
+    <PageIntro eyebrow="About us" title="About VN Group">{siteContent.brand.tagline}</PageIntro>
+    {siteContent.about.ceoMessageApproved && <CeoMessage />}
     <AboutTimeline />
-    <AboutPhotos />
+    <AboutApproach />
+    <LifeAtVnGroup />
   </>
 }
 
@@ -279,32 +280,39 @@ function AboutTimeline() {
   </section>
 }
 
-function AboutPhotos() {
-  return <div className="about-photo-content">
-    <section className="about-institutions" aria-labelledby="about-institutions-title">
-      <div className="about-photo-container about-institutions-grid">
-        <ScrollReveal className="about-institutions-photo" direction="left">
-          <ResponsiveImage image={siteImages.partnerMeeting} className="about-meeting-image" />
-        </ScrollReveal>
-        <ScrollReveal className="about-institutions-copy" direction="right" delay={100}>
-          <Eyebrow>{siteContent.about.institutionsEyebrow}</Eyebrow>
-          <h2 id="about-institutions-title">{siteContent.about.institutionsTitle}</h2>
-          {siteContentReady(siteContent.about.institutionsCopy) && <p>{siteContent.about.institutionsCopy}</p>}
-        </ScrollReveal>
+// The existing approach and events headings, now text only.
+function AboutApproach() {
+  const about = siteContent.about
+  return <section className="about-approach" aria-label="How VN Group works">
+    <div className="about-photo-container about-approach-grid">
+      <div className="about-approach-item">
+        <Eyebrow>{about.institutionsEyebrow}</Eyebrow>
+        <h2>{about.institutionsTitle}</h2>
+        {siteContentReady(about.institutionsCopy) && <p>{about.institutionsCopy}</p>}
       </div>
-    </section>
-    <section className="about-events" aria-labelledby="about-events-title">
-      <ResponsiveImage image={siteImages.events} className="about-events-image" />
-      <div className="about-events-overlay">
-        <div className="about-photo-container">
-          <ScrollReveal direction="fade-in">
-            <Eyebrow>{siteContent.about.eventsEyebrow}</Eyebrow>
-            <h2 id="about-events-title">{siteContent.about.eventsTitle}</h2>
-          </ScrollReveal>
-        </div>
+      <div className="about-approach-item">
+        <Eyebrow>{about.eventsEyebrow}</Eyebrow>
+        <h2>{about.eventsTitle}</h2>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+}
+
+function LifeAtVnGroup() {
+  const [failed, setFailed] = useState(() => new Set())
+  const photos = siteContent.about.lifePhotos.slice(0, 6).filter((photo) => !failed.has(photo.src))
+  if (!photos.length) return null
+  return <section className="about-life" aria-labelledby="about-life-title">
+    <div className="about-photo-container">
+      <Eyebrow>Our team</Eyebrow>
+      <h2 id="about-life-title">Life at VN Group</h2>
+      <ul className="about-life-grid">
+        {photos.map((photo) => <li key={photo.src}>
+          <ResponsiveImage image={photo} className="about-life-image" onUnavailable={() => setFailed((current) => new Set(current).add(photo.src))} />
+        </li>)}
+      </ul>
+    </div>
+  </section>
 }
 
 export function FAQs() { return <><PageIntro eyebrow="Questions" title={siteContent.pages.faqs.title}>{siteContent.pages.faqs.description}</PageIntro><FAQ variant="full" /></> }

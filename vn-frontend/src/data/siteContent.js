@@ -31,7 +31,20 @@ const licensedPhoto = (name, height, alt, sizes) => ({
   alt,
   licensed: true,
 })
-const SERVICE_SIZES = '(max-width: 640px) calc(100vw - 32px), (max-width: 1100px) 46vw, 30vw'
+// WebP only: src is the largest WebP, so there is no JPEG fallback to keep in sync.
+const webpPhoto = (folder, name, widths, width, height, alt, sizes) => {
+  const base = `/images/vn-photos/${folder}/${name}`
+  return {
+    src: `${base}-${widths[widths.length - 1]}.webp`,
+    webpSrcSet: widths.map((size) => `${base}-${size}.webp ${size}w`).join(', '),
+    sizes,
+    width,
+    height,
+    alt,
+  }
+}
+const PICNIC_SIZES = '(max-width: 760px) 50vw, 380px'
+const SERVICE_SIZES ='(max-width: 640px) calc(100vw - 32px), (max-width: 1100px) 46vw, 30vw'
 const STEP_SIZES = '(max-width: 900px) calc(100vw - 32px), 44vw'
 
 export const siteImages = {
@@ -57,8 +70,6 @@ export const siteImages = {
   // JPEG only (no WebP set); ResponsiveImage falls back to src.
   machhapuchchhreBank: { src: '/images/gallery/partner-machhapuchchhre-bank-1200.jpg', width: 1200, height: 900, alt: 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office' },
   officeVisit: { src: '/images/gallery/partner-office-visit-1200.jpg', width: 720, height: 960, alt: 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office', position: 'center 30%' },
-  partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team meeting with a partner delegation', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
-  events: photo('about', 'events-wide', [480, 800, 1200], 1200, 1200, 675, 'VN Group team attending an international education conference', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 90vw, 1120px'),
   admissionsSession: { ...photo('services', 'admissions-westcliff-session', [480, 800, 1200], 1200, 1200, 1600, 'A Westcliff University representative presenting to students at a VN Group info session in Kathmandu', SERVICE_SIZES), position: 'center 30%' },
   visaGrantTeam: { ...photo('services', 'visa-grant-team', [480, 800, 1200], 1200, 1200, 900, 'A student holding a visa grant letter with two VN Group team members at the VN Group office', SERVICE_SIZES), position: 'center 35%' },
   stepCounselling: photo('steps', 'counselling-maryville', [480, 800, 960], 960, 960, 720, 'Students in an admissions session at a desk with a Maryville University sign', STEP_SIZES),
@@ -75,7 +86,7 @@ export const siteImages = {
   stepOffer: licensedPhoto('step-offer', 900, 'A group of students celebrating good news at a laptop', STEP_SIZES),
   stepChecklist: licensedPhoto('step-checklist', 800, 'An open notebook with a pen and glasses, ready for a checklist', STEP_SIZES),
   stepDepartures: licensedPhoto('step-departures', 800, 'A traveller looking up at an airport departures board', STEP_SIZES),
-  ceo: { src: '/images/ceo.jpg', alt: 'Portrait of VN Group managing director and founder' },
+  ceo: { ...webpPhoto('about', 'ceo-pawan-mainali', [480, 800], 800, 800, 'Pawan Mainali, Managing Director of VN Group', '(max-width: 760px) 280px, 340px'), src: '/images/ceo.jpg', position: '50% 20%' },
   loginGraduate: { src: '/images/login-graduate.jpg', alt: 'A smiling graduate celebrating with both arms raised', width: 360, height: 360 },
 }
 
@@ -253,14 +264,23 @@ export const siteContent = {
       { label: 'Refund Policy', to: '/refund-policy' },
     ],
   },
-  leadership: {
-    name: 'Pawan Mainali',
-    title: 'Managing Director & Founder',
-    credentials: '',
-    image: siteImages.ceo,
-    message: 'When we founded VN Group, our vision was simple yet profound: to bridge the gap between ambitious students in Nepal and world-class international education. Navigating universities abroad can feel overwhelming, but with transparent guidance, meticulous document preparation, and honest counseling, we turn uncertainty into achievement. Your aspirations are our personal mission.',
-  },
   about: {
+    ceoName: 'Pawan Mainali',
+    ceoTitle: 'Managing Director',
+    ceoPhoto: siteImages.ceo,
+    // The About page shows the message only once VN Group has approved this exact text.
+    ceoMessageApproved: false,
+    // {foundedYear} is filled in from brand.foundedYear.
+    ceoMessage: 'Welcome to VN Group. Since {foundedYear}, our team has helped students and families in Nepal take confident steps towards studying abroad. We believe every student deserves honest advice, a clear plan and a team that stays with them from the first conversation to the day they fly. We meet universities, embassies and education partners in person, so the guidance we give you is based on what we have seen ourselves. Studying abroad is a big decision, and we treat it that way. Whether you are just exploring or ready to apply, we would be glad to talk with you.',
+    // "Life at VN Group" strip: 2 to 6 photos; the strip is hidden when none load.
+    lifePhotos: [
+      webpPhoto('about', 'team-picnic-1', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+      webpPhoto('about', 'team-picnic-2', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+      webpPhoto('about', 'team-picnic-3', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+      webpPhoto('about', 'team-picnic-4', [480, 800], 800, 799, 'VN Group team picnic', PICNIC_SIZES),
+      { ...webpPhoto('about', 'team-picnic-5', [480, 800], 800, 1067, 'VN Group team picnic', PICNIC_SIZES), position: 'center 62%' },
+      webpPhoto('about', 'team-picnic-6', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+    ],
     timeline: [{ year: 2012, title: 'VN Group founded' }],
     institutionsEyebrow: 'Our approach',
     institutionsTitle: 'How we work with institutions',
