@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import CountryFlag from '../components/CountryFlag'
 import ScrollReveal from '../ScrollReveal'
 import VerifiedGuide from '../components/destinations/VerifiedGuide'
+import UniversityList, { hasUniversityList } from '../components/destinations/UniversityList'
 import { countryProfile, countryProfiles } from '../data/destinations/countries'
 import { destinationByName, destinationPath } from '../data/destinations/registry'
 import { claimTypes, exchangeRates, formatLocal, formatNpr, formatNprRange, formatRange, researchDate } from '../data/destinations/meta'
@@ -137,8 +138,11 @@ const sections = [
   { id: 'visa', label: 'Student visa' },
   { id: 'fit', label: 'Best suited for' },
   { id: 'sources', label: 'Sources' },
+  { id: 'universities', label: 'Universities' },
   { id: 'full-guide', label: 'Full guide' },
 ]
+// The Universities tab only appears for countries with a university list.
+const sectionsFor = (slug) => sections.filter((section) => section.id !== 'universities' || hasUniversityList(slug))
 
 function useActiveSection(ids) {
   const [active, setActive] = useState(ids[0])
@@ -212,7 +216,8 @@ const publicGuideParts = ['overview', 'tuition', 'livingCosts', 'financialEviden
 export function DestinationDetail() {
   const { slug } = useParams()
   const country = countryProfile(slug)
-  const sectionIds = useMemo(() => sections.map((section) => section.id), [])
+  const pageSections = useMemo(() => sectionsFor(slug), [slug])
+  const sectionIds = useMemo(() => pageSections.map((section) => section.id), [pageSections])
   const active = useActiveSection(sectionIds)
 
   if (!country) return <div className="destinations-page"><header className="destinations-hero"><div className="data-container">
@@ -245,7 +250,7 @@ export function DestinationDetail() {
     </dl>
 
     <nav className="destination-section-nav" aria-label={`${country.name} guide sections`}>
-      <div className="data-container"><ul>{sections.map((section) => <li key={section.id}><Link to={`#${section.id}`} aria-current={active === section.id ? 'true' : undefined}>{section.label}</Link></li>)}</ul></div>
+      <div className="data-container"><ul>{pageSections.map((section) => <li key={section.id}><Link to={`#${section.id}`} aria-current={active === section.id ? 'true' : undefined}>{section.label}</Link></li>)}</ul></div>
     </nav>
 
     <div className="data-container destination-detail-body">
@@ -297,7 +302,11 @@ export function DestinationDetail() {
         </details>
       </DetailSection>
 
-      <DetailSection id="full-guide" letter="G" title={`Full ${country.name} guide`}>
+      {hasUniversityList(country.slug) && <DetailSection id="universities" letter="G" title={`Universities in ${country.name}`}>
+        <UniversityList slug={country.slug} countryName={country.name} />
+      </DetailSection>}
+
+      <DetailSection id="full-guide" letter={hasUniversityList(country.slug) ? 'H' : 'G'} title={`Full ${country.name} guide`}>
         <VerifiedGuide slug={country.slug} name={country.name} omit={publicGuideParts} />
       </DetailSection>
 

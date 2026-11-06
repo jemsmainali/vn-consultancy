@@ -300,3 +300,30 @@
 
 /* Signed-in guide links have no category label, so use a single column. */
 .verified-guide .destination-resource-list li { grid-template-columns: 1fr; }
+
+/* Universities in {country}: searchable, filterable A to Z list from official registers. */
+.uni-count { margin: 0; color: var(--site-navy); font-size: 15px; line-height: 1.6; }
+.uni-count strong { font-size: 18px; }
+.uni-disclaimer { margin: 10px 0 0; padding: 10px 14px; border-left: 3px solid var(--site-gold); border-radius: 6px; background: var(--dest-soft); color: #4d5c70; font-size: 14px; line-height: 1.55; }
+.uni-controls { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.uni-search, .uni-filter { display: grid; min-width: 0; gap: 6px; color: var(--site-navy); font-size: 13px; font-weight: 650; }
+.uni-search input, .uni-filter select { width: 100%; min-height: 44px; box-sizing: border-box; padding: 0 12px; border: 1px solid var(--dest-line); border-radius: 10px; color: #202938; background: #fff; font: inherit; font-weight: 500; }
+.uni-search input:focus-visible, .uni-filter select:focus-visible { outline: 3px solid var(--site-gold); outline-offset: 1px; }
+.uni-results { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0 8px; color: #5d6878; font-size: 13.5px; }
+.uni-reset { padding: 4px 10px; border: 1px solid var(--dest-line); border-radius: 999px; color: var(--site-navy); background: #fff; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.uni-rows { margin: 0; padding: 0; border-top: 1px solid var(--dest-line); list-style: none; }
+.uni-row { padding: 12px 2px; border-bottom: 1px solid var(--dest-line); }
+.uni-row-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.uni-name { color: var(--site-navy); font-size: 15px; font-weight: 650; line-height: 1.4; }
+a.uni-name { text-decoration: underline; text-decoration-color: #10254433; text-underline-offset: 3px; }
+a.uni-name:hover { text-decoration-color: var(--site-gold); }
+.uni-partner { padding: 2px 8px; border-radius: 999px; color: #5b4417; background: #c9a45c33; font-size: 12px; font-weight: 700; }
+.uni-meta { margin: 4px 0 0; color: #5d6878; font-size: 13.5px; line-height: 1.5; }
+.uni-empty, .uni-loading { margin: 16px 0; color: #5d6878; font-size: 14px; }
+.uni-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px; color: #5d6878; font-size: 13.5px; }
+.uni-pager button { min-height: 40px; padding: 0 16px; border: 1px solid var(--dest-line); border-radius: 999px; color: var(--site-navy); background: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+.uni-pager button:disabled { opacity: .45; cursor: default; }
+.uni-source { margin: 18px 0 0; color: #5d6878; font-size: 13px; line-height: 1.6; }
+.uni-source a { color: var(--site-navy); font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) { .uni-controls { grid-template-columns: 1fr 1fr; } .uni-search { grid-column: 1 / -1; } }
+@media (max-width: 420px) { .uni-controls { grid-template-columns: 1fr; } }
