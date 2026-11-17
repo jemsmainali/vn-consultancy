@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { Err } from '../ui'
@@ -57,6 +57,8 @@ export default function Register() {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [noticeOpen, setNoticeOpen] = useState(false)
+  const formRef = useRef(null)
+  const continueAfterNotice = useRef(false)
   const [bankFieldErrors, setBankFieldErrors] = useState({})
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
   const bankDetailsVisible = ROLES_REQUIRING_BANK_DETAILS.has(f.role)
@@ -98,7 +100,22 @@ export default function Register() {
     setPreview(URL.createObjectURL(file))
   }
 
-  // Client validation only; when it passes, the official-payments notice opens and nothing is sent yet.
+  // Every "Create account" click (or Enter) opens the official-payments notice first, before the
+  // browser's required-field check, so it always appears. Nothing is sent until the user continues.
+  const openNotice = (e) => {
+    e.preventDefault()
+    if (!busy) setNoticeOpen(true)
+  }
+
+  // After "I understand and continue": once the dialog has closed (and returned focus), run the
+  // browser's required-field check, then the existing client validation and submit.
+  useEffect(() => {
+    if (noticeOpen || !continueAfterNotice.current) return
+    continueAfterNotice.current = false
+    if (formRef.current?.reportValidity()) submit({ preventDefault() {} })
+  }, [noticeOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Client validation; when it passes, the account is created.
   const submit = (e) => {
     e.preventDefault(); setErr('')
     if (busy) return
@@ -135,12 +152,11 @@ export default function Register() {
       setBankFieldErrors(nextErrors)
       if (Object.keys(nextErrors).length) return
     }
-    setNoticeOpen(true)
+    createAccount()
   }
 
-  // Runs only after "I understand and continue" in the notice.
+  // Runs only after "I understand and continue" in the notice and validation.
   const createAccount = async () => {
-    setNoticeOpen(false)
     setBusy(true)
     try {
       const formData = new FormData()
@@ -212,7 +228,7 @@ export default function Register() {
         </p>
       </div>
 
-      <form onSubmit={submit} className="auth-form auth-register-form">
+      <form ref={formRef} onSubmit={openNotice} className="auth-form auth-register-form">
         <Section title="Profile" description="Your photo, account type and sign-in details.">
           <div className="auth-photo">
             <div className="auth-photo-preview">
@@ -401,7 +417,7 @@ export default function Register() {
           <Err msg={err} />
 
           <div className="auth-actions">
-            <button type="submit" className="auth-submit" disabled={busy} aria-busy={busy}>
+            <button type="submit" className="auth-submit" disabled={busy} aria-busy={busy} onClick={openNotice}>
               {busy ? <><span className="auth-spinner" aria-hidden="true" />Creating account…</> : 'Create account'}
             </button>
             <p className="auth-switch auth-switch--inline">
@@ -410,7 +426,7 @@ export default function Register() {
           </div>
         </div>
       </form>
-      <AccountNoticeDialog open={noticeOpen} onConfirm={createAccount} onCancel={() => setNoticeOpen(false)} />
+      <AccountNoticeDialog open={noticeOpen} onConfirm={() => { continueAfterNotice.current = true; setNoticeOpen(false) }} onCancel={() => setNoticeOpen(false)} />
     </AuthLayout>
   )
 }
