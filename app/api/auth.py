@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from app.core.config import settings
 from app.core.bank_data import encrypt_bank_account_number
 from app.core.database import get_db
+from app.core.email_check import email_can_receive_mail
 from app.core.otp import generate_otp, hash_otp, send_otp_email, send_plain_email, send_password_reset_email
 from app.core.security import (
     hash_password,
@@ -179,18 +180,14 @@ async def register(
         # Custom validators put the raw ValueError in ctx; encode it like main.py's handler or this becomes a 500.
         raise HTTPException(422, jsonable_encoder(e.errors(include_input=False)))
 
-    if payload.role in (UserRole.consultancy_staff, UserRole.principal):
-        expected = (
-            settings.STAFF_INVITE_CODE
-            if payload.role == UserRole.consultancy_staff
-            else settings.PRINCIPAL_INVITE_CODE
-        )
-        given = payload.invite_code or ""
-        if not expected or not hmac.compare_digest(given.encode(), expected.encode()):
-            raise HTTPException(403, "Invalid invite code")
+    # No invite code: principal and staff accounts are gated by email verification plus approval
+    # by existing VN Group staff (is_approved=False below). `invite_code` is still accepted and ignored.
 
     if not payload.terms_accepted:
         raise HTTPException(400, "You must accept the Terms and Conditions to register")
+
+    if not await email_can_receive_mail(payload.email):
+        raise HTTPException(400, "Please use a real email address you can open. We'll send a code to it to confirm it's yours.")
 
     if await _find_user(db, payload.email):
         raise HTTPException(400, "Email already registered")

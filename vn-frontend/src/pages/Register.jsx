@@ -43,7 +43,7 @@ function Section({ title, description, children, ...props }) {
 export default function Register() {
   const nav = useNavigate()
   const [f, setF] = useState({
-    full_name: '', email: '', password: '', role: 'student', invite_code: '',
+    full_name: '', email: '', password: '', role: 'student',
     national_id: '', date_of_birth: '', gender: '', citizenship: '', passport_number: '',
     target_course_level: '', target_field: '', target_country: '',
     parent_name: '', parent_phone: '', parent_email: '',
@@ -175,7 +175,6 @@ export default function Register() {
         if (f.target_field) formData.append('target_field', f.target_field)
         if (f.target_country) formData.append('target_country', f.target_country)
       }
-      if (f.role === 'principal' || f.role === 'consultancy_staff') formData.append('invite_code', f.invite_code)
       if (bankDetailsVisible) {
         formData.append('bank_account_name', f.bank_account_name.trim().replace(/\s+/g, ' '))
         formData.append('bank_name', f.bank_name.trim())
@@ -201,8 +200,6 @@ export default function Register() {
     }
     setBusy(false)
   }
-
-  const needsInvite = f.role === 'principal' || f.role === 'consultancy_staff'
 
   return (
     <AuthLayout
@@ -261,20 +258,21 @@ export default function Register() {
           </div>
 
           <div className="auth-grid">
-            <AuthField label="I am registering as" span={!needsInvite}>
+            <AuthField
+              label="I am registering as"
+              hint={f.role === 'principal' || f.role === 'consultancy_staff'
+                ? 'VN Group staff review and approve this account type before you can sign in.'
+                : undefined}
+              span
+            >
               <select className="auth-input auth-select" value={f.role} onChange={changeRole}>
                 {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </AuthField>
-            {needsInvite && (
-              <AuthField label="Invite code from VN Group">
-                <input className="auth-input" required autoComplete="off" value={f.invite_code} onChange={set('invite_code')} />
-              </AuthField>
-            )}
             <AuthField label="Full name" span>
               <input className="auth-input" required autoComplete="name" placeholder="As shown on your passport or ID" value={f.full_name} onChange={set('full_name')} />
             </AuthField>
-            <AuthField label="Email address">
+            <AuthField label="Email address" hint="Use an inbox you can open — we'll email you a code to confirm it.">
               <input className="auth-input" type="email" required autoComplete="email" placeholder="you@example.com" value={f.email} onChange={set('email')} />
             </AuthField>
             <AuthField label="Password" hint="At least 8 characters.">

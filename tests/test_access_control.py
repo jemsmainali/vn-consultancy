@@ -113,6 +113,11 @@ class Client:
 class AccessControlTests(unittest.TestCase):
     otp_codes: dict[str, str] = {}
 
+    @staticmethod
+    async def fake_email_check(email):
+        # Offline stand-in for the DNS deliverability check (example.com publishes a null MX).
+        return not email.endswith("@undeliverable-domain.com")
+
     @classmethod
     def setUpClass(cls):
         # Class cleanups run even when setUpClass fails part-way, unlike tearDownClass.
@@ -133,8 +138,8 @@ class AccessControlTests(unittest.TestCase):
 
         cls.patches = [
             patch.object(settings, "UPLOAD_DIR", cls.upload_dir),
-            patch.object(settings, "STAFF_INVITE_CODE", "test-staff-invite"),
             patch.object(auth_api, "send_otp_email", capture_otp),
+            patch.object(auth_api, "email_can_receive_mail", cls.fake_email_check),
             patch.object(limiter, "enabled", False),
         ]
         for p in cls.patches:
@@ -182,8 +187,6 @@ class AccessControlTests(unittest.TestCase):
             "citizenship": "Nepali",
             "terms_accepted": "true",
         }
-        if role == UserRole.consultancy_staff:
-            fields["invite_code"] = "test-staff-invite"
         fields.update(overrides)
         fields = {key: value for key, value in fields.items() if value is not None}
         status, body = client.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PNG, "image/png")})
@@ -355,12 +358,15 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(client.request("POST", "/auth/logout")[0], 200)
         self.assertEqual(client.request("GET", "/auth/me")[0], 401)
 
-    def test_register_rejects_duplicates_bad_invite_and_bad_photo(self):
+    def test_register_rejects_duplicates_undeliverable_email_and_bad_photo(self):
         client = self.anon()
         email, status, _ = self._register(client, "dup", UserRole.student)
         self.assertEqual(status, 201)
         self.assertEqual(self._register(client, "dup2", UserRole.student, email=email)[1], 400)
-        self.assertEqual(self._register(client, "fake-staff", UserRole.consultancy_staff, invite_code="nope")[1], 403)
+        _, status, body = self._register(client, "nomail", UserRole.student, email="someone@undeliverable-domain.com")
+        self.assertEqual(status, 400, body)
+        self.assertIn("real email", body["detail"])
+        self.assertNotIn("someone@undeliverable-domain.com", self.otp_codes, "no account or code for an undeliverable address")
         for bad in ({"terms_accepted": "false"}, {"national_id": "12-34"}):
             with self.subTest(bad=bad):
                 _, status, body = self._register(client, "bad-field", UserRole.student, **bad)
@@ -371,6 +377,19 @@ class AccessControlTests(unittest.TestCase):
                   "citizenship": "Nepali", "terms_accepted": "true"}
         status, _ = client.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PDF, "image/png")})
         self.assertEqual(status, 400, "photo content must be sniffed, not trusted")
+
+    def test_principal_and_staff_register_without_invite_code_but_wait_for_approval(self):
+        for role in (UserRole.principal, UserRole.consultancy_staff):
+            with self.subTest(role=role):
+                client = self.anon()
+                email, status, body = self._register(client, f"noinvite-{role.value}", role)
+                self.assertEqual(status, 201, body)
+                self.assertFalse(body["is_approved"])
+                status, body = client.json("POST", "/auth/verify-email", json_body={"email": email, "code": self.otp_codes[email.lower()]})
+                self.assertEqual(status, 200, body)
+                self.assertTrue(body["pending_approval"])
+                status, _ = client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
+                self.assertEqual(status, 403, "unapproved principal/staff must not sign in")
 
     def test_register_without_national_id(self):
         client = self.anon()

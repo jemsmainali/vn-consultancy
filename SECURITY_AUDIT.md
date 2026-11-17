@@ -43,7 +43,7 @@ A development-style PostgreSQL URL with a password field is committed in `.env.e
 
 | Check | Status | Evidence and result |
 |---|---|---|
-| Role selection, privilege approval, and mass assignment | PASS | `app/api/auth.py:173-181, 225-227, 260-267, 336-398, 418-429, 501-528`; elevated signup requires an invite code, is marked unapproved, and cannot log in or receive a token until approved. There is no admin role. `UserUpdate` excludes role and admin fields (`app/schemas/user.py:95-105`). |
+| Role selection, privilege approval, and mass assignment | PASS | `app/api/auth.py:173-181, 225-227, 260-267, 336-398, 418-429, 501-528`; elevated signup (no invite code since 2026-11-17) must verify its email, is marked unapproved, and cannot log in or receive a token until approved. There is no admin role. `UserUpdate` excludes role and admin fields (`app/schemas/user.py:95-105`). |
 | Document/user/message/enquiry authorization and IDOR logic | PASS | `app/api/documents.py:67-124, 127-142, 170-183, 204-256` scopes document lists to the owner and checks owner/staff on ID routes. `app/api/messages.py:46-104` scopes threads and read updates to participants. Enquiry staff routes require staff (`app/api/enquiries.py:83-161`); user management requires staff (`app/api/auth.py:432-528`). Source logic prevents user A from reading user B's document/message. This was a code-path review, not a live two-user request test. Message document association is separately reported in SEC-14. |
 | JWT secret strength, algorithm, expiry, refresh, logout, claims | FAIL | Token creation includes `iat`, `exp`, `jti`, subject, role, and type (`app/core/security.py:25-56`), with a 20-minute access and 7-day refresh default (`app/core/config.py:9-12`). Decode restricts to the configured algorithm, but no strong-secret/startup validation exists; logout has no server-side revocation (SEC-01, SEC-02, SEC-07). |
 | Frontend token storage and XSS impact | PASS | Browser auth uses `HttpOnly` cookies with `credentials: 'include'`; no `localStorage` or `sessionStorage` token use found (`app/api/auth.py:55-77`; `vn-frontend/src/api.js:7-12`). This avoids direct token reads by injected JavaScript, while XSS can still act as the user. |
@@ -65,7 +65,7 @@ A development-style PostgreSQL URL with a password field is committed in `.env.e
 
 ## What is already good
 
-- Privileged roles require configured invite codes and remain pending until an existing staff user approves them.
+- Privileged roles (no invite code since 2026-11-17) must verify their email and remain pending until an existing staff user approves them.
 - Passwords use bcrypt. Access and refresh JWTs have expiry claims and distinct token types; decoding restricts to the configured algorithm.
 - Browser tokens are held in `HttpOnly`, `SameSite=Lax` cookies rather than local storage. Refresh checks current user active, verified, and approval state.
 - Document list and ID routes check ownership or staff role; message threads are limited to the two participants.
