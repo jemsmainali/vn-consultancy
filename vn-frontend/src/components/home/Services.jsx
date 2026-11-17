@@ -67,7 +67,7 @@ export default function Services() {
       <div className="svc-grid">
         {services.map((service, index) => <ServiceCard key={service.id} service={service} index={index} />)}
       </div>
-      {hasLicensedPhotos && <p className="sj-credit">Counselling, admissions and visa photos: VN Group. Other photographs are illustrative stock images.</p>}
+      {hasLicensedPhotos && <p className="sj-credit">Counselling and admissions photos: VN Group. Other photographs are illustrative stock images.</p>}
     </div>
   </section>
 }

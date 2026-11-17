@@ -13,7 +13,6 @@ about/partner-meeting-{960,800,480}.webp - Round-table meeting with a partner de
 about/events-wide-{1200,800,480}.webp - Selfie at a large education conference with a full hall behind. 16:9. About Us page or a wide band near the footer, "We attend global education fairs".
 
 services/admissions-westcliff-session-{1200,800,480}.webp - Westcliff University representative presenting to students (Radisson, Kathmandu). 3:4. Services: University Admissions. object-position center 30%.
-services/visa-grant-team-{1200,800,480}.webp - Student holding a visa grant letter with two VN Group team members at the office. 4:3. Services: Visa Application Support.
 steps/counselling-maryville-{960,800,480}.webp - Students in a session at a desk with a Maryville University sign. 4:3. How It Works: Free Counselling.
 steps/intake-briefing-{1200,800,480}.webp - Presenter with a microphone beside a projected academic calendar. ~16:10. How It Works: Choose Your Course and Country.
 steps/visa-grant-office-{1200,800,480}.webp - Student and counsellor holding a visa grant letter at the VN Group office. 3:4. How It Works: Visa Preparation.

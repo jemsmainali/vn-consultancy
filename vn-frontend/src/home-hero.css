@@ -31,9 +31,14 @@
 .vn-hero-button-ghost { border-color: rgb(255 255 255 / .5); color: #fff !important; background: rgb(255 255 255 / .06); backdrop-filter: blur(6px); }
 
 .vn-hero-rail { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 0 18px; border-top: 1px solid rgb(255 255 255 / .16); }
-.vn-hero-countries { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 4px 24px; }
-.vn-hero-country { display: inline-flex; min-height: 40px; align-items: center; gap: 8px; color: rgb(255 255 255 / .72) !important; font-size: 13px; font-weight: 500; letter-spacing: .02em; text-decoration: none !important; white-space: nowrap; transition: color .2s ease; }
-.vn-hero-country .country-flag { border-radius: 2px; opacity: .9; }
+/* Destination chips: round flag badge in a glass pill; staggered entrance, a light sweeping across each flag, gold lift on hover. */
+.vn-hero-countries { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 10px; }
+.vn-hero-country { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; padding: 5px 16px 5px 5px; border: 1px solid rgb(255 255 255 / .18); border-radius: 999px; color: #fff !important; background: rgb(255 255 255 / .08); backdrop-filter: blur(8px); font-size: 13.5px; font-weight: 600; letter-spacing: .02em; text-decoration: none !important; white-space: nowrap; box-shadow: 0 6px 18px rgb(4 12 26 / .18); transition: transform .3s cubic-bezier(.2,.7,.2,1), border-color .25s ease, background-color .25s ease, box-shadow .3s ease; animation: vn-flag-in .7s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 90ms + 500ms); }
+.vn-hero-flag { position: relative; display: block; flex: none; width: 34px; height: 34px; overflow: hidden; border: 2px solid rgb(255 255 255 / .9); border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgb(0 0 0 / .25); transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.vn-hero-flag .country-flag { display: block; width: 100% !important; height: 100% !important; object-fit: cover; }
+.vn-hero-flag::after { position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / .65) 50%, transparent 70%); content: ""; transform: translateX(-130%); animation: vn-flag-shine 6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 450ms + 1.6s); }
+@keyframes vn-flag-in { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes vn-flag-shine { 0%, 72% { transform: translateX(-130%); } 88%, 100% { transform: translateX(130%); } }
 .vn-hero-scroll { display: inline-flex; flex: none; min-height: 44px; align-items: center; gap: 12px; color: rgb(255 255 255 / .75) !important; font-size: 11px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; text-decoration: none !important; }
 .vn-hero-scroll i { position: relative; width: 1px; height: 44px; overflow: hidden; background: rgb(255 255 255 / .25); }
 .vn-hero-scroll i::after { position: absolute; top: 0; left: 0; width: 1px; height: 16px; background: var(--home-gold); content: ""; animation: vn-hero-scroll 2.2s cubic-bezier(.65,0,.35,1) infinite; }
@@ -44,7 +49,9 @@
   .vn-hero-button:hover { transform: translateY(-2px); border-color: #d8b673; background: #d8b673; }
   .vn-hero-button-ghost:hover { border-color: #fff; color: var(--home-navy) !important; background: #fff; }
   .vn-hero-button:hover span { transform: translateX(3px); }
-  .vn-hero-country:hover, .vn-hero-scroll:hover { color: #fff !important; }
+  .vn-hero-scroll:hover { color: #fff !important; }
+  .vn-hero-country:hover { transform: translateY(-3px); border-color: var(--home-gold); background: rgb(255 255 255 / .16); box-shadow: 0 10px 26px rgb(4 12 26 / .3), 0 0 0 3px rgb(201 164 92 / .22); }
+  .vn-hero-country:hover .vn-hero-flag { transform: scale(1.08) rotate(-8deg); }
 }
 
 /* Header over the hero: transparent at the top, navy glass once the page starts moving. */
@@ -87,13 +94,16 @@
   .vn-hero-actions { flex-direction: column; gap: 10px; }
   .vn-hero-button { justify-content: space-between; min-height: 52px; }
   .vn-hero-rail { gap: 16px; padding-bottom: 12px; }
-  .vn-hero-countries { flex-wrap: nowrap; gap: 18px; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .vn-hero-countries { flex-wrap: nowrap; gap: 8px; overflow-x: auto; padding: 4px 2px 6px; scrollbar-width: none; mask-image: linear-gradient(90deg, #000 85%, transparent); }
   .vn-hero-countries::-webkit-scrollbar { display: none; }
-  .vn-hero-country { font-size: 12px; }
+  .vn-hero-country { min-height: 40px; padding-right: 13px; font-size: 12.5px; }
+  .vn-hero-flag { width: 30px; height: 30px; }
   .vn-hero-scroll span { display: none; }
   .vn-hero-scroll i { height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .vn-hero-scroll i::after { animation: none; transform: translateY(14px); }
-  .vn-hero-button, .vn-hero-button span, .vn-hero-country { transition: none; }
+  .vn-hero-button, .vn-hero-button span, .vn-hero-country, .vn-hero-flag { transition: none; }
+  .vn-hero-country { animation: none; }
+  .vn-hero-flag::after { display: none; }
 }

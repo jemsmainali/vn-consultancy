@@ -113,7 +113,6 @@ const officeGuide = galleryPhoto('team-office-guide', 'team', 960, 1280, 'Welcom
 
 const supplied = {
   visaOffice: galleryPhoto('visa-grant-office', 'visa', 1200, 1600, 'Visa granted — celebrating at the VN Group office', 'A smiling student in a farewell scarf holding a visa grant letter with a VN Group counsellor at the VN Group office'),
-  visaTeam: galleryPhoto('visa-grant-team', 'visa', 1200, 900, 'A visa grant letter in hand, with the VN Group team', 'A student holding a visa grant letter between two VN Group team members at the VN Group office'),
   westcliff: galleryPhoto('event-westcliff-session', 'team', 1200, 1600, 'Westcliff University information session in Kathmandu', 'A Westcliff University representative presenting accommodation options to students at a VN Group info session'),
   intakeBriefing: galleryPhoto('event-intake-briefing', 'team', 1200, 761, 'Walking students through university intake dates', 'A VN Group presenter speaking into a microphone beside a projected academic calendar'),
   maryville: galleryPhoto('counselling-maryville', 'departures', 960, 720, 'An admissions session with Maryville University', 'Three students in a session across a desk, with a Maryville University sign on the table'),
@@ -141,7 +140,6 @@ export const galleryPhotos = [
   supplied.graduation,
   usaGraduation,
   departures.farewell1,
-  supplied.visaTeam,
   partnerVisits.notreDame,
   officeGuide,
   supplied.maryville,
@@ -165,4 +163,4 @@ export const galleryPhotos = [
   ...studentVisas.slice(8),
 ]
 
-export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisas[1], supplied.visaTeam, departures.airport2, departures.farewell2]
+export const galleryPreview = [supplied.visaOffice, departures.airport1, supplied.westcliff, japanVisas[0], supplied.graduation, departures.farewell1, australiaVisas[1], departures.airport2, departures.farewell2]

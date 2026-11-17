@@ -27,10 +27,10 @@ const popularCountries = hero.rotatingCountries
   .filter(Boolean)
   .slice(0, 6)
 
-function HeroCountry({ country }) {
+function HeroCountry({ country, index }) {
   const guide = destinationByName(country.name)
-  return <Link className="vn-hero-country" to={guide ? destinationPath(guide) : '/destinations'}>
-    <CountryFlag code={country.code} name={country.name} size={16} />
+  return <Link className="vn-hero-country" style={{ '--i': index }} to={guide ? destinationPath(guide) : '/destinations'}>
+    <span className="vn-hero-flag"><CountryFlag code={country.code} name="" size={32} /></span>
     <span>{visibleCountryName(country)}</span>
   </Link>
 }
@@ -84,7 +84,7 @@ function HomeHero() {
     </div>
     <div className="vn-hero-rail" data-hero-fade>
       <nav className="vn-hero-countries" aria-label="Popular study destinations">
-        {popularCountries.map((country) => <HeroCountry key={country.name} country={country} />)}
+        {popularCountries.map((country, index) => <HeroCountry key={country.name} country={country} index={index} />)}
       </nav>
       <Link className="vn-hero-scroll" to="/#about-vn"><span>Scroll</span><i aria-hidden="true" /></Link>
     </div>
