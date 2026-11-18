@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, delete, func, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -38,7 +39,7 @@ from app.models.bank_details import UserBankDetails
 from app.schemas.user import (
     UserCreate, UserUpdate, UserOut, UserLogin, StaffOut, PendingUserOut,
     StaffUserOut, UserListPage,
-    VerifyEmailRequest, VerifyEmailResponse, ResendRequest, ROLES_REQUIRING_BANK_DETAILS,
+    VerifyEmailRequest, VerifyEmailResponse, ResendRequest, ROLES_REQUIRING_BANK_DETAILS, RegisterResponse,
     ForgotPasswordRequest, ResetPasswordRequest,
 )
 from app.schemas.token import TokenPair
@@ -155,7 +156,19 @@ async def issue_verification(db: AsyncSession, user: User) -> None:
         raise HTTPException(502, "We couldn't send the verification email. Please use \"Resend email\" in a moment.")
 
 
-@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+REGISTER_MESSAGE = (
+    "If this email can be used for a new account, we've sent a verification link and code to it. "
+    "Check your inbox and spam folder. If nothing arrives, you may already have an account: try signing in or resetting your password."
+)
+
+
+def _remove_profile_photo(stored_filename: str) -> None:
+    path = os.path.join(settings.UPLOAD_DIR, "profile_photos", os.path.basename(stored_filename))
+    if os.path.isfile(path):
+        os.remove(path)
+
+
+@router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 async def register(
     request: Request,
@@ -224,14 +237,8 @@ async def register(
     if not await email_can_receive_mail(payload.email):
         raise HTTPException(400, "Please use a real email address you can open. We'll send a code to it to confirm it's yours.")
 
-    if await _find_user(db, payload.email):
-        raise HTTPException(400, "Email already registered")
-
-    if payload.national_id:
-        existing_nid = await db.execute(select(User).where(User.national_id == payload.national_id))
-        if existing_nid.scalar_one_or_none():
-            raise HTTPException(400, "This National ID is already registered")
-
+    # Everything that can be wrong with the submitted details is reported before the duplicate checks,
+    # and a duplicate gets the same answer as a new sign-up, so the form can't be used to discover accounts.
     bank_values = None
     if payload.role in ROLES_REQUIRING_BANK_DETAILS:
         try:
@@ -247,10 +254,32 @@ async def register(
         }
 
     saved = await validate_and_save_upload(photo, subfolder="profile_photos", allowed_mimes=PROFILE_PHOTO_MIMES)
+    hashed_password = hash_password(payload.password)  # done on every path, so timing doesn't reveal duplicates
+
+    existing = await _find_user(db, payload.email)
+    if existing and existing.is_active and not existing.is_verified:
+        # Never confirmed, so it can't have been used: whoever registers again with this address
+        # (most likely its real owner) replaces it. This stops a stranger holding someone else's email.
+        old_photo = existing.profile_image
+        try:
+            await _clear_verification(db, existing)
+            await db.delete(existing)
+            await db.commit()
+            existing = None
+            if old_photo:
+                _remove_profile_photo(old_photo)
+        except IntegrityError:
+            await db.rollback()
+    nid_taken = bool(payload.national_id) and (
+        await db.execute(select(User.id).where(User.national_id == payload.national_id))
+    ).first() is not None
+    if existing or nid_taken:
+        _remove_profile_photo(saved["stored_filename"])
+        return RegisterResponse(message=REGISTER_MESSAGE)
 
     user = User(
         email=payload.email,
-        hashed_password=hash_password(payload.password),
+        hashed_password=hashed_password,
         full_name=payload.full_name,
         role=payload.role,
         national_id=payload.national_id,
@@ -270,14 +299,20 @@ async def register(
         is_approved=payload.role not in ROLES_AWAITING_APPROVAL_AT_SIGNUP,
     )
     db.add(user)
-    if bank_values:
-        await db.flush()
-        db.add(UserBankDetails(user_id=user.id, **bank_values))
-    await db.commit()
+    try:
+        if bank_values:
+            await db.flush()
+            db.add(UserBankDetails(user_id=user.id, **bank_values))
+        await db.commit()
+    except IntegrityError:
+        # A simultaneous sign-up took the same email or National ID first.
+        await db.rollback()
+        _remove_profile_photo(saved["stored_filename"])
+        return RegisterResponse(message=REGISTER_MESSAGE)
     await db.refresh(user)
 
     await issue_verification(db, user)
-    return user
+    return RegisterResponse(message=REGISTER_MESSAGE)
 
 
 PENDING_MESSAGE = (

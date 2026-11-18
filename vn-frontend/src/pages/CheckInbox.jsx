@@ -49,10 +49,17 @@ export default function CheckInbox() {
     <AuthCard title="Check your inbox">
       <div className="space-y-4">
         <p className="text-sm text-navy/70">
-          {mailErr ? 'Request a verification email for' : 'We sent a verification link to'}{' '}
+          {mailErr ? 'Request a verification email for' : "If this email can be used for a new account, we've sent a verification link to"}{' '}
           <span className="font-semibold text-navy">{email || 'your email'}</span>.
           {' '}Open it within 24 hours to confirm your address. Check your spam folder if it hasn&apos;t arrived.
         </p>
+        {!mailErr && (
+          <p className="text-sm text-navy/70">
+            Nothing after a few minutes? You may already have an account:{' '}
+            <Link to="/login" className="font-semibold text-navy underline">sign in</Link> or{' '}
+            <Link to="/forgot-password" className="font-semibold text-navy underline">reset your password</Link>.
+          </p>
+        )}
         <Err msg={err} />
         {info && <p className="auth-notice" role="status">{info}</p>}
         {!params.get('email') && (

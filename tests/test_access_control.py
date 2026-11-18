@@ -392,7 +392,6 @@ class AccessControlTests(unittest.TestCase):
         client = self.anon()
         email, status, _ = self._register(client, "dup", UserRole.student)
         self.assertEqual(status, 201)
-        self.assertEqual(self._register(client, "dup2", UserRole.student, email=email)[1], 400)
         _, status, body = self._register(client, "nomail", UserRole.student, email="someone@undeliverable-domain.com")
         self.assertEqual(status, 400, body)
         self.assertIn("real email", body["detail"])
@@ -414,7 +413,8 @@ class AccessControlTests(unittest.TestCase):
                 client = self.anon()
                 email, status, body = self._register(client, f"pending-{role.value}", role)
                 self.assertEqual(status, 201, body)
-                self.assertEqual((body["is_approved"], body["status"]), (False, "unverified"))
+                self.assertEqual(body, {"message": body["message"]}, "sign-up never echoes account details")
+                self.assertEqual(self._sql("SELECT is_approved, is_verified FROM users WHERE email = :e", e=email.lower())[0], (False, False))
                 self.assertEqual(client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})[0], 403,
                                  "no sign-in before the email is verified")
 
@@ -541,9 +541,13 @@ class AccessControlTests(unittest.TestCase):
         client = self.anon()
         mixed = f"Mixed.Case-{uuid.uuid4().hex[:6]}@Example.COM"
         _, status, body = self._register(client, "mixed", UserRole.student, email=mixed)
-        self.assertEqual((status, body["email"]), (201, mixed.lower()))
-        self.assertEqual(self._register(client, "mixed2", UserRole.student, email=mixed.lower())[1], 400)
-        self.assertEqual(self._register(client, "mixed3", UserRole.student, email=mixed.upper())[1], 400)
+        self.assertEqual(status, 201)
+        self.assertEqual(self._sql("SELECT email FROM users WHERE lower(email) = :e", e=mixed.lower()), [(mixed.lower(),)])
+        status, _ = Client(self.base).json("POST", "/auth/verify-email", json_body={"token": self._token(mixed)})
+        self.assertEqual(status, 200)
+        for label, address in (("mixed2", mixed.lower()), ("mixed3", mixed.upper())):
+            self.assertEqual(self._register(client, label, UserRole.student, email=address)[1], 201)
+        self.assertEqual(self._sql("SELECT count(*) FROM users WHERE lower(email) = :e", e=mixed.lower())[0][0], 1)
         # The database itself refuses a case-variant duplicate.
         with self.assertRaises(Exception):
             self._sql("INSERT INTO users (id, email, hashed_password, full_name, role, is_active, is_verified, is_approved) "
@@ -555,7 +559,7 @@ class AccessControlTests(unittest.TestCase):
             with self.subTest(nid=nid):
                 _, status, body = self._register(client, label, UserRole.student, national_id=nid)
                 self.assertEqual(status, 201, body)
-                self.assertIsNone(body["national_id"])
+                self.assertEqual(self._sql("SELECT national_id FROM users WHERE email = :e", e=_.lower())[0][0], None)
 
     def test_other_signup_stores_encrypted_bank_details(self):
         key = Fernet.generate_key()
@@ -726,6 +730,51 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(me_a["id"], self.student_a.user["id"])
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
+
+    # ---- hardening: sign-up does not reveal existing accounts -----------------
+
+    def test_signup_answers_the_same_for_new_and_registered_emails(self):
+        anon = self.anon()
+        fresh_email, fresh_status, fresh_body = self._register(anon, "same-new", UserRole.student)
+        taken_email = self.student_a.email
+        codes_before = dict(self.otp_codes)
+        _, taken_status, taken_body = self._register(anon, "same-taken", UserRole.student, email=taken_email)
+        self.assertEqual((fresh_status, taken_status), (201, 201))
+        self.assertEqual(fresh_body, taken_body)
+        self.assertIn("If this email can be used", fresh_body["message"])
+        self.assertEqual(self.otp_codes, codes_before, "no email or code is sent for a registered address")
+        self.assertEqual(self._sql("SELECT count(*) FROM users WHERE lower(email) = :e", e=taken_email.lower())[0][0], 1)
+        # The registered account is untouched: its owner still signs in with the old password.
+        self.assertEqual(Client(self.base).json("POST", "/auth/login", json_body={"email": taken_email, "password": PASSWORD})[0], 200)
+
+    def test_signup_with_a_taken_national_id_creates_nothing_and_looks_normal(self):
+        anon = self.anon()
+        taken_nid = self._sql("SELECT national_id FROM users WHERE email = :e", e=self.student_a.email.lower())[0][0]
+        email, status, body = self._register(anon, "nid-dup", UserRole.student, national_id=taken_nid)
+        self.assertEqual(status, 201)
+        self.assertIn("If this email can be used", body["message"])
+        self.assertEqual(self._sql("SELECT count(*) FROM users WHERE email = :e", e=email.lower())[0][0], 0)
+
+    def test_registering_again_replaces_a_never_verified_signup(self):
+        anon = self.anon()
+        email, status, _ = self._register(anon, "squat", UserRole.student, password="Squatter-Pass-1")
+        self.assertEqual(status, 201)
+        first_link = self.links[email.lower()]
+        _, status, _ = self._register(anon, "squat", UserRole.student, email=email, password=PASSWORD)
+        self.assertEqual(status, 201)
+        self.assertEqual(self._sql("SELECT count(*) FROM users WHERE email = :e", e=email.lower())[0][0], 1)
+        self.assertNotEqual(self.links[email.lower()], first_link, "the new sign-up gets its own link")
+        owner = Client(self.base)
+        self.assertEqual(owner.json("POST", "/auth/verify-email", json_body={"token": self._token(email)})[0], 200)
+        self.assertEqual(owner.json("POST", "/auth/login", json_body={"email": email, "password": "Squatter-Pass-1"})[0], 401)
+        self.assertEqual(owner.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})[0], 200)
+
+    def test_invalid_details_are_reported_the_same_for_taken_and_new_emails(self):
+        anon = self.anon()
+        fields = {"full_name": "X Y", "email": self.student_a.email, "password": PASSWORD, "role": "student",
+                  "date_of_birth": "2000-01-01", "gender": "Other", "citizenship": "Nepali", "terms_accepted": "true"}
+        status, _ = anon.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PDF, "image/png")})
+        self.assertEqual(status, 400, "a bad photo is refused even when the email is taken")
 
     # ---- hardening: session revocation -------------------------------------
 

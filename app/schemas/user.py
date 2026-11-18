@@ -155,6 +155,11 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
+class RegisterResponse(BaseModel):
+    """Same answer whether or not the address was already registered, so sign-up can't be used to find out."""
+    message: str
+
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
