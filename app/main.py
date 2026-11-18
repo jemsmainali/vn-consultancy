@@ -50,6 +50,18 @@ app.add_middleware(
 )
 
 
+# Refuse oversized request bodies up front (uploads are capped at MAX_UPLOAD_MB; the rest is a little form data).
+MAX_BODY_BYTES = (settings.MAX_UPLOAD_MB + 1) * 1024 * 1024
+
+
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_BODY_BYTES:
+        return JSONResponse(status_code=413, content={"detail": "Request is too large"})
+    return await call_next(request)
+
+
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)

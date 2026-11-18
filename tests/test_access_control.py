@@ -715,6 +715,28 @@ class AccessControlTests(unittest.TestCase):
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
 
+    # ---- hardening: upload limits -----------------------------------------
+
+    def test_oversized_uploads_are_refused(self):
+        limit = settings.MAX_UPLOAD_MB * 1024 * 1024
+        fields = {"doc_type": "passport", "college_name": "C", "university_name": "U"}
+        # Just over the file limit but under the request cap: refused by the bounded read.
+        big_file = PDF + b"0" * (limit - len(PDF) + 10)
+        status, body = self.student_a.json("POST", "/documents/upload", fields=fields,
+                                           files={"file": ("big.pdf", big_file, "application/pdf")})
+        self.assertEqual(status, 400, body)
+        self.assertIn("limit", body["detail"])
+        # Far over: refused from the Content-Length header, before the body is processed.
+        huge = PDF + b"0" * (limit + 2 * 1024 * 1024)
+        try:
+            status, body = self.anon().json("POST", "/auth/register", fields={"email": "x@example.com"},
+                                            files={"photo": ("p.png", huge, "image/png")})
+            self.assertEqual(status, 413, body)
+        except (ConnectionError, urllib.error.URLError):
+            pass  # the server answered 413 and hung up while the client was still sending: also a refusal
+        # A file under the limit still works.
+        self.upload(self.student_a)
+
 
 if __name__ == "__main__":
     unittest.main()
