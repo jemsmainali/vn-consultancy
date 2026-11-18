@@ -1,5 +1,6 @@
 import hmac
 import os
+import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, Form, File, UploadFile, Query
@@ -589,20 +590,29 @@ async def list_users(
     return UserListPage(items=items, total=total, page=page, page_size=USER_LIST_PAGE_SIZE)
 
 
-@router.post("/{user_id}/deactivate", response_model=UserOut)
+STAFF_PROTECTED = "Staff accounts can't be changed by other staff members. Ask whoever manages the VN Group database."
+
+
+def _refuse_staff_target(user: User) -> None:
+    if user.role == UserRole.consultancy_staff:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, STAFF_PROTECTED)
+
+
+@router.post("/{user_id}/deactivate", response_model=StaffUserOut)
 async def deactivate_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: User = Depends(require_role(UserRole.consultancy_staff)),
     db: AsyncSession = Depends(get_db),
 ):
     """Staff-only: disables an account (is_active = False) instead of deleting it."""
-    if user_id == str(current_user.id):
+    if user_id == current_user.id:
         raise HTTPException(400, "You can't deactivate your own account")
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(404, "User not found")
+    _refuse_staff_target(user)
 
     user.is_active = False
     user.sessions_valid_after = datetime.now(timezone.utc)  # so reactivating later doesn't revive old sessions
@@ -617,9 +627,9 @@ async def deactivate_user(
     return user
 
 
-@router.post("/{user_id}/reactivate", response_model=UserOut)
+@router.post("/{user_id}/reactivate", response_model=StaffUserOut)
 async def reactivate_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: User = Depends(require_role(UserRole.consultancy_staff)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -628,6 +638,7 @@ async def reactivate_user(
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(404, "User not found")
+    _refuse_staff_target(user)
 
     user.is_active = True
     db.add(AuditLog(
@@ -641,9 +652,9 @@ async def reactivate_user(
     return user
 
 
-@router.post("/{user_id}/approve", response_model=UserOut)
+@router.post("/{user_id}/approve", response_model=StaffUserOut)
 async def approve_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: User = Depends(require_role(UserRole.consultancy_staff)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -674,7 +685,7 @@ async def approve_user(
 
 @router.post("/{user_id}/reject", status_code=status.HTTP_200_OK)
 async def reject_user(
-    user_id: str,
+    user_id: uuid.UUID,
     current_user: User = Depends(require_role(UserRole.consultancy_staff)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -684,6 +695,11 @@ async def reject_user(
         raise HTTPException(404, "User not found")
     if user.role not in ROLES_NEEDING_APPROVAL:
         raise HTTPException(400, "This account does not require approval")
+    if user.id == current_user.id:
+        raise HTTPException(400, "You can't reject your own account")
+    _refuse_staff_target(user)
+    if user.is_approved:
+        raise HTTPException(400, "This account is already approved. Use deactivate instead.")
 
     user.is_active = False
     db.add(AuditLog(actor_id=current_user.id, action="user_rejected", target_id=user.id, detail=user.email))

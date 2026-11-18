@@ -40,6 +40,7 @@ SCHEMA = f"vn_test_{uuid.uuid4().hex[:10]}"
 # Only these may register as staff during the tests (stands in for the STAFF_EMAILS env var).
 STAFF_FIXTURE = "staff-fixture@example.com"
 STAFF_ALLOWED = "staff-allowed@example.com"
+STAFF_SECOND = "staff-second@example.com"
 PASSWORD = "Correct-Horse-42"
 PNG = (
     b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde"
@@ -153,7 +154,7 @@ class AccessControlTests(unittest.TestCase):
             patch.object(auth_api, "send_password_reset_email", capture_reset),
             patch.object(settings, "UPLOAD_DIR", cls.upload_dir),
             patch.object(auth_api, "send_verification_email", capture_email),
-            patch.object(settings, "STAFF_EMAILS", f"{STAFF_FIXTURE}, {STAFF_ALLOWED.upper()}"),
+            patch.object(settings, "STAFF_EMAILS", f"{STAFF_FIXTURE}, {STAFF_ALLOWED.upper()}, {STAFF_SECOND}"),
             patch.object(settings, "FRONTEND_URL", "https://vn.example.com"),
             patch.object(auth_api, "email_can_receive_mail", cls.fake_email_check),
             patch.object(limiter, "enabled", False),
@@ -179,6 +180,7 @@ class AccessControlTests(unittest.TestCase):
         cls.base = f"http://127.0.0.1:{port}"
 
         cls.staff = cls._register_and_login("staff", UserRole.consultancy_staff, email=STAFF_FIXTURE)
+        cls.staff2 = cls._register_and_login("staff2", UserRole.consultancy_staff, email=STAFF_SECOND)
         cls.student_a = cls._register_and_login("student-a", UserRole.student)
         cls.student_b = cls._register_and_login("student-b", UserRole.student)
 
@@ -441,7 +443,8 @@ class AccessControlTests(unittest.TestCase):
                 self.assertEqual(self.student_a.request("POST", f"/auth/{me_id}/approve")[0], 403, "students can't approve")
                 self.assertEqual(client.request("POST", f"/auth/{me_id}/approve")[0], 403, "nobody approves themselves")
                 status, body = self.staff.json("POST", f"/auth/{me_id}/approve")
-                self.assertEqual((status, body["status"]), (200, "active"))
+                self.assertEqual(status, 200, body)
+                self.assertEqual(client.json("GET", "/auth/me")[1]["status"], "active")
                 self.assertEqual(client.request("GET", "/documents/mine")[0], 200, "approved accounts get full access")
                 self.assertNotIn(email, [p["email"] for p in self.staff.json("GET", "/auth/pending")[1]])
                 actions = [row[0] for row in self._sql("SELECT action FROM audit_logs WHERE target_id = :t", t=me_id)]
@@ -730,6 +733,39 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(me_a["id"], self.student_a.user["id"])
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
+
+    # ---- hardening: staff account actions --------------------------------------
+
+    def test_staff_cannot_deactivate_reactivate_or_reject_other_staff_or_themselves(self):
+        other = self.staff2.user["id"]
+        for action in ("deactivate", "reactivate", "reject"):
+            with self.subTest(action=action):
+                status, body = self.staff.json("POST", f"/auth/{other}/{action}")
+                self.assertEqual(status, 403, body)
+        self.assertEqual(self.staff.request("POST", f"/auth/{self.staff.user['id']}/deactivate")[0], 400)
+        self.assertEqual(self.staff.request("POST", f"/auth/{self.staff.user['id']}/reject")[0], 400)
+        self.assertEqual(self.staff2.request("GET", "/auth/me")[0], 200, "the other staff account is untouched")
+
+    def test_reject_only_applies_to_accounts_still_waiting_for_approval(self):
+        client = self._register_and_login("approved-principal", UserRole.principal)
+        self.assertEqual(self.staff.json("POST", f"/auth/{client.user['id']}/approve")[0], 200)
+        status, body = self.staff.json("POST", f"/auth/{client.user['id']}/reject")
+        self.assertEqual(status, 400, body)
+        self.assertIn("already approved", body["detail"])
+
+    def test_staff_actions_return_only_what_the_screen_needs(self):
+        client = self._register_and_login("narrow", UserRole.agent)
+        allowed = {"id", "full_name", "email", "role", "is_active", "is_approved", "created_at"}
+        for action in ("approve", "deactivate", "reactivate"):
+            with self.subTest(action=action):
+                status, body = self.staff.json("POST", f"/auth/{client.user['id']}/{action}")
+                self.assertEqual(status, 200, body)
+                self.assertEqual(set(body), allowed)
+
+    def test_malformed_user_ids_get_422_not_500(self):
+        for action in ("approve", "reject", "deactivate", "reactivate"):
+            with self.subTest(action=action):
+                self.assertEqual(self.staff.request("POST", f"/auth/not-a-uuid/{action}")[0], 422)
 
     # ---- hardening: API schema and removed routes -----------------------------
 
