@@ -90,3 +90,16 @@ A development-style PostgreSQL URL with a password field is committed in `.env.e
 ## Phase B note: token storage migration
 
 Do not migrate token storage to cookies in a future fix pass: the frontend already uses `HttpOnly` cookies. If deployment topology or browser requirements change, retain cookie storage and document any cookie attribute or CSRF changes before rollout.
+
+## Status after the `security-hardening` branch (18 November 2026)
+
+Fixed and covered by tests: SEC-03 (bounded upload reads, 413 for oversized requests), SEC-07 (logout, password reset and deactivation revoke sessions), SEC-09 (staff actions return a narrow response), SEC-10 (sign-up answers the same for new and registered emails), SEC-11 (`/openapi.json` hidden in production), SEC-13 (limits on all free-text fields), SEC-15 (all Python dependencies upgraded and pinned; `pip-audit` clean; `python-jose` replaced by PyJWT), plus: per-email sign-in throttle, staff cannot deactivate/reject/reactivate other staff, malformed ids return 422, `Cache-Control: no-store` on documents and photos, login timing, DEMO_MODE startup notice, literal `%`/`_` in staff search, static-site HSTS/Referrer-Policy/Permissions-Policy and a report-only CSP.
+
+Open:
+- **IP rate limits** still trust a forgeable `X-Forwarded-For`; waiting on real Render header data (`docs/DEPLOYMENT.md`).
+- **SEC-04 / CSP** is report-only until the console is clean.
+- **SEC-06**: files still open inline by decision; they are now `no-store`.
+- **SEC-08 (CSRF)**: no token; cookies are `SameSite=Lax` and `onrender.com` is on the public-suffix list. Revisit if the site moves to a custom domain with sibling subdomains.
+- **Uploads on ephemeral disk**, unencrypted at rest: see `docs/DEPLOYMENT.md`.
+- **Frontend**: react-router-dom 6.30.6 has two advisories fixed only in 7.18; neither applies (no SSR, no user-controlled navigation targets). vite 5 / tailwind 3 build-tool advisories need major upgrades and never reach the browser.
+- **Design**: there is no admin tier; staff accounts can only be changed in the database.
