@@ -17,6 +17,12 @@ from app.schemas.enquiry import EnquiryCreate, EnquiryReceipt, LeadOut, LeadPage
 router = APIRouter(prefix="/enquiries", tags=["enquiries"])
 
 
+def _contains(term: str) -> str:
+    """LIKE pattern matching `term` literally (so a staff search for "%" or "_" isn't a wildcard)."""
+    escaped = term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escaped}%"
+
+
 def _matches_existing_submission(enquiry: StudentEnquiry, payload: EnquiryCreate) -> bool:
     expected = {
         "full_name": payload.full_name,
@@ -92,7 +98,7 @@ async def list_enquiries(
     if payload.status:
         filters.append(StudentEnquiry.status == payload.status.value)
     if payload.destination:
-        filters.append(StudentEnquiry.preferred_destination.ilike(f"%{payload.destination}%"))
+        filters.append(StudentEnquiry.preferred_destination.ilike(_contains(payload.destination), escape="\\"))
     if payload.assigned_to_id:
         filters.append(StudentEnquiry.assigned_to_id == payload.assigned_to_id)
     if payload.created_after:
@@ -100,8 +106,12 @@ async def list_enquiries(
     if payload.created_before:
         filters.append(StudentEnquiry.created_at < payload.created_before)
     if payload.search:
-        term = f"%{payload.search}%"
-        filters.append(or_(StudentEnquiry.full_name.ilike(term), StudentEnquiry.email.ilike(term), StudentEnquiry.phone.ilike(term)))
+        term = _contains(payload.search)
+        filters.append(or_(
+            StudentEnquiry.full_name.ilike(term, escape="\\"),
+            StudentEnquiry.email.ilike(term, escape="\\"),
+            StudentEnquiry.phone.ilike(term, escape="\\"),
+        ))
 
     query = select(StudentEnquiry).where(*filters)
     total = (await db.execute(select(func.count()).select_from(query.subquery()))).scalar_one()

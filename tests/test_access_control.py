@@ -734,6 +734,50 @@ class AccessControlTests(unittest.TestCase):
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
 
+    # ---- hardening: small fixes ------------------------------------------------
+
+    def test_documents_and_photos_are_not_cached_and_still_open_inline(self):
+        doc = self.upload(self.student_a)
+        for client, path in ((self.student_a, f"/documents/{doc['id']}/file"), (self.student_a, "/auth/me/photo")):
+            req = urllib.request.Request(self.base + path)
+            with client.opener.open(req) as res:
+                self.assertEqual(res.status, 200)
+                self.assertEqual(res.headers["Cache-Control"], "private, no-store")
+                if "documents" in path:
+                    self.assertTrue(res.headers["Content-Disposition"].startswith("inline"))
+
+    def test_unknown_email_and_wrong_password_look_identical(self):
+        anon = self.anon()
+        wrong_pw = anon.json("POST", "/auth/login", json_body={"email": self.student_a.email, "password": "wrong-pass-1"})
+        unknown = anon.json("POST", "/auth/login", json_body={"email": "never-registered@example.com", "password": "wrong-pass-1"})
+        self.assertEqual(wrong_pw, unknown)
+
+    def test_staff_search_treats_percent_and_underscore_literally(self):
+        def enquire(name):
+            status, body = self.anon().json("POST", "/enquiries", json_body={
+                "submission_key": str(uuid.uuid4()), "full_name": name, "email": f"{uuid.uuid4().hex[:8]}@example.com",
+                "phone": "+977 9800000000", "privacy_consent": True})
+            self.assertEqual(status, 201, body)
+        token = uuid.uuid4().hex[:6]
+        enquire(f"Wild%{token} One"); enquire(f"Wild_{token} Two"); enquire(f"WildX{token} Three")
+        def names(term):
+            status, page = self.staff.json("POST", "/enquiries/staff/search", json_body={"search": term})
+            self.assertEqual(status, 200, page)
+            return sorted(item["full_name"] for item in page["items"])
+        self.assertEqual(names(f"%{token}"), [f"Wild%{token} One"])
+        self.assertEqual(names(f"_{token}"), [f"Wild_{token} Two"])
+        self.assertEqual(len(names(f"{token}")), 3)
+
+    def test_startup_warns_about_demo_mode_in_production(self):
+        from app.core.config import Settings
+        base = dict(_env_file=None, SECRET_KEY="s" * 40, DATABASE_URL="postgresql://x", COOKIE_SECURE=True,
+                    CORS_ORIGINS="https://a.example.com", FRONTEND_URL="https://a.example.com")
+        demo = Settings(ENVIRONMENT="production", DEMO_MODE=True, **base)
+        self.assertTrue(any("DEMO_MODE=true in production" in w for w in demo.startup_warnings))
+        live = Settings(ENVIRONMENT="production", DEMO_MODE=False, EMAIL_ENABLED=True, SMTP_HOST="h", SMTP_FROM="f@x.com", **base)
+        self.assertEqual(live.startup_warnings, [])
+        self.assertEqual(Settings(ENVIRONMENT="development", DEMO_MODE=True, **base).startup_warnings, [])
+
     # ---- hardening: input limits ---------------------------------------------
 
     def test_oversized_text_fields_are_422_not_500(self):

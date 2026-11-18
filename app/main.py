@@ -32,6 +32,9 @@ def api_doc_urls(environment: str) -> dict:
 
 app = FastAPI(title="VN Group API", version="1.0.0", **api_doc_urls(settings.ENVIRONMENT))
 
+for _warning in settings.startup_warnings:
+    logging.getLogger("uvicorn.error").warning("SECURITY NOTICE: %s", _warning)
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

@@ -24,6 +24,20 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
+# Checked against when the email is unknown, so a wrong email takes as long as a wrong password.
+_DUMMY_HASH: str | None = None
+
+
+def verify_password_or_dummy(plain_password: str, hashed_password: str | None) -> bool:
+    global _DUMMY_HASH
+    if hashed_password is None:
+        if _DUMMY_HASH is None:
+            _DUMMY_HASH = pwd_context.hash("not-a-real-password")
+        pwd_context.verify(plain_password, _DUMMY_HASH)
+        return False
+    return pwd_context.verify(plain_password, hashed_password)
+
+
 def _create_token(subject: str, role: str, expires_delta: timedelta, token_type: str) -> str:
     now = datetime.now(timezone.utc)
     payload = {

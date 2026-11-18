@@ -253,4 +253,5 @@ async def download_document(
         media_type=document.mime_type,
         filename=document.original_filename,
         content_disposition_type="inline",
+        headers={"Cache-Control": "private, no-store"},  # never keep other people's documents in a shared cache
     )

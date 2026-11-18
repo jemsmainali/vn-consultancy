@@ -103,6 +103,19 @@ class Settings(BaseSettings):
         return self
 
     @property
+    def startup_warnings(self) -> list[str]:
+        """Settings that are allowed but deserve a loud note in the server log."""
+        warnings = []
+        if self.ENVIRONMENT == "production" and self.DEMO_MODE:
+            warnings.append(
+                "DEMO_MODE=true in production: verification links, codes and reset codes are written to this log. "
+                "Use it only with synthetic data; set DEMO_MODE=false and configure SMTP before real users register."
+            )
+        if self.DEBUG_CLIENT_IP_HEADERS:
+            warnings.append("DEBUG_CLIENT_IP_HEADERS=true: client-IP headers are being logged. Turn it off once diagnosed.")
+        return warnings
+
+    @property
     def async_database_url(self) -> str:
         return asyncpg_url(self.DATABASE_URL)
 

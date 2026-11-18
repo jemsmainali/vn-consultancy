@@ -23,7 +23,7 @@ from app.core.email_check import email_can_receive_mail
 from app.core.otp import generate_otp, hash_otp, send_verification_email, send_plain_email, send_password_reset_email
 from app.core.security import (
     hash_password,
-    verify_password,
+    verify_password_or_dummy,
     create_access_token,
     create_refresh_token,
     create_email_verification_token,
@@ -254,62 +254,67 @@ async def register(
         }
 
     saved = await validate_and_save_upload(photo, subfolder="profile_photos", allowed_mimes=PROFILE_PHOTO_MIMES)
-    hashed_password = hash_password(payload.password)  # done on every path, so timing doesn't reveal duplicates
-
-    existing = await _find_user(db, payload.email)
-    if existing and existing.is_active and not existing.is_verified:
-        # Never confirmed, so it can't have been used: whoever registers again with this address
-        # (most likely its real owner) replaces it. This stops a stranger holding someone else's email.
-        old_photo = existing.profile_image
-        try:
-            await _clear_verification(db, existing)
-            await db.delete(existing)
-            await db.commit()
-            existing = None
-            if old_photo:
-                _remove_profile_photo(old_photo)
-        except IntegrityError:
-            await db.rollback()
-    nid_taken = bool(payload.national_id) and (
-        await db.execute(select(User.id).where(User.national_id == payload.national_id))
-    ).first() is not None
-    if existing or nid_taken:
-        _remove_profile_photo(saved["stored_filename"])
-        return RegisterResponse(message=REGISTER_MESSAGE)
-
-    user = User(
-        email=payload.email,
-        hashed_password=hashed_password,
-        full_name=payload.full_name,
-        role=payload.role,
-        national_id=payload.national_id,
-        date_of_birth=payload.date_of_birth,
-        gender=payload.gender,
-        citizenship=payload.citizenship,
-        passport_number=payload.passport_number,
-        target_course_level=payload.target_course_level,
-        target_field=payload.target_field,
-        target_country=payload.target_country,
-        parent_name=payload.parent_name,
-        parent_phone=payload.parent_phone,
-        parent_email=payload.parent_email,
-        profile_image=saved["stored_filename"],
-        terms_accepted_at=datetime.now(timezone.utc),
-        is_verified=False,
-        is_approved=payload.role not in ROLES_AWAITING_APPROVAL_AT_SIGNUP,
-    )
-    db.add(user)
     try:
-        if bank_values:
-            await db.flush()
-            db.add(UserBankDetails(user_id=user.id, **bank_values))
-        await db.commit()
-    except IntegrityError:
-        # A simultaneous sign-up took the same email or National ID first.
-        await db.rollback()
+        hashed_password = hash_password(payload.password)  # done on every path, so timing doesn't reveal duplicates
+
+        existing = await _find_user(db, payload.email)
+        if existing and existing.is_active and not existing.is_verified:
+            # Never confirmed, so it can't have been used: whoever registers again with this address
+            # (most likely its real owner) replaces it. This stops a stranger holding someone else's email.
+            old_photo = existing.profile_image
+            try:
+                await _clear_verification(db, existing)
+                await db.delete(existing)
+                await db.commit()
+                existing = None
+                if old_photo:
+                    _remove_profile_photo(old_photo)
+            except IntegrityError:
+                await db.rollback()
+        nid_taken = bool(payload.national_id) and (
+            await db.execute(select(User.id).where(User.national_id == payload.national_id))
+        ).first() is not None
+        if existing or nid_taken:
+            _remove_profile_photo(saved["stored_filename"])
+            return RegisterResponse(message=REGISTER_MESSAGE)
+
+        user = User(
+            email=payload.email,
+            hashed_password=hashed_password,
+            full_name=payload.full_name,
+            role=payload.role,
+            national_id=payload.national_id,
+            date_of_birth=payload.date_of_birth,
+            gender=payload.gender,
+            citizenship=payload.citizenship,
+            passport_number=payload.passport_number,
+            target_course_level=payload.target_course_level,
+            target_field=payload.target_field,
+            target_country=payload.target_country,
+            parent_name=payload.parent_name,
+            parent_phone=payload.parent_phone,
+            parent_email=payload.parent_email,
+            profile_image=saved["stored_filename"],
+            terms_accepted_at=datetime.now(timezone.utc),
+            is_verified=False,
+            is_approved=payload.role not in ROLES_AWAITING_APPROVAL_AT_SIGNUP,
+        )
+        db.add(user)
+        try:
+            if bank_values:
+                await db.flush()
+                db.add(UserBankDetails(user_id=user.id, **bank_values))
+            await db.commit()
+        except IntegrityError:
+            # A simultaneous sign-up took the same email or National ID first.
+            await db.rollback()
+            _remove_profile_photo(saved["stored_filename"])
+            return RegisterResponse(message=REGISTER_MESSAGE)
+        await db.refresh(user)
+    except Exception:
+        # Don't leave the uploaded photo behind if the account could not be created.
         _remove_profile_photo(saved["stored_filename"])
-        return RegisterResponse(message=REGISTER_MESSAGE)
-    await db.refresh(user)
+        raise
 
     await issue_verification(db, user)
     return RegisterResponse(message=REGISTER_MESSAGE)
@@ -483,7 +488,7 @@ async def login(request: Request, response: Response, payload: UserLogin, db: As
         )
     user = await _find_user(db, payload.email)
 
-    if not user or not verify_password(payload.password, user.hashed_password):
+    if not verify_password_or_dummy(payload.password, user.hashed_password if user else None):
         login_throttle.record_failure(payload.email)
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
     login_throttle.reset(payload.email)
@@ -744,7 +749,7 @@ async def get_my_photo(current_user: User = Depends(get_current_user)):
     path = os.path.join(settings.UPLOAD_DIR, "profile_photos", current_user.profile_image)
     if not os.path.isfile(path):
         raise HTTPException(404, "Photo file is missing on the server")
-    return FileResponse(path)
+    return FileResponse(path, headers={"Cache-Control": "private, no-store"})
 
 
 @router.post("/me/photo", response_model=UserOut)
