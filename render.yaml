@@ -23,6 +23,8 @@ services:
         value: https://vn-group-demo.onrender.com
       - key: EMAIL_ENABLED
         value: "false"
+      - key: FRONTEND_URL
+        value: https://vn-group-demo.onrender.com
       - key: UPLOAD_DIR
         value: /app/uploads
       - key: SECRET_KEY
@@ -37,6 +39,8 @@ services:
       - key: DATABASE_URL_UNPOOLED # same database, direct connection (used by migrations)
         sync: false
       - key: BANK_DATA_ENCRYPTION_KEY # Fernet key; back it up or stored numbers become unreadable
+        sync: false
+      - key: STAFF_EMAILS          # comma-separated addresses allowed to register as staff
         sync: false
 
   - type: web

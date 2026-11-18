@@ -56,6 +56,12 @@ class Settings(BaseSettings):
     OTP_EXPIRE_MINUTES: int = 10
     OTP_MAX_ATTEMPTS: int = 5
 
+    # Public address of the React app. Verification links in emails point here.
+    FRONTEND_URL: str = "http://localhost:5173"
+    EMAIL_VERIFY_EXPIRE_HOURS: int = 24
+    # Comma-separated addresses that may register as VN Group staff. Anyone else is refused.
+    STAFF_EMAILS: str = ""
+
     COOKIE_SECURE: bool = False  # set True in production — cookies only sent over HTTPS then
 
     # Public demo with synthetic data only. Allows production without SMTP (Render's free tier
@@ -82,6 +88,8 @@ class Settings(BaseSettings):
             problems.append("EMAIL_ENABLED, SMTP_HOST and SMTP_FROM must be set")
         if any(o == "*" or "localhost" in o or "127.0.0.1" in o or o.startswith("http://") for o in self.cors_origins_list):
             problems.append("CORS_ORIGINS must list only https:// production origins")
+        if not self.FRONTEND_URL.startswith("https://") or "localhost" in self.FRONTEND_URL:
+            problems.append("FRONTEND_URL must be the https:// address of the live site")
         if problems:
             raise ValueError("Unsafe production configuration: " + "; ".join(problems))
         return self
@@ -98,6 +106,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def staff_emails(self) -> frozenset[str]:
+        return frozenset(e.strip().lower() for e in self.STAFF_EMAILS.split(",") if e.strip())
 
     @property
     def allowed_mime_list(self) -> list[str]:

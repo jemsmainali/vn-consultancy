@@ -18,7 +18,7 @@ from app.utils.file_validation import validate_and_save_upload
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-OWNER_ROLES = (UserRole.student, UserRole.principal, UserRole.parent, UserRole.other)
+OWNER_ROLES = (UserRole.student, UserRole.principal, UserRole.parent, UserRole.other, UserRole.agent)
 PAGE_SIZE = 10
 
 
@@ -34,7 +34,7 @@ async def upload_document(
     college_name: str = Form(...),
     university_name: str = Form(...),
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role(UserRole.student, UserRole.principal, UserRole.parent, UserRole.other)),
+    current_user: User = Depends(require_role(*OWNER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
     saved = await validate_and_save_upload(file)

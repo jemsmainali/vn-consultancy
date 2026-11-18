@@ -3,7 +3,7 @@ import uuid
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator, model_validator
 
 from app.models.user import UserRole
 
@@ -42,6 +42,12 @@ class UserCreate(BaseModel):
     parent_email: Optional[EmailStr] = None
 
     terms_accepted: bool
+
+    @field_validator("email")
+    @classmethod
+    def lowercase_email(cls, v: str) -> str:
+        # Stored lowercase; the database also enforces one account per address in any case.
+        return v.strip().lower()
 
     @field_validator("bank_account_name", "bank_nominee_name", mode="before")
     @classmethod
@@ -141,6 +147,8 @@ class UserOut(BaseModel):
     is_active: bool
     is_verified: bool
     is_approved: bool
+    # Computed from the three flags above: "active", "pending", "unverified" or "disabled".
+    status: str
     created_at: datetime
 
     class Config:
@@ -195,11 +203,23 @@ class UserListPage(BaseModel):
 class VerifyEmailResponse(BaseModel):
     pending_approval: bool = False
     message: Optional[str] = None
+    # True when the response also set the sign-in cookies (code entered in the browser).
+    # A link token only verifies; the person then signs in with their password.
+    signed_in: bool = False
+    status: Optional[str] = None
 
 
 class VerifyEmailRequest(BaseModel):
-    email: EmailStr
-    code: str
+    """Either the token from the emailed link, or the email address plus the 6-digit code."""
+    token: Optional[str] = Field(default=None, max_length=2048)
+    email: Optional[EmailStr] = None
+    code: Optional[str] = Field(default=None, max_length=12)
+
+    @model_validator(mode="after")
+    def token_or_code(self):
+        if not self.token and not (self.email and self.code):
+            raise ValueError("Open the link from your email, or enter your email address and code.")
+        return self
 
 
 class ResendRequest(BaseModel):

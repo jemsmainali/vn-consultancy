@@ -37,6 +37,9 @@ from app.main import app
 from app.models.user import UserRole
 
 SCHEMA = f"vn_test_{uuid.uuid4().hex[:10]}"
+# Only these may register as staff during the tests (stands in for the STAFF_EMAILS env var).
+STAFF_FIXTURE = "staff-fixture@example.com"
+STAFF_ALLOWED = "staff-allowed@example.com"
 PASSWORD = "Correct-Horse-42"
 PNG = (
     b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde"
@@ -112,6 +115,7 @@ class Client:
 
 class AccessControlTests(unittest.TestCase):
     otp_codes: dict[str, str] = {}
+    links: dict[str, str] = {}
 
     @staticmethod
     async def fake_email_check(email):
@@ -133,12 +137,15 @@ class AccessControlTests(unittest.TestCase):
             async with sessions() as session:
                 yield session
 
-        async def capture_otp(email, code, name):
+        async def capture_email(email, name, link, code):
             cls.otp_codes[email.lower()] = code
+            cls.links[email.lower()] = link
 
         cls.patches = [
             patch.object(settings, "UPLOAD_DIR", cls.upload_dir),
-            patch.object(auth_api, "send_otp_email", capture_otp),
+            patch.object(auth_api, "send_verification_email", capture_email),
+            patch.object(settings, "STAFF_EMAILS", f"{STAFF_FIXTURE}, {STAFF_ALLOWED.upper()}"),
+            patch.object(settings, "FRONTEND_URL", "https://vn.example.com"),
             patch.object(auth_api, "email_can_receive_mail", cls.fake_email_check),
             patch.object(limiter, "enabled", False),
         ]
@@ -162,7 +169,7 @@ class AccessControlTests(unittest.TestCase):
             time.sleep(0.05)
         cls.base = f"http://127.0.0.1:{port}"
 
-        cls.staff = cls._register_and_login("staff", UserRole.consultancy_staff)
+        cls.staff = cls._register_and_login("staff", UserRole.consultancy_staff, email=STAFF_FIXTURE)
         cls.student_a = cls._register_and_login("student-a", UserRole.student)
         cls.student_b = cls._register_and_login("student-b", UserRole.student)
 
@@ -190,29 +197,39 @@ class AccessControlTests(unittest.TestCase):
         fields.update(overrides)
         fields = {key: value for key, value in fields.items() if value is not None}
         status, body = client.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PNG, "image/png")})
-        return email, status, body
+        return fields["email"], status, body
 
     @classmethod
-    def _register_and_login(cls, label, role):
+    def _token(cls, email):
+        link = cls.links[email.lower()]
+        assert link.startswith("https://vn.example.com/verify-email?token="), link
+        return link.split("token=", 1)[1]
+
+    @classmethod
+    def _register_and_login(cls, label, role, **overrides):
         client = Client(cls.base)
-        email, status, body = cls._register(client, label, role)
+        email, status, body = cls._register(client, label, role, **overrides)
         assert status == 201, (status, body)
-        status, body = client.json("POST", "/auth/verify-email", json_body={"email": email, "code": cls.otp_codes[email.lower()]})
+        status, body = client.json("POST", "/auth/verify-email", json_body={"token": cls._token(email)})
         assert status == 200, (status, body)
-        if role == UserRole.consultancy_staff:
-            # Staff need approval; approve directly in the throwaway schema.
-            async def approve():
-                engine = _engine()
-                async with engine.begin() as conn:
-                    await conn.execute(text("UPDATE users SET is_approved = true WHERE email = :e"), {"e": email})
-                await engine.dispose()
-            asyncio.run(approve())
         status, body = client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
         assert status == 200, (status, body)
         status, me = client.json("GET", "/auth/me")
         assert status == 200, (status, me)
         client.user = me
+        client.email = email
         return client
+
+    @staticmethod
+    def _sql(statement, **params):
+        async def run():
+            engine = _engine()
+            async with engine.begin() as conn:
+                result = await conn.execute(text(statement), params)
+                rows = result.all() if result.returns_rows else None
+            await engine.dispose()
+            return rows
+        return asyncio.run(run())
 
     def anon(self):
         return Client(self.base)
@@ -258,7 +275,8 @@ class AccessControlTests(unittest.TestCase):
                 self.assertEqual(status, 401, f"{method} {path} returned {status}")
 
     def test_every_registered_route_is_covered(self):
-        public = {"/health", "/auth/register", "/auth/verify-email", "/auth/resend-otp", "/auth/forgot-password",
+        public = {"/health", "/auth/register", "/auth/verify-email", "/auth/resend-otp", "/auth/resend-verification",
+                  "/auth/forgot-password",
                   "/auth/reset-password", "/auth/login", "/auth/token", "/auth/logout", "/enquiries", "/gallery",
                   "/gallery/{item_id}/image", "/destinations/preview", "/docs", "/docs/oauth2-redirect", "/openapi.json"}
         source = open(__file__, encoding="utf-8").read()
@@ -378,18 +396,146 @@ class AccessControlTests(unittest.TestCase):
         status, _ = client.json("POST", "/auth/register", fields=fields, files={"photo": ("p.png", PDF, "image/png")})
         self.assertEqual(status, 400, "photo content must be sniffed, not trusted")
 
-    def test_principal_and_staff_register_without_invite_code_but_wait_for_approval(self):
-        for role in (UserRole.principal, UserRole.consultancy_staff):
+    def test_principal_and_agent_sign_in_but_only_reach_pending_until_approved(self):
+        for role in (UserRole.principal, UserRole.agent):
             with self.subTest(role=role):
                 client = self.anon()
-                email, status, body = self._register(client, f"noinvite-{role.value}", role)
+                email, status, body = self._register(client, f"pending-{role.value}", role)
                 self.assertEqual(status, 201, body)
-                self.assertFalse(body["is_approved"])
-                status, body = client.json("POST", "/auth/verify-email", json_body={"email": email, "code": self.otp_codes[email.lower()]})
+                self.assertEqual((body["is_approved"], body["status"]), (False, "unverified"))
+                self.assertEqual(client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})[0], 403,
+                                 "no sign-in before the email is verified")
+
+                status, body = client.json("POST", "/auth/verify-email", json_body={"token": self._token(email)})
                 self.assertEqual(status, 200, body)
-                self.assertTrue(body["pending_approval"])
-                status, _ = client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
-                self.assertEqual(status, 403, "unapproved principal/staff must not sign in")
+                self.assertEqual((body["pending_approval"], body["status"], body["signed_in"]), (True, "pending", False))
+
+                status, body = client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
+                self.assertEqual((status, body["status"]), (200, "pending"), "pending accounts may sign in")
+                status, me = client.json("GET", "/auth/me")
+                self.assertEqual((status, me["status"], me["role"]), (200, "pending", role.value))
+                self.assertEqual(client.request("POST", "/auth/refresh")[0], 200)
+                # ...but every other private API refuses them, enforced by the backend dependency.
+                for method, path in (("GET", "/documents/mine"), ("GET", "/messages/contacts"), ("GET", "/auth/staff"),
+                                     ("PATCH", "/auth/me"), ("GET", "/auth/me/photo"), ("GET", "/directory/universities"),
+                                     ("GET", "/auth/pending")):
+                    status, body = client.json(method, path, json_body={} if method == "PATCH" else None)
+                    self.assertEqual(status, 403, f"{method} {path}")
+                    self.assertIn("awaiting approval", body["detail"])
+
+                status, pending = self.staff.json("GET", "/auth/pending")
+                self.assertIn(email, [p["email"] for p in pending])
+                me_id = me["id"]
+                self.assertEqual(self.student_a.request("POST", f"/auth/{me_id}/approve")[0], 403, "students can't approve")
+                self.assertEqual(client.request("POST", f"/auth/{me_id}/approve")[0], 403, "nobody approves themselves")
+                status, body = self.staff.json("POST", f"/auth/{me_id}/approve")
+                self.assertEqual((status, body["status"]), (200, "active"))
+                self.assertEqual(client.request("GET", "/documents/mine")[0], 200, "approved accounts get full access")
+                self.assertNotIn(email, [p["email"] for p in self.staff.json("GET", "/auth/pending")[1]])
+                actions = [row[0] for row in self._sql("SELECT action FROM audit_logs WHERE target_id = :t", t=me_id)]
+                self.assertIn("user_approved", actions)
+
+    def test_rejected_agent_is_disabled_and_leaves_the_queue(self):
+        client = self.anon()
+        email, status, _ = self._register(client, "reject-agent", UserRole.agent)
+        self.assertEqual(status, 201)
+        client.json("POST", "/auth/verify-email", json_body={"token": self._token(email)})
+        client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
+        user_id = client.json("GET", "/auth/me")[1]["id"]
+        self.assertEqual(self.staff.json("POST", f"/auth/{user_id}/reject")[0], 200)
+        self.assertNotIn(email, [p["email"] for p in self.staff.json("GET", "/auth/pending")[1]])
+        self.assertEqual(client.request("GET", "/auth/me")[0], 401, "the existing session stops working")
+        status, body = self.anon().json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
+        self.assertEqual((status, body["detail"]), (403, "Account is disabled"))
+
+    def test_staff_signup_only_for_listed_emails(self):
+        client = self.anon()
+        email, status, body = self._register(client, "not-listed-staff", UserRole.consultancy_staff)
+        self.assertEqual(status, 403, body)
+        self.assertIn("approved staff email", body["detail"])
+        self.assertNotIn(email.lower(), self.links, "no account or email for a refused staff sign-up")
+        self.assertFalse(self._sql("SELECT 1 FROM users WHERE email = :e", e=email))
+
+        # Listed (the list is case-insensitive): verify, then full staff access with no approval step.
+        listed = self._register_and_login("listed-staff", UserRole.consultancy_staff, email="Staff-Allowed@Example.com")
+        self.assertEqual((listed.user["email"], listed.user["status"], listed.user["role"]),
+                         (STAFF_ALLOWED, "active", "consultancy_staff"))
+        self.assertEqual(listed.request("GET", "/auth/pending")[0], 200)
+
+    def test_student_is_active_right_after_verification(self):
+        student = self._register_and_login("active-student", UserRole.student)
+        self.assertEqual((student.user["status"], student.user["is_verified"]), ("active", True))
+        self.assertEqual(student.request("GET", "/documents/mine")[0], 200)
+        self.assertEqual(student.request("GET", "/study-plan/me")[0], 200)
+
+    def test_verification_link_is_signed_single_use_and_expires(self):
+        client = self.anon()
+        email, status, _ = self._register(client, "link", UserRole.student)
+        self.assertEqual(status, 201)
+        token = self._token(email)
+        stored = self._sql(
+            "SELECT t.token_hash FROM email_verification_tokens t JOIN users u ON u.id = t.user_id WHERE u.email = :e", e=email)
+        self.assertEqual(len(stored), 1)
+        self.assertNotEqual(stored[0][0], token, "only a hash of the token is stored")
+        self.assertEqual(len(stored[0][0]), 64)
+
+        tampered = token[:-2] + ("AA" if token[-2:] != "AA" else "BB")
+        for bad in (tampered, "not-a-token", self.staff.user["id"]):
+            with self.subTest(bad=bad[:12]):
+                self.assertEqual(client.json("POST", "/auth/verify-email", json_body={"token": bad})[0], 400)
+        self.assertEqual(client.json("POST", "/auth/verify-email", json_body={})[0], 422)
+
+        status, body = client.json("POST", "/auth/verify-email", json_body={"token": token})
+        self.assertEqual((status, body["status"], body["signed_in"]), (200, "active", False))
+        self.assertEqual(client.request("GET", "/auth/me")[0], 401, "a link verifies but does not sign in")
+        self.assertEqual(client.json("POST", "/auth/verify-email", json_body={"token": token})[0], 400, "single use")
+
+        # Expired: a valid signature is not enough once the stored expiry has passed.
+        email2, _, _ = self._register(client, "expired-link", UserRole.student)
+        self._sql("UPDATE email_verification_tokens SET expires_at = now() - interval '1 minute' "
+                  "WHERE user_id = (SELECT id FROM users WHERE email = :e)", e=email2)
+        self.assertEqual(client.json("POST", "/auth/verify-email", json_body={"token": self._token(email2)})[0], 400)
+        self.assertEqual(client.json("POST", "/auth/login", json_body={"email": email2, "password": PASSWORD})[0], 403)
+
+    def test_resend_verification_replaces_the_link_and_is_rate_limited(self):
+        client = self.anon()
+        email, status, _ = self._register(client, "resend", UserRole.student)
+        self.assertEqual(status, 201)
+        first = self._token(email)
+        # Within the one-minute cooldown nothing new is sent.
+        self.assertEqual(client.json("POST", "/auth/resend-verification", json_body={"email": email})[0], 200)
+        self.assertEqual(self._token(email), first)
+        self._sql("UPDATE email_verification_tokens SET created_at = now() - interval '2 minutes' "
+                  "WHERE user_id = (SELECT id FROM users WHERE email = :e)", e=email)
+        status, body = client.json("POST", "/auth/resend-verification", json_body={"email": email.upper()})
+        self.assertEqual(status, 200, body)
+        second = self._token(email)
+        self.assertNotEqual(first, second)
+        self.assertEqual(client.json("POST", "/auth/verify-email", json_body={"token": first})[0], 400, "old link revoked")
+        self.assertEqual(client.json("POST", "/auth/verify-email", json_body={"token": second})[0], 200)
+
+        # Same answer for unknown and already-verified addresses.
+        for address in ("nobody-here@example.com", email):
+            self.assertEqual(client.json("POST", "/auth/resend-verification", json_body={"email": address}),
+                             (200, body))
+        with patch.object(limiter, "enabled", True):
+            limiter.reset()
+            codes = [client.request("POST", "/auth/resend-verification", json_body={"email": "x@example.com"})[0]
+                     for _ in range(4)]
+            limiter.reset()
+        self.assertEqual(codes, [200, 200, 200, 429])
+
+    def test_email_is_stored_lowercase_and_unique_in_any_case(self):
+        client = self.anon()
+        mixed = f"Mixed.Case-{uuid.uuid4().hex[:6]}@Example.COM"
+        _, status, body = self._register(client, "mixed", UserRole.student, email=mixed)
+        self.assertEqual((status, body["email"]), (201, mixed.lower()))
+        self.assertEqual(self._register(client, "mixed2", UserRole.student, email=mixed.lower())[1], 400)
+        self.assertEqual(self._register(client, "mixed3", UserRole.student, email=mixed.upper())[1], 400)
+        # The database itself refuses a case-variant duplicate.
+        with self.assertRaises(Exception):
+            self._sql("INSERT INTO users (id, email, hashed_password, full_name, role, is_active, is_verified, is_approved) "
+                      "VALUES (gen_random_uuid(), :e, 'x', 'Dup', 'student', true, true, true)", e=mixed.upper())
 
     def test_register_without_national_id(self):
         client = self.anon()
@@ -438,15 +584,6 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual((account_name, bank_name, last4, nominee), ("Sita Sharma", "Example Bank", "7890", "Hari Sharma"))
         self.assertNotIn("001234567890", encrypted)
         self.assertEqual(Fernet(key).decrypt(encrypted.encode("ascii")).decode("ascii"), "001234567890")
-
-    def test_staff_signup_needs_approval_before_login(self):
-        client = self.anon()
-        email, status, _ = self._register(client, "pending-staff", UserRole.consultancy_staff)
-        self.assertEqual(status, 201)
-        client.json("POST", "/auth/verify-email", json_body={"email": email, "code": self.otp_codes[email.lower()]})
-        status, _ = client.json("POST", "/auth/login", json_body={"email": email, "password": PASSWORD})
-        self.assertEqual(status, 403)
-        self.assertEqual(client.request("GET", "/auth/me")[0], 401)
 
     def test_forged_role_in_cookie_is_rejected(self):
         client = self.anon()

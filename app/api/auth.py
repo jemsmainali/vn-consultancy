@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select, delete, func
+from sqlalchemy import select, delete, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -17,16 +17,19 @@ from app.core.config import settings
 from app.core.bank_data import encrypt_bank_account_number
 from app.core.database import get_db
 from app.core.email_check import email_can_receive_mail
-from app.core.otp import generate_otp, hash_otp, send_otp_email, send_plain_email, send_password_reset_email
+from app.core.otp import generate_otp, hash_otp, send_verification_email, send_plain_email, send_password_reset_email
 from app.core.security import (
     hash_password,
     verify_password,
     create_access_token,
     create_refresh_token,
+    create_email_verification_token,
     decode_token,
+    hash_token,
 )
 from app.models.user import User, UserRole
 from app.models.otp import EmailOTP
+from app.models.email_verification import EmailVerificationToken
 from app.models.audit import AuditLog
 from app.models.bank_details import UserBankDetails
 from app.schemas.user import (
@@ -36,13 +39,17 @@ from app.schemas.user import (
     ForgotPasswordRequest, ResetPasswordRequest,
 )
 from app.schemas.token import TokenPair
-from app.api.deps import get_current_user, require_role
+from app.api.deps import get_current_user, get_signed_in_user, require_role
 from app.utils.file_validation import validate_and_save_upload
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 limiter = Limiter(key_func=get_remote_address)
 
-ROLES_NEEDING_APPROVAL = (UserRole.principal, UserRole.consultancy_staff)
+# New principal and agent sign-ups wait for staff approval after verifying their email.
+ROLES_AWAITING_APPROVAL_AT_SIGNUP = (UserRole.principal, UserRole.agent)
+# Staff can approve or reject these. consultancy_staff stays for staff accounts created before STAFF_EMAILS.
+ROLES_NEEDING_APPROVAL = (*ROLES_AWAITING_APPROVAL_AT_SIGNUP, UserRole.consultancy_staff)
+RESEND_COOLDOWN_SECONDS = 60
 PROFILE_PHOTO_MIMES = ["image/jpeg", "image/png"]
 USER_LIST_PAGE_SIZE = 20
 
@@ -99,29 +106,50 @@ async def _latest_otp(db: AsyncSession, email: str, purpose: str = "verify") -> 
     return result.scalar_one_or_none()
 
 
-async def issue_otp(db: AsyncSession, user: User) -> None:
-    """Creates a fresh code and emails it. Skips silently if one was sent under a minute ago."""
-    last = await _latest_otp(db, user.email, purpose="verify")
-    if last and (datetime.now(timezone.utc) - last.created_at).total_seconds() < 60:
+async def _clear_verification(db: AsyncSession, user: User) -> None:
+    await db.execute(delete(EmailVerificationToken).where(EmailVerificationToken.user_id == user.id))
+    await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "verify"))
+
+
+async def issue_verification(db: AsyncSession, user: User) -> None:
+    """Emails a fresh 24-hour link (and a 6-digit fallback code), replacing any earlier ones.
+
+    Skips silently if one was sent under a minute ago, so resend can't be used to flood an inbox.
+    """
+    last = (await db.execute(
+        select(EmailVerificationToken.created_at)
+        .where(EmailVerificationToken.user_id == user.id)
+        .order_by(EmailVerificationToken.created_at.desc())
+        .limit(1)
+    )).scalar_one_or_none()
+    if last and (datetime.now(timezone.utc) - last).total_seconds() < RESEND_COOLDOWN_SECONDS:
         return
 
+    await _clear_verification(db, user)
+    token = create_email_verification_token(str(user.id))
     code = generate_otp()
-    await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "verify"))
+    now = datetime.now(timezone.utc)
+    db.add(EmailVerificationToken(
+        user_id=user.id,
+        token_hash=hash_token(token),
+        expires_at=now + timedelta(hours=settings.EMAIL_VERIFY_EXPIRE_HOURS),
+    ))
     db.add(EmailOTP(
         email=user.email,
         purpose="verify",
         code_hash=hash_otp(user.email, code),
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.OTP_EXPIRE_MINUTES),
+        expires_at=now + timedelta(minutes=settings.OTP_EXPIRE_MINUTES),
     ))
     await db.commit()
 
+    link = f"{settings.FRONTEND_URL.rstrip('/')}/verify-email?token={token}"
     try:
-        await send_otp_email(user.email, code, user.full_name)
+        await send_verification_email(user.email, user.full_name, link, code)
     except Exception:
-        # Drop the undelivered code so the user can request another one straight away.
-        await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "verify"))
+        # Drop the undelivered link and code so the user can request new ones straight away.
+        await _clear_verification(db, user)
         await db.commit()
-        raise HTTPException(502, "We couldn't send the verification email. Please use \"Resend code\" in a moment.")
+        raise HTTPException(502, "We couldn't send the verification email. Please use \"Resend email\" in a moment.")
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
@@ -186,6 +214,10 @@ async def register(
     if not payload.terms_accepted:
         raise HTTPException(400, "You must accept the Terms and Conditions to register")
 
+    # Staff accounts only for addresses VN Group listed in STAFF_EMAILS; checked before anything is stored.
+    if payload.role == UserRole.consultancy_staff and payload.email not in settings.staff_emails:
+        raise HTTPException(403, "VN Group staff accounts can only be created with an approved staff email address.")
+
     if not await email_can_receive_mail(payload.email):
         raise HTTPException(400, "Please use a real email address you can open. We'll send a code to it to confirm it's yours.")
 
@@ -232,7 +264,7 @@ async def register(
         profile_image=saved["stored_filename"],
         terms_accepted_at=datetime.now(timezone.utc),
         is_verified=False,
-        is_approved=payload.role not in ROLES_NEEDING_APPROVAL,
+        is_approved=payload.role not in ROLES_AWAITING_APPROVAL_AT_SIGNUP,
     )
     db.add(user)
     if bank_values:
@@ -241,48 +273,104 @@ async def register(
     await db.commit()
     await db.refresh(user)
 
-    await issue_otp(db, user)
+    await issue_verification(db, user)
+    return user
+
+
+PENDING_MESSAGE = (
+    "Your email is verified. VN Group staff now need to approve your account. "
+    "You can sign in, but you'll only see an \"awaiting approval\" page until they do. We'll email you once that happens."
+)
+
+
+async def _verify_with_token(db: AsyncSession, token: str) -> User:
+    invalid = HTTPException(400, "This verification link is invalid, expired or already used. Request a new one below.")
+    try:
+        claims = decode_token(token, expected_type="verify_email")
+    except JWTError:
+        raise invalid
+    now = datetime.now(timezone.utc)
+    # Claim the token atomically so two clicks can't both use it.
+    user_id = (await db.execute(
+        update(EmailVerificationToken)
+        .where(
+            EmailVerificationToken.token_hash == hash_token(token),
+            EmailVerificationToken.used_at.is_(None),
+            EmailVerificationToken.expires_at > now,
+        )
+        .values(used_at=now)
+        .returning(EmailVerificationToken.user_id)
+    )).scalar_one_or_none()
+    if user_id is None or str(user_id) != claims.get("sub"):
+        await db.rollback()
+        raise invalid
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+    if not user or not user.is_active:
+        await db.rollback()
+        raise invalid
+    return user
+
+
+async def _verify_with_code(db: AsyncSession, email: str, code: str) -> User:
+    invalid = HTTPException(400, "Invalid or expired code")
+    user = await _find_user(db, email)
+    otp = await _latest_otp(db, user.email, purpose="verify") if user and user.is_active else None
+    if not user or not otp:
+        raise invalid
+    if otp.expires_at < datetime.now(timezone.utc) or otp.attempts >= settings.OTP_MAX_ATTEMPTS:
+        raise invalid
+    if not hmac.compare_digest(otp.code_hash, hash_otp(user.email, code)):
+        otp.attempts += 1
+        await db.commit()
+        raise invalid
     return user
 
 
 @router.post("/verify-email", response_model=VerifyEmailResponse)
 @limiter.limit("10/minute")
 async def verify_email(request: Request, response: Response, payload: VerifyEmailRequest, db: AsyncSession = Depends(get_db)):
-    invalid = HTTPException(400, "Invalid or expired code")
-
-    user = await _find_user(db, payload.email)
-    otp = await _latest_otp(db, user.email, purpose="verify") if user else None
-    if not user or not otp:
-        raise invalid
-    if otp.expires_at < datetime.now(timezone.utc) or otp.attempts >= settings.OTP_MAX_ATTEMPTS:
-        raise invalid
-
-    if not hmac.compare_digest(otp.code_hash, hash_otp(user.email, payload.code)):
-        otp.attempts += 1
-        await db.commit()
-        raise invalid
+    if payload.token:
+        user = await _verify_with_token(db, payload.token)
+    else:
+        user = await _verify_with_code(db, payload.email, payload.code)
 
     user.is_verified = True
-    await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "verify"))
+    await _clear_verification(db, user)  # every other link and code for this account stops working
     await db.commit()
 
-    if user.role in ROLES_NEEDING_APPROVAL and not user.is_approved:
-        return VerifyEmailResponse(
-            pending_approval=True,
-            message="Your email is verified. Your account now needs approval from VN Group staff before you can sign in. We'll email you once that happens.",
-        )
+    pending = user.status == "pending"
+    # The code is typed into the browser that registered, so that path signs in (as before).
+    # A link can be opened anywhere, so it only verifies; the person then signs in with their password.
+    signed_in = not payload.token
+    if signed_in:
+        _set_auth_cookies(response, _tokens(user))
+    return VerifyEmailResponse(
+        pending_approval=pending,
+        message=PENDING_MESSAGE if pending else "Your email is verified.",
+        signed_in=signed_in,
+        status=user.status,
+    )
 
-    _set_auth_cookies(response, _tokens(user))
-    return VerifyEmailResponse(pending_approval=False)
+
+async def _resend(db: AsyncSession, email: str) -> dict:
+    user = await _find_user(db, email)
+    if user and user.is_active and not user.is_verified:
+        await issue_verification(db, user)
+    # Same answer either way, so this can't be used to discover registered addresses.
+    return {"message": "If that account still needs verification, a new email is on its way."}
 
 
-@router.post("/resend-otp")
+@router.post("/resend-verification")
+@limiter.limit("3/minute")
+async def resend_verification(request: Request, payload: ResendRequest, db: AsyncSession = Depends(get_db)):
+    return await _resend(db, payload.email)
+
+
+@router.post("/resend-otp", include_in_schema=False)
 @limiter.limit("3/minute")
 async def resend_otp(request: Request, payload: ResendRequest, db: AsyncSession = Depends(get_db)):
-    user = await _find_user(db, payload.email)
-    if user and not user.is_verified:
-        await issue_otp(db, user)
-    return {"message": "If that account needs verification, a new code has been sent."}
+    """Older name for /auth/resend-verification, kept so existing clients keep working."""
+    return await _resend(db, payload.email)
 
 
 @router.post("/forgot-password")
@@ -355,11 +443,10 @@ async def login(request: Request, response: Response, payload: UserLogin, db: As
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled")
     if not user.is_verified:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Please verify your email to continue")
-    if user.role in ROLES_NEEDING_APPROVAL and not user.is_approved:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Your account is awaiting approval from VN Group staff")
+    # Pending principals and agents may sign in; get_current_user then limits them to the "awaiting approval" page.
 
     _set_auth_cookies(response, _tokens(user))
-    return {"message": "Logged in"}
+    return {"message": "Logged in", "status": user.status}
 
 
 @router.post("/token", response_model=TokenPair, include_in_schema=False)
@@ -378,8 +465,6 @@ async def login_for_swagger(
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled")
     if not user.is_verified:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Please verify your email to continue")
-    if user.role in ROLES_NEEDING_APPROVAL and not user.is_approved:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Your account is awaiting approval from VN Group staff")
 
     return _tokens(user)
 
@@ -397,12 +482,7 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
 
     result = await db.execute(select(User).where(User.id == data["sub"]))
     user = result.scalar_one_or_none()
-    if (
-        not user
-        or not user.is_active
-        or not user.is_verified
-        or (user.role in ROLES_NEEDING_APPROVAL and not user.is_approved)
-    ):
+    if not user or user.status in ("disabled", "unverified"):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User no longer valid")
 
     _set_auth_cookies(response, _tokens(user))  # rotates both tokens on every refresh
@@ -431,10 +511,15 @@ async def list_pending(
     current_user: User = Depends(require_role(UserRole.consultancy_staff)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Staff-only: principal and staff accounts waiting for approval."""
+    """Staff-only: verified principal and agent accounts waiting for approval."""
     result = await db.execute(
         select(User)
-        .where(User.role.in_(ROLES_NEEDING_APPROVAL), User.is_approved.is_(False), User.is_verified.is_(True))
+        .where(
+            User.role.in_(ROLES_NEEDING_APPROVAL),
+            User.is_approved.is_(False),
+            User.is_verified.is_(True),
+            User.is_active.is_(True),  # rejected accounts are disabled and drop off the list
+        )
         .order_by(User.created_at)
     )
     return result.scalars().all()
@@ -523,6 +608,7 @@ async def approve_user(
         raise HTTPException(400, "This account does not require approval")
 
     user.is_approved = True
+    db.add(AuditLog(actor_id=current_user.id, action="user_approved", target_id=user.id, detail=user.email))
     await db.commit()
     await db.refresh(user)
 
@@ -531,7 +617,7 @@ async def approve_user(
             user.email,
             "Your VN Group account is approved",
             "Good news!",
-            "Your account has been approved. You can now sign in at VN Group.",
+            "Your account has been approved. Sign in to VN Group to start using it.",
         )
     except Exception:
         pass
@@ -553,6 +639,7 @@ async def reject_user(
         raise HTTPException(400, "This account does not require approval")
 
     user.is_active = False
+    db.add(AuditLog(actor_id=current_user.id, action="user_rejected", target_id=user.id, detail=user.email))
     await db.commit()
 
     try:
@@ -569,7 +656,8 @@ async def reject_user(
 
 
 @router.get("/me", response_model=UserOut)
-async def me(current_user: User = Depends(get_current_user)):
+async def me(current_user: User = Depends(get_signed_in_user)):
+    """Also answers for pending accounts, so the app can show them the "awaiting approval" page."""
     return current_user
 
 

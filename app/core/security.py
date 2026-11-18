@@ -4,6 +4,7 @@ to audit. Nothing else in the app should touch jose/passlib directly.
 """
 from datetime import datetime, timedelta, timezone
 from typing import Literal
+import hashlib
 import uuid
 
 from jose import jwt, JWTError
@@ -51,7 +52,24 @@ def create_refresh_token(subject: str, role: str) -> str:
     )
 
 
-def decode_token(token: str, expected_type: Literal["access", "refresh"] = "access") -> dict:
+def create_email_verification_token(user_id: str) -> str:
+    """Signed, 24-hour link token. The database keeps only its hash and marks it used."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": user_id,
+        "type": "verify_email",
+        "iat": now,
+        "exp": now + timedelta(hours=settings.EMAIL_VERIFY_EXPIRE_HOURS),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+def decode_token(token: str, expected_type: Literal["access", "refresh", "verify_email"] = "access") -> dict:
     """Raises JWTError on any invalid, expired, or mismatched-type token."""
     payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     if payload.get("type") != expected_type:

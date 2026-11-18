@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import String, Enum, Boolean, DateTime, Date, func, text
+from sqlalchemy import String, Enum, Boolean, DateTime, Date, Index, func, text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -15,10 +15,13 @@ class UserRole(str, enum.Enum):
     parent = "parent"
     other = "other"
     consultancy_staff = "consultancy_staff"
+    agent = "agent"
 
 
 class User(Base):
     __tablename__ = "users"
+    # One account per address whatever its letter case (migration b7e3f9a1c2d4).
+    __table_args__ = (Index("uq_users_email_lower", text("lower(email)"), unique=True),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
@@ -50,3 +53,14 @@ class User(Base):
     is_approved: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    @property
+    def status(self) -> str:
+        """"disabled" (deactivated or rejected), "unverified", "pending" (waiting for staff approval) or "active"."""
+        if not self.is_active:
+            return "disabled"
+        if not self.is_verified:
+            return "unverified"
+        if not self.is_approved:
+            return "pending"
+        return "active"

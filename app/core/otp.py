@@ -80,21 +80,28 @@ async def _send(to_email: str, subject: str, text: str, html: str) -> None:
         raise
 
 
-async def send_otp_email(to_email: str, code: str, name: str) -> None:
+async def send_verification_email(to_email: str, name: str, link: str, code: str) -> None:
+    """One email with the 24-hour verification link and, as a fallback, the short-lived 6-digit code."""
+    hours = settings.EMAIL_VERIFY_EXPIRE_HOURS
     minutes = settings.OTP_EXPIRE_MINUTES
+    button = (
+        f'<p style="margin:20px 0"><a href="{escape(link, quote=True)}" style="display:inline-block;background:#102544;'
+        'color:#FFFFFF;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:8px">Verify my email</a></p>'
+        '<p style="margin:0 0 4px;font-size:13px;color:#5B6576">Or enter this code on the verification page:</p>'
+    )
     await _send(
         to_email,
-        "Your VN Group verification code",
-        f"Hi {name},\n\nYour VN Group verification code is {code}.\n"
-        f"Enter it on the verification page within {minutes} minutes.\n\n"
-        "Never share this code. VN Group staff will never ask for it.\n"
+        "Verify your VN Group email address",
+        f"Hi {name},\n\nConfirm your email address for VN Group by opening this link within {hours} hours:\n{link}\n\n"
+        f"Or enter this code on the verification page within {minutes} minutes: {code}\n\n"
+        "Never share this link or code. VN Group staff will never ask for them.\n"
         "If you didn't create an account with VN Group, you can ignore this email.",
         _html(
             f"Hi {escape(name)}, verify your email address",
-            "<p style=\"margin:0\">Enter this code on the verification page to finish creating your account.</p>",
+            "<p style=\"margin:0\">Confirm this is your email address to finish creating your VN Group account.</p>" + button,
             code,
-            f"The code expires in {minutes} minutes. Never share it - VN Group staff will never ask for it. "
-            "If you didn't create an account, ignore this email.",
+            f"The button works for {hours} hours and only once. The code expires in {minutes} minutes. "
+            "Never share either - VN Group staff will never ask for them. If you didn't create an account, ignore this email.",
         ),
     )
 
