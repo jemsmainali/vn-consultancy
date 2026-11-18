@@ -286,7 +286,7 @@ class AccessControlTests(unittest.TestCase):
     def test_every_registered_route_is_covered(self):
         public = {"/health", "/auth/register", "/auth/verify-email", "/auth/resend-otp", "/auth/resend-verification",
                   "/auth/forgot-password",
-                  "/auth/reset-password", "/auth/login", "/auth/token", "/auth/logout", "/enquiries", "/gallery",
+                  "/auth/reset-password", "/auth/login", "/auth/logout", "/enquiries", "/gallery",
                   "/gallery/{item_id}/image", "/destinations/preview", "/docs", "/docs/oauth2-redirect", "/openapi.json"}
         source = open(__file__, encoding="utf-8").read()
         # The OpenAPI paths list every route whatever FastAPI's internal router layout is
@@ -730,6 +730,17 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(me_a["id"], self.student_a.user["id"])
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
+
+    # ---- hardening: API schema and removed routes -----------------------------
+
+    def test_openapi_and_docs_are_hidden_in_production_only(self):
+        from app.main import api_doc_urls
+        self.assertEqual(api_doc_urls("production"), {"docs_url": None, "openapi_url": None, "redoc_url": None})
+        self.assertEqual(api_doc_urls("development")["openapi_url"], "/openapi.json")
+
+    def test_bearer_token_endpoint_is_gone(self):
+        status, _ = self.anon().request("POST", "/auth/token", fields={"username": self.student_a.email, "password": PASSWORD})
+        self.assertIn(status, (404, 405))
 
     # ---- hardening: sign-up does not reveal existing accounts -----------------
 

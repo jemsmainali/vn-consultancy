@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, Form, File, UploadFile, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, delete, func, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
@@ -495,26 +494,6 @@ async def login(request: Request, response: Response, payload: UserLogin, db: As
 
     _set_auth_cookies(response, _tokens(user))
     return {"message": "Logged in", "status": user.status}
-
-
-@router.post("/token", response_model=TokenPair, include_in_schema=False)
-@limiter.limit("10/minute")
-async def login_for_swagger(
-    request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db),
-):
-    """Kept only for API testing tools (Postman, curl) that want a raw bearer token."""
-    user = await _find_user(db, form_data.username)
-
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
-    if not user.is_active:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled")
-    if not user.is_verified:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Please verify your email to continue")
-
-    return _tokens(user)
 
 
 @router.post("/refresh")

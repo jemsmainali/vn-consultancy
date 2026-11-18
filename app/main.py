@@ -22,13 +22,15 @@ from app.api.study_plan import router as study_plan_router
 from app.api.destinations import router as destinations_router
 
 
-app = FastAPI(
-    title="VN Group API",
-    version="1.0.0",
-    # Hide interactive docs in production - don't expose your whole schema publicly.
-    docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
-    redoc_url=None,
-)
+def api_doc_urls(environment: str) -> dict:
+    """Interactive docs and the OpenAPI schema are for development only; in production they would
+    hand anyone a map of every route and field."""
+    if environment == "production":
+        return {"docs_url": None, "openapi_url": None, "redoc_url": None}
+    return {"docs_url": "/docs", "openapi_url": "/openapi.json", "redoc_url": None}
+
+
+app = FastAPI(title="VN Group API", version="1.0.0", **api_doc_urls(settings.ENVIRONMENT))
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
