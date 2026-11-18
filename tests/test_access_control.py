@@ -715,6 +715,27 @@ class AccessControlTests(unittest.TestCase):
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
 
+    # ---- hardening: per-account login throttle ----------------------------
+
+    def test_repeated_wrong_passwords_pause_sign_in_for_that_email_only(self):
+        victim = self._register_and_login("throttle", UserRole.student)
+        other = self.anon()
+        for _ in range(settings.LOGIN_MAX_FAILURES):
+            status, _ = other.json("POST", "/auth/login", json_body={"email": victim.email, "password": "wrong-pass-1"})
+            self.assertEqual(status, 401)
+        # Even the right password is refused while paused, whatever the IP.
+        status, body = other.json("POST", "/auth/login", json_body={"email": victim.email, "password": PASSWORD})
+        self.assertEqual(status, 429, body)
+        # Someone else is unaffected, and so is an address that does not exist (same 401, no hint).
+        self.assertEqual(self.anon().json("POST", "/auth/login", json_body={"email": self.student_a.email, "password": PASSWORD})[0], 200)
+        for _ in range(settings.LOGIN_MAX_FAILURES + 1):
+            status, _ = self.anon().json("POST", "/auth/login", json_body={"email": "ghost-nobody@example.com", "password": "wrong-pass-1"})
+        self.assertEqual(status, 429)
+        # A successful sign-in clears the count.
+        from app.core import login_throttle
+        login_throttle.reset(victim.email)
+        self.assertEqual(self.anon().json("POST", "/auth/login", json_body={"email": victim.email, "password": PASSWORD})[0], 200)
+
     # ---- hardening: upload limits -----------------------------------------
 
     def test_oversized_uploads_are_refused(self):

@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from app.core.config import settings
 from app.core.bank_data import encrypt_bank_account_number
 from app.core.database import get_db
+from app.core import login_throttle
 from app.core.email_check import email_can_receive_mail
 from app.core.otp import generate_otp, hash_otp, send_verification_email, send_plain_email, send_password_reset_email
 from app.core.security import (
@@ -435,10 +436,19 @@ async def reset_password(request: Request, payload: ResetPasswordRequest, db: As
 @router.post("/login")
 @limiter.limit("10/minute")
 async def login(request: Request, response: Response, payload: UserLogin, db: AsyncSession = Depends(get_db)):
+    wait = login_throttle.retry_after_seconds(payload.email)
+    if wait:
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            "Too many failed sign-in attempts for this account. Please wait a few minutes and try again, or reset your password.",
+            headers={"Retry-After": str(wait)},
+        )
     user = await _find_user(db, payload.email)
 
     if not user or not verify_password(payload.password, user.hashed_password):
+        login_throttle.record_failure(payload.email)
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
+    login_throttle.reset(payload.email)
     if not user.is_active:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is disabled")
     if not user.is_verified:

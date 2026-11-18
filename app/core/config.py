@@ -62,6 +62,14 @@ class Settings(BaseSettings):
     # Comma-separated addresses that may register as VN Group staff. Anyone else is refused.
     STAFF_EMAILS: str = ""
 
+    # Wrong passwords allowed per email address before sign-in pauses (any IP), and for how long.
+    LOGIN_MAX_FAILURES: int = 5
+    LOGIN_LOCKOUT_MINUTES: int = 15
+
+    # TEMPORARY diagnostics: log the client-IP headers the proxy chain sends, to pick the right
+    # trusted-proxy setting for the IP rate limits. Leave false except while diagnosing. No cookies or bodies are logged.
+    DEBUG_CLIENT_IP_HEADERS: bool = False
+
     COOKIE_SECURE: bool = False  # set True in production — cookies only sent over HTTPS then
 
     # Public demo with synthetic data only. Allows production without SMTP (Render's free tier
