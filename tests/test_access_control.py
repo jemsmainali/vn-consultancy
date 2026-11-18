@@ -734,6 +734,27 @@ class AccessControlTests(unittest.TestCase):
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
 
+    # ---- hardening: input limits ---------------------------------------------
+
+    def test_oversized_text_fields_are_422_not_500(self):
+        anon = self.anon()
+        _, status, body = self._register(anon, "toolong", UserRole.student, gender="x" * 21)
+        self.assertEqual(status, 422, body)
+        _, status, body = self._register(anon, "toolong2", UserRole.student, target_country="y" * 101)
+        self.assertEqual(status, 422, body)
+        status, body = self.student_a.json("PATCH", "/auth/me", json_body={"target_field": "z" * 256})
+        self.assertEqual(status, 422, body)
+        status, body = self.student_a.json("POST", "/documents/upload",
+                                           fields={"doc_type": "d", "college_name": "c" * 256, "university_name": "u"},
+                                           files={"file": ("a.pdf", PDF, "application/pdf")})
+        self.assertEqual(status, 422, body)
+        self.assertEqual(anon.json("POST", "/auth/login", json_body={"email": "a@example.com", "password": "p" * 5000})[0], 422)
+        self.assertEqual(anon.json("POST", "/auth/reset-password", json_body={
+            "email": "a@example.com", "code": "1" * 50, "new_password": PASSWORD})[0], 422)
+        # Values at the limit are still accepted.
+        status, body = self.student_a.json("PATCH", "/auth/me", json_body={"target_field": "z" * 255, "gender": "g" * 20})
+        self.assertEqual(status, 200, body)
+
     # ---- hardening: staff account actions --------------------------------------
 
     def test_staff_cannot_deactivate_reactivate_or_reject_other_staff_or_themselves(self):

@@ -18,7 +18,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
     role: UserRole = UserRole.student
-    invite_code: Optional[str] = None
+    invite_code: Optional[str] = Field(default=None, max_length=100)  # accepted and ignored
     bank_account_name: Optional[str] = Field(default=None, validate_default=True)
     bank_name: Optional[str] = Field(default=None, validate_default=True)
     bank_account_number: Optional[str] = Field(default=None, validate_default=True)
@@ -29,13 +29,14 @@ class UserCreate(BaseModel):
         description="Optional 10-digit National ID Card number",
     )
     date_of_birth: date
-    gender: str
+    gender: str = Field(max_length=20)
     citizenship: str = Field(min_length=2, max_length=100)
     passport_number: Optional[str] = Field(default=None, max_length=50)
 
-    target_course_level: Optional[str] = None
-    target_field: Optional[str] = None
-    target_country: Optional[str] = None
+    # Limits match the database columns, so an oversized value is a 422, never a 500.
+    target_course_level: Optional[str] = Field(default=None, max_length=50)
+    target_field: Optional[str] = Field(default=None, max_length=255)
+    target_country: Optional[str] = Field(default=None, max_length=100)
 
     parent_name: Optional[str] = Field(default=None, max_length=150)
     parent_phone: Optional[str] = Field(default=None, max_length=50)
@@ -115,12 +116,12 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    gender: Optional[str] = None
+    gender: Optional[str] = Field(default=None, max_length=20)
     citizenship: Optional[str] = Field(default=None, max_length=100)
     passport_number: Optional[str] = Field(default=None, max_length=50)
-    target_course_level: Optional[str] = None
-    target_field: Optional[str] = None
-    target_country: Optional[str] = None
+    target_course_level: Optional[str] = Field(default=None, max_length=50)
+    target_field: Optional[str] = Field(default=None, max_length=255)
+    target_country: Optional[str] = Field(default=None, max_length=100)
     parent_name: Optional[str] = Field(default=None, max_length=150)
     parent_phone: Optional[str] = Field(default=None, max_length=50)
     parent_email: Optional[EmailStr] = None
@@ -162,7 +163,7 @@ class RegisterResponse(BaseModel):
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(max_length=128)  # same ceiling as registration; stops huge bodies reaching bcrypt
 
 
 class StaffOut(BaseModel):
@@ -237,5 +238,5 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     email: EmailStr
-    code: str
+    code: str = Field(max_length=12)
     new_password: str = Field(min_length=8, max_length=128)
