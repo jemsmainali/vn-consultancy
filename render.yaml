@@ -29,10 +29,6 @@ services:
         value: /app/uploads
       - key: SECRET_KEY
         generateValue: true
-      - key: STAFF_INVITE_CODE
-        generateValue: true
-      - key: PRINCIPAL_INVITE_CODE
-        generateValue: true
       # Secrets entered in the Render dashboard on first Blueprint sync:
       - key: DATABASE_URL          # Neon *demo* database, pooled connection string
         sync: false
@@ -55,6 +51,8 @@ services:
         value: /api
       - key: VITE_DEMO_MODE
         value: "true"
+      - key: NODE_VERSION
+        value: "22"
     headers:
       - path: /*
         name: X-Frame-Options
@@ -62,6 +60,21 @@ services:
       - path: /*
         name: X-Content-Type-Options
         value: nosniff
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+      # Keeps the ?token= of an emailed verification link from leaking to other sites in Referer.
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+      # REPORT-ONLY for now: the browser console lists what it would block, nothing is blocked yet.
+      # After a clean pass over every page and an uploaded-document view, rename to Content-Security-Policy.
+      - path: /*
+        name: Content-Security-Policy-Report-Only
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
     routes:
       - type: rewrite
         source: /api/*

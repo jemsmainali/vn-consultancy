@@ -18,6 +18,8 @@ export default function VerifyEmail() {
     // Tokens are single-use: React StrictMode runs effects twice in development, so send it only once.
     if (!token || sent.current) return
     sent.current = true
+    // The token is single-use and secret: take it out of the address bar and history once it's in memory.
+    window.history.replaceState(window.history.state, '', window.location.pathname)
     api('/auth/verify-email', { method: 'POST', json: { token } })
       .then((res) => { setResult(res); setState('done') })
       .catch((x) => { setErr(x.message); setState('error') })
