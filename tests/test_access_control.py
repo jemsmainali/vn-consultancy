@@ -280,8 +280,11 @@ class AccessControlTests(unittest.TestCase):
                   "/auth/reset-password", "/auth/login", "/auth/token", "/auth/logout", "/enquiries", "/gallery",
                   "/gallery/{item_id}/image", "/destinations/preview", "/docs", "/docs/oauth2-redirect", "/openapi.json"}
         source = open(__file__, encoding="utf-8").read()
-        for route in app.routes:
-            path = getattr(route, "path", "")
+        # The OpenAPI paths list every route whatever FastAPI's internal router layout is
+        # (newer versions nest included routers, which hides them from app.routes).
+        paths = sorted(app.openapi()["paths"])
+        self.assertGreater(len(paths), 40, "route discovery found suspiciously few routes")
+        for path in paths:
             if path in public:
                 continue
             probe = path.split("{")[0]

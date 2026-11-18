@@ -1,12 +1,11 @@
 import uuid
 
 from fastapi import Depends, HTTPException, status, Request
-from jose import JWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.security import decode_token
+from app.core.security import JWTError, decode_token
 from app.models.user import User, UserRole
 
 

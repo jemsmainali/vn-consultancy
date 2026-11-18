@@ -10,7 +10,7 @@ from sqlalchemy import select, delete, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from jose import JWTError
+from app.core.security import JWTError
 from pydantic import ValidationError
 
 from app.core.config import settings

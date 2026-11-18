@@ -1,13 +1,14 @@
 """
 All password hashing and JWT logic lives here, in one place, so it's easy
-to audit. Nothing else in the app should touch jose/passlib directly.
+to audit. Nothing else in the app should touch jwt/passlib directly.
 """
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 import hashlib
 import uuid
 
-from jose import jwt, JWTError
+import jwt
+from jwt import PyJWTError as JWTError
 from passlib.context import CryptContext
 
 from app.core.config import settings
