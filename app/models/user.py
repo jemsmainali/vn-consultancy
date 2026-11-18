@@ -52,6 +52,9 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
     is_approved: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
 
+    # Tokens issued before this moment are refused (set on password reset and deactivation).
+    sessions_valid_after: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     @property

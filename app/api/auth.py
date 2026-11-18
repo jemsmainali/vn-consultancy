@@ -7,6 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, delete, func, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -30,6 +31,7 @@ from app.core.security import (
 )
 from app.models.user import User, UserRole
 from app.models.otp import EmailOTP
+from app.models.revoked_token import RevokedToken
 from app.models.email_verification import EmailVerificationToken
 from app.models.audit import AuditLog
 from app.models.bank_details import UserBankDetails
@@ -40,7 +42,7 @@ from app.schemas.user import (
     ForgotPasswordRequest, ResetPasswordRequest,
 )
 from app.schemas.token import TokenPair
-from app.api.deps import get_current_user, get_signed_in_user, require_role
+from app.api.deps import get_current_user, get_signed_in_user, require_role, session_is_revoked
 from app.utils.file_validation import validate_and_save_upload
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -427,6 +429,7 @@ async def reset_password(request: Request, payload: ResetPasswordRequest, db: As
         raise invalid
 
     user.hashed_password = hash_password(payload.new_password)
+    user.sessions_valid_after = datetime.now(timezone.utc)  # every session signed in with the old password ends
     await db.execute(delete(EmailOTP).where(EmailOTP.email == user.email, EmailOTP.purpose == "reset"))
     await db.commit()
 
@@ -492,7 +495,7 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
 
     result = await db.execute(select(User).where(User.id == data["sub"]))
     user = result.scalar_one_or_none()
-    if not user or user.status in ("disabled", "unverified"):
+    if not user or user.status in ("disabled", "unverified") or await session_is_revoked(db, user, data):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User no longer valid")
 
     _set_auth_cookies(response, _tokens(user))  # rotates both tokens on every refresh
@@ -500,7 +503,26 @@ async def refresh(request: Request, response: Response, db: AsyncSession = Depen
 
 
 @router.post("/logout")
-async def logout(response: Response):
+async def logout(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
+    # Revoke this browser's tokens server-side, so a copied cookie stops working too.
+    # Other devices signed in to the same account are not affected.
+    now = datetime.now(timezone.utc)
+    for cookie, token_type in (("access_token", "access"), ("refresh_token", "refresh")):
+        token = request.cookies.get(cookie)
+        if not token:
+            continue
+        try:
+            claims = decode_token(token, expected_type=token_type)
+        except JWTError:
+            continue
+        if claims.get("jti"):
+            await db.execute(
+                pg_insert(RevokedToken)
+                .values(jti=claims["jti"], expires_at=datetime.fromtimestamp(claims["exp"], tz=timezone.utc))
+                .on_conflict_do_nothing()
+            )
+    await db.execute(delete(RevokedToken).where(RevokedToken.expires_at < now))  # entries for tokens that expired anyway
+    await db.commit()
     _clear_auth_cookies(response)
     return {"message": "Logged out"}
 
@@ -569,6 +591,7 @@ async def deactivate_user(
         raise HTTPException(404, "User not found")
 
     user.is_active = False
+    user.sessions_valid_after = datetime.now(timezone.utc)  # so reactivating later doesn't revive old sessions
     db.add(AuditLog(
         actor_id=current_user.id,
         action="user_deactivated",

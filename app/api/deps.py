@@ -6,7 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import JWTError, decode_token
+from app.models.revoked_token import RevokedToken
 from app.models.user import User, UserRole
+
+
+async def session_is_revoked(db: AsyncSession, user: User, claims: dict) -> bool:
+    """True if this token was signed out, or was issued before the account's sessions were invalidated."""
+    jti = claims.get("jti")
+    if jti and (await db.execute(select(RevokedToken.jti).where(RevokedToken.jti == jti))).first():
+        return True
+    valid_after = user.sessions_valid_after
+    return bool(valid_after and claims.get("iat", 0) < int(valid_after.timestamp()))
 
 
 async def get_signed_in_user(
@@ -35,6 +45,8 @@ async def get_signed_in_user(
     result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
     user = result.scalar_one_or_none()
     if user is None or not user.is_active or not user.is_verified:
+        raise credentials_exception
+    if await session_is_revoked(db, user, payload):
         raise credentials_exception
     return user
 

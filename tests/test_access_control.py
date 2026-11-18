@@ -92,8 +92,12 @@ class Client:
         self.base = base
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(CookieJar()))
 
-    def request(self, method, path, json_body=None, fields=None, files=None):
-        data, headers = None, {}
+    def cookie(self, name):
+        jar = next(h for h in self.opener.handlers if isinstance(h, urllib.request.HTTPCookieProcessor)).cookiejar
+        return next((c.value for c in jar if c.name == name), None)
+
+    def request(self, method, path, json_body=None, fields=None, files=None, headers=None):
+        data, headers = None, dict(headers or {})
         if json_body is not None:
             data, headers["Content-Type"] = json.dumps(json_body).encode(), "application/json"
         elif fields is not None or files is not None:
@@ -116,6 +120,7 @@ class Client:
 class AccessControlTests(unittest.TestCase):
     otp_codes: dict[str, str] = {}
     links: dict[str, str] = {}
+    reset_codes: dict[str, str] = {}
 
     @staticmethod
     async def fake_email_check(email):
@@ -141,7 +146,11 @@ class AccessControlTests(unittest.TestCase):
             cls.otp_codes[email.lower()] = code
             cls.links[email.lower()] = link
 
+        async def capture_reset(email, code, name):
+            cls.reset_codes[email.lower()] = code
+
         cls.patches = [
+            patch.object(auth_api, "send_password_reset_email", capture_reset),
             patch.object(settings, "UPLOAD_DIR", cls.upload_dir),
             patch.object(auth_api, "send_verification_email", capture_email),
             patch.object(settings, "STAFF_EMAILS", f"{STAFF_FIXTURE}, {STAFF_ALLOWED.upper()}"),
@@ -717,6 +726,45 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(me_a["id"], self.student_a.user["id"])
         self.assertNotEqual(me_a["id"], self.student_b.user["id"])
         self.assertEqual(self.student_a.request("GET", "/auth/me/photo")[0], 200)
+
+    # ---- hardening: session revocation -------------------------------------
+
+    def test_logout_revokes_the_copied_tokens_but_not_other_devices(self):
+        client = self._register_and_login("revoke", UserRole.student)
+        stolen = {"Cookie": f"access_token={client.cookie('access_token')}; refresh_token={client.cookie('refresh_token')}"}
+        other_device = Client(self.base)
+        self.assertEqual(other_device.json("POST", "/auth/login", json_body={"email": client.email, "password": PASSWORD})[0], 200)
+        self.assertEqual(self.anon().request("GET", "/auth/me", headers=stolen)[0], 200)
+        self.assertEqual(client.request("POST", "/auth/logout")[0], 200)
+        anon = self.anon()
+        self.assertEqual(anon.request("GET", "/auth/me", headers=stolen)[0], 401, "copied access token must stop working")
+        self.assertEqual(anon.request("POST", "/auth/refresh", headers=stolen)[0], 401, "copied refresh token must stop working")
+        self.assertEqual(other_device.request("GET", "/auth/me")[0], 200, "other devices stay signed in")
+
+    def test_password_reset_ends_older_sessions(self):
+        client = self._register_and_login("resetter", UserRole.student)
+        old = {"Cookie": f"access_token={client.cookie('access_token')}; refresh_token={client.cookie('refresh_token')}"}
+        self.assertEqual(self.anon().json("POST", "/auth/forgot-password", json_body={"email": client.email})[0], 200)
+        time.sleep(1.1)  # token times are whole seconds
+        new_password = "Another-Passw0rd!"
+        status, body = self.anon().json("POST", "/auth/reset-password", json_body={
+            "email": client.email, "code": self.reset_codes[client.email.lower()], "new_password": new_password})
+        self.assertEqual(status, 200, body)
+        anon = self.anon()
+        self.assertEqual(anon.request("GET", "/auth/me", headers=old)[0], 401)
+        self.assertEqual(anon.request("POST", "/auth/refresh", headers=old)[0], 401)
+        fresh = Client(self.base)
+        self.assertEqual(fresh.json("POST", "/auth/login", json_body={"email": client.email, "password": new_password})[0], 200)
+        self.assertEqual(fresh.request("GET", "/auth/me")[0], 200, "a sign-in after the reset works")
+
+    def test_deactivation_ends_sessions_even_after_reactivation(self):
+        victim = self._register_and_login("deact", UserRole.student)
+        old = {"Cookie": f"access_token={victim.cookie('access_token')}"}
+        time.sleep(1.1)
+        self.assertEqual(self.staff.request("POST", f"/auth/{victim.user['id']}/deactivate")[0], 200)
+        self.assertEqual(self.staff.request("POST", f"/auth/{victim.user['id']}/reactivate")[0], 200)
+        self.assertEqual(self.anon().request("GET", "/auth/me", headers=old)[0], 401)
+        self.assertEqual(Client(self.base).json("POST", "/auth/login", json_body={"email": victim.email, "password": PASSWORD})[0], 200)
 
     # ---- hardening: per-account login throttle ----------------------------
 
