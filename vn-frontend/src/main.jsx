@@ -24,7 +24,9 @@ import { Layout } from './ui'
 const HomePage = lazy(() => import('./HomePage'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
-const Verify = lazy(() => import('./pages/Verify'))
+const CheckInbox = lazy(() => import('./pages/CheckInbox'))
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'))
+const Pending = lazy(() => import('./pages/Pending'))
 const Documents = lazy(() => import('./pages/Documents'))
 const Messages = lazy(() => import('./pages/Messages'))
 const Approvals = lazy(() => import('./pages/Approvals'))
@@ -90,10 +92,13 @@ function RouteFallback() {
   return <div className="route-loading" role="status"><span className="route-loading-bar" /><span className="sr-only">Loading page</span></div>
 }
 
+// Pending principals and agents only ever see /pending; the API refuses them everywhere else too.
 function Guard() {
   const { user, loading } = useAuth()
   if (loading) return <p className="p-8">Loading...</p>
-  return user ? <Layout /> : <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" replace />
+  if (user.status === 'pending') return <Navigate to="/pending" replace />
+  return <Layout />
 }
 
 // Nested inside Guard; the API enforces the same student-only rule.
@@ -106,6 +111,7 @@ function StaffGuard() {
   const { user, loading } = useAuth()
   if (loading) return <p className="p-8">Loading...</p>
   if (!user) return <Navigate to="/login" replace />
+  if (user.status === 'pending') return <Navigate to="/pending" replace />
   if (user.role !== 'consultancy_staff') return <Navigate to="/" replace />
   return <Layout />
 }
@@ -145,7 +151,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/verify" element={<Verify />} />
+          <Route path="/check-inbox" element={<CheckInbox />} />
+          <Route path="/verify" element={<CheckInbox />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/pending" element={<Pending />} />
           <Route element={<Guard />}>
             <Route path="/portal" element={<Documents />} />
             <Route path="/messages" element={<Messages />} />

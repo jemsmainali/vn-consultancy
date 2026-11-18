@@ -10,6 +10,7 @@ import AccountNoticeDialog from '../components/auth/AccountNoticeDialog'
 const ROLES = [
   { value: 'student', label: 'Student' },
   { value: 'principal', label: 'College/University Principal' },
+  { value: 'agent', label: 'Agent' },
   { value: 'parent', label: 'Parent / Guardian' },
   { value: 'other', label: 'Other' },
   { value: 'consultancy_staff', label: 'VN Group Staff' },
@@ -191,10 +192,10 @@ export default function Register() {
       await api('/auth/register', { method: 'POST', body: formData })
       setF((value) => ({ ...value, ...EMPTY_BANK }))
       setBankFieldErrors({})
-      nav('/verify?sent=1&email=' + encodeURIComponent(f.email))
+      nav('/check-inbox?sent=1&email=' + encodeURIComponent(f.email.trim().toLowerCase()))
     } catch (x) {
       // 502: the account was created but the verification email could not be sent.
-      if (x.status === 502) return nav('/verify?mailerr=1&email=' + encodeURIComponent(f.email))
+      if (x.status === 502) return nav('/check-inbox?mailerr=1&email=' + encodeURIComponent(f.email.trim().toLowerCase()))
       setErr(x.message)
       if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, ...Object.fromEntries(BANK_FIELDS.map((key) => [key, x.fieldErrors[key] || ''])) }))
     }
@@ -211,7 +212,7 @@ export default function Register() {
           description="One account for your documents, messages and application progress with VN Group."
           points={[
             'Fill in your profile and personal details',
-            'Verify your email with a one-time code',
+            'Confirm your email with the link we send you',
             'Share documents and talk with our team',
           ]}
         />
@@ -260,9 +261,11 @@ export default function Register() {
           <div className="auth-grid">
             <AuthField
               label="I am registering as"
-              hint={f.role === 'principal' || f.role === 'consultancy_staff'
-                ? 'VN Group staff review and approve this account type before you can sign in.'
-                : undefined}
+              hint={f.role === 'principal' || f.role === 'agent'
+                ? 'After you verify your email, VN Group staff review and approve this account type. Until then you will only see an "awaiting approval" page.'
+                : f.role === 'consultancy_staff'
+                  ? 'Only approved VN Group staff email addresses can create a staff account.'
+                  : undefined}
               span
             >
               <select className="auth-input auth-select" value={f.role} onChange={changeRole}>
@@ -272,7 +275,7 @@ export default function Register() {
             <AuthField label="Full name" span>
               <input className="auth-input" required autoComplete="name" placeholder="As shown on your passport or ID" value={f.full_name} onChange={set('full_name')} />
             </AuthField>
-            <AuthField label="Email address" hint="Use an inbox you can open — we'll email you a code to confirm it.">
+            <AuthField label="Email address" hint="Use an inbox you can open — we'll email you a link to confirm it.">
               <input className="auth-input" type="email" required autoComplete="email" placeholder="you@example.com" value={f.email} onChange={set('email')} />
             </AuthField>
             <AuthField label="Password" hint="At least 8 characters.">

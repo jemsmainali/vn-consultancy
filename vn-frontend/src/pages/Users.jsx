@@ -7,11 +7,12 @@ import ListSkeleton from '../components/ui/ListSkeleton'
 const ROLE_LABEL = {
   student: 'Student',
   principal: 'Principal',
+  agent: 'Agent',
   parent: 'Parent/Guardian',
   other: 'Other',
   consultancy_staff: 'Staff',
 }
-const ROLE_TONE = { consultancy_staff: 'gold', principal: 'indigo', student: 'info' }
+const ROLE_TONE = { consultancy_staff: 'gold', principal: 'indigo', agent: 'indigo', student: 'info' }
 
 export default function Users() {
   const [users, setUsers] = useState([])

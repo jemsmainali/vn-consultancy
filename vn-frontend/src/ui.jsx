@@ -13,7 +13,7 @@ export const Logo = () => (
 )
 
 export const ROLE_LABEL = {
-  student: 'Student', principal: 'Principal', parent: 'Parent/Guardian', other: 'Other', consultancy_staff: 'VN Group Staff',
+  student: 'Student', principal: 'Principal', agent: 'Agent', parent: 'Parent/Guardian', other: 'Other', consultancy_staff: 'VN Group Staff',
 }
 
 // ---------- Primitives ----------

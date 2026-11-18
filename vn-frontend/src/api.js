@@ -3,7 +3,7 @@
 export const API_BASE = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:8000`
 const PUBLIC_ROUTES = new Set([
   '/', '/about', '/destinations', '/journey', '/faqs', '/gallery', '/contact', '/privacy',
-  '/login', '/register', '/verify', '/forgot-password', '/reset-password', '/terms',
+  '/login', '/register', '/verify', '/check-inbox', '/verify-email', '/forgot-password', '/reset-password', '/terms',
 ])
 // Destination guide pages are public even though their full-guide section calls a private API.
 const isPublicPage = (pathname) => PUBLIC_ROUTES.has(pathname) || pathname.startsWith('/destinations/')

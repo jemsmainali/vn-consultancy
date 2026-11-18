@@ -9,14 +9,17 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const loadMe = async () => {
-    try { setUser(await api('/auth/me')) } catch { setUser(null) }
+    let me = null
+    try { me = await api('/auth/me') } catch { /* signed out */ }
+    setUser(me)
     setLoading(false)
+    return me
   }
   useEffect(() => { loadMe() }, [])
 
   const login = async (email, password) => {
     await api('/auth/login', { method: 'POST', json: { email, password } })
-    await loadMe()
+    return loadMe()
   }
   const logout = async () => {
     try { await apiLogout() } catch { /* cookie may already be gone - fine either way */ }

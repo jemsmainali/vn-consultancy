@@ -4,7 +4,7 @@ import { Card, Btn, Err, Icon, PageHeader, StatusBadge, EmptyState, Avatar } fro
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import ListSkeleton from '../components/ui/ListSkeleton'
 
-const ROLE = { principal: 'Principal', consultancy_staff: 'Staff' }
+const ROLE = { principal: 'Principal', agent: 'Agent', consultancy_staff: 'Staff' }
 
 export default function Approvals() {
   const [people, setPeople] = useState([])
@@ -29,7 +29,7 @@ export default function Approvals() {
       <PageHeader
         eyebrow="Staff tools"
         title="Pending approvals"
-        description="Principal and staff accounts need a VN Group team member to approve them before they can sign in."
+        description="Principal and agent accounts appear here once their email is verified. Until you approve them they can sign in, but only see an awaiting-approval page."
         actions={!loading && <span className="ui-count"><strong>{people.length}</strong> waiting</span>}
       />
       <Err msg={err} />
