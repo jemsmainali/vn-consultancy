@@ -201,7 +201,7 @@ export const siteContent = {
       // Photo to be supplied; spelling "Yonzon" awaiting confirmation (posts also use "Younjan").
       { image: null, title: 'Meeting with Mr. Chandra Yonzon, Consul General of Nepal in Victoria', place: 'Victoria, Australia', date: '2020-02', description: '', tag: 'Official meeting' },
       { image: siteImages.australianEmbassyKathmandu, title: 'Meeting with H.E. Peter Budd, Ambassador of Australia to Nepal', place: 'Australian Embassy, Kathmandu', date: '2020-01', description: 'A meeting with the FECON team.', tag: 'Official meeting' },
-      { image: siteImages.machhapuchchhreBank, title: 'With Machhapuchchhre Bank Limited' },
+      { image: siteImages.machhapuchchhreBank, title: 'Official banking partner: Machhapuchchhre Bank Limited' },
       { image: siteImages.officeVisit, title: 'Welcoming a visiting guest to our office' },
       { image: siteImages.griffin, title: 'Visiting Griffin College, Australia', tag: 'Institution visit' },
       { image: siteImages.sahe, title: 'Visiting Southern Academy of Higher Education', tag: 'Institution visit' },
