@@ -186,7 +186,17 @@
 .destination-pager small { color: var(--dest-gold-ink); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
 .destination-pager .is-all { align-self: center; padding: 10px 16px; border: 1px solid #10254426; border-radius: 999px; font-size: 13px; }
 
-/* ---------- Homepage destination cards ---------- */
+/* ---------- Homepage destination list (flag + name) ---------- */
+.home-country-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.home-country-list > li { min-width: 0; }
+.home-country-link { display: flex; align-items: center; gap: 12px; height: 100%; padding: 16px 18px; border: 1px solid var(--dest-line); border-radius: 12px; background: #fff; color: var(--site-navy); box-shadow: var(--card-shadow); transition: transform .25s var(--ease-out), box-shadow .25s ease; }
+.home-country-link strong { font-size: 15px; font-weight: 650; }
+.home-country-link .country-flag { flex: none; border-radius: 3px; box-shadow: 0 0 0 1px #10254422; }
+@media (hover: hover) { .home-country-link:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-3px); } }
+@media (max-width: 1100px) { .home-country-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .home-country-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .home-country-link { padding: 13px 12px; gap: 10px; } .home-country-link strong { font-size: 14px; } }
+
+/* ---------- Homepage destination cards (legacy, unused) ---------- */
 .home-destination-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
 .home-destination-cards > li { min-width: 0; }
 .home-destination-card { display: flex; height: 100%; flex-direction: column; overflow: hidden; border: 1px solid var(--dest-line); border-radius: 14px; background: #fff; box-shadow: var(--card-shadow); transition: transform .25s var(--ease-out), box-shadow .25s ease; }
