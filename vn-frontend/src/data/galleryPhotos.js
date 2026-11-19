@@ -125,7 +125,7 @@ const partnerVisits = {
   aiihe: galleryPhoto('partner-aiihe', 'team', 1200, 1600, 'Meeting at Australian International Institute of Higher Education', 'A VN Group representative shaking hands with a host at Australian International Institute of Higher Education'),
   sydneyCityCollege: galleryPhoto('partner-sydney-city-college', 'team', 1200, 1636, 'Visiting Sydney City College of Management', 'A VN Group representative at the reception of Sydney City College of Management'),
   charlesSturt: galleryPhoto('partner-charles-sturt', 'team', 1200, 1041, 'With the team at Charles Sturt University', 'VN Group representatives with staff at the Charles Sturt University reception desk'),
-  machhapuchchhreBank: galleryPhoto('partner-machhapuchchhre-bank', 'team', 1200, 900, 'With Machhapuchchhre Bank Limited at the VN Group office', 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office'),
+  machhapuchchhreBank: galleryPhoto('partner-machhapuchchhre-bank', 'team', 1200, 900, 'Official banking partner: Machhapuchchhre Bank Limited', 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office'),
   officeVisit: galleryPhoto('partner-office-visit', 'team', 720, 960, 'Welcoming a visiting guest to the VN Group office', 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office'),
 }
 
