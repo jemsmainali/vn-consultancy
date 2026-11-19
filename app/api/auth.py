@@ -11,7 +11,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from slowapi import Limiter
-from slowapi.util import get_remote_address
+from app.core.client_ip import client_ip
 from app.core.security import JWTError
 from pydantic import ValidationError
 
@@ -47,7 +47,7 @@ from app.api.deps import get_current_user, get_signed_in_user, require_role, ses
 from app.utils.file_validation import validate_and_save_upload
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=client_ip)
 
 # New principal and agent sign-ups wait for staff approval after verifying their email.
 ROLES_AWAITING_APPROVAL_AT_SIGNUP = (UserRole.principal, UserRole.agent)

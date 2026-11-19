@@ -69,19 +69,6 @@ async def limit_request_size(request: Request, call_next):
     return await call_next(request)
 
 
-if settings.DEBUG_CLIENT_IP_HEADERS:
-    # TEMPORARY: remove once the trusted-proxy setting is decided. Logs only these headers, never cookies or bodies.
-    _ip_log = logging.getLogger("uvicorn.error")
-    _IP_HEADERS = ("x-forwarded-for", "x-real-ip", "cf-connecting-ip", "true-client-ip", "forwarded", "x-forwarded-proto", "x-forwarded-host")
-
-    @app.middleware("http")
-    async def debug_client_ip_headers(request: Request, call_next):
-        seen = {h: request.headers.get(h, "")[:200] for h in _IP_HEADERS if request.headers.get(h)}
-        _ip_log.warning("CLIENT-IP-DEBUG %s %s client.host(after proxy-headers)=%s headers=%s",
-                        request.method, request.url.path, request.client.host if request.client else None, seen)
-        return await call_next(request)
-
-
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)

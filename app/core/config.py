@@ -66,9 +66,10 @@ class Settings(BaseSettings):
     LOGIN_MAX_FAILURES: int = 5
     LOGIN_LOCKOUT_MINUTES: int = 15
 
-    # TEMPORARY diagnostics: log the client-IP headers the proxy chain sends, to pick the right
-    # trusted-proxy setting for the IP rate limits. Leave false except while diagnosing. No cookies or bodies are logged.
-    DEBUG_CLIENT_IP_HEADERS: bool = False
+    # Request header that carries the visitor's real IP for per-IP rate limits. Render puts Cloudflare in
+    # front of the API and Cloudflare sets this one itself. Set it empty if the API is ever reachable
+    # without Cloudflare in front, otherwise a client could forge it.
+    CLIENT_IP_HEADER: str = "cf-connecting-ip"
 
     COOKIE_SECURE: bool = False  # set True in production — cookies only sent over HTTPS then
 
@@ -111,8 +112,6 @@ class Settings(BaseSettings):
                 "DEMO_MODE=true in production: verification links, codes and reset codes are written to this log. "
                 "Use it only with synthetic data; set DEMO_MODE=false and configure SMTP before real users register."
             )
-        if self.DEBUG_CLIENT_IP_HEADERS:
-            warnings.append("DEBUG_CLIENT_IP_HEADERS=true: client-IP headers are being logged. Turn it off once diagnosed.")
         return warnings
 
     @property

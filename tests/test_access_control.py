@@ -168,7 +168,8 @@ class AccessControlTests(unittest.TestCase):
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))
             port = s.getsockname()[1]
-        cls.server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning"))
+        # proxy_headers=False mirrors the Dockerfile's --no-proxy-headers.
+        cls.server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning", proxy_headers=False))
         cls.thread = threading.Thread(target=cls.server.run, daemon=True)
         cls.thread.start()
         cls.addClassCleanup(cls._stop_server)
@@ -777,6 +778,47 @@ class AccessControlTests(unittest.TestCase):
         live = Settings(ENVIRONMENT="production", DEMO_MODE=False, EMAIL_ENABLED=True, SMTP_HOST="h", SMTP_FROM="f@x.com", **base)
         self.assertEqual(live.startup_warnings, [])
         self.assertEqual(Settings(ENVIRONMENT="development", DEMO_MODE=True, **base).startup_warnings, [])
+
+    # ---- hardening: per-IP rate limit keys ------------------------------------
+
+    def _resend_statuses(self, headers_list):
+        client = Client(self.base)
+        with patch.object(limiter, "enabled", True):
+            limiter.reset()
+            try:
+                return [client.request("POST", "/auth/resend-verification",
+                                       json_body={"email": "x@example.com"}, headers=h)[0] for h in headers_list]
+            finally:
+                limiter.reset()
+
+    def test_forged_x_forwarded_for_does_not_dodge_the_ip_limit(self):
+        forged = [{"X-Forwarded-For": f"203.0.113.{n}"} for n in range(1, 6)]
+        self.assertEqual(self._resend_statuses(forged), [200, 200, 200, 429, 429])
+
+    def test_ip_limit_counts_per_cf_connecting_ip(self):
+        same = [{"CF-Connecting-IP": "198.51.100.7"}] * 4
+        self.assertEqual(self._resend_statuses(same), [200, 200, 200, 429])
+        # A different visitor has their own allowance; so does one identified only by the socket.
+        mixed = [{"CF-Connecting-IP": "198.51.100.7"}] * 3 + [{"CF-Connecting-IP": "198.51.100.8"}]
+        self.assertEqual(self._resend_statuses(mixed), [200, 200, 200, 200])
+
+    def test_client_ip_helper(self):
+        from types import SimpleNamespace
+        from app.core.client_ip import client_ip
+
+        def request(headers=None, host="10.0.0.9"):
+            return SimpleNamespace(headers={k.lower(): v for k, v in (headers or {}).items()},
+                                   client=SimpleNamespace(host=host) if host else None)
+
+        self.assertEqual(client_ip(request({"CF-Connecting-IP": " 203.0.113.5 "})), "203.0.113.5")
+        self.assertEqual(client_ip(request({"CF-Connecting-IP": "2001:db8::1"})), "2001:db8::1")
+        # Missing, empty or not-an-IP header: fall back to the connection address. X-Forwarded-For is never used.
+        self.assertEqual(client_ip(request()), "10.0.0.9")
+        self.assertEqual(client_ip(request({"CF-Connecting-IP": "not-an-ip"})), "10.0.0.9")
+        self.assertEqual(client_ip(request({"X-Forwarded-For": "203.0.113.5"})), "10.0.0.9")
+        self.assertEqual(client_ip(request(host=None)), "unknown")
+        with patch.object(settings, "CLIENT_IP_HEADER", ""):
+            self.assertEqual(client_ip(request({"CF-Connecting-IP": "203.0.113.5"})), "10.0.0.9")
 
     # ---- hardening: input limits ---------------------------------------------
 

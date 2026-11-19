@@ -96,7 +96,7 @@ Do not migrate token storage to cookies in a future fix pass: the frontend alrea
 Fixed and covered by tests: SEC-03 (bounded upload reads, 413 for oversized requests), SEC-07 (logout, password reset and deactivation revoke sessions), SEC-09 (staff actions return a narrow response), SEC-10 (sign-up answers the same for new and registered emails), SEC-11 (`/openapi.json` hidden in production), SEC-13 (limits on all free-text fields), SEC-15 (all Python dependencies upgraded and pinned; `pip-audit` clean; `python-jose` replaced by PyJWT), plus: per-email sign-in throttle, staff cannot deactivate/reject/reactivate other staff, malformed ids return 422, `Cache-Control: no-store` on documents and photos, login timing, DEMO_MODE startup notice, literal `%`/`_` in staff search, static-site HSTS/Referrer-Policy/Permissions-Policy and a report-only CSP.
 
 Open:
-- **IP rate limits** still trust a forgeable `X-Forwarded-For`; waiting on real Render header data (`docs/DEPLOYMENT.md`).
+- **IP rate limits**: fixed. They now count against Cloudflare's `CF-Connecting-IP` (verified from Render logs, 19 November 2026) and ignore the forgeable `X-Forwarded-For`; see `docs/DEPLOYMENT.md`.
 - **SEC-04 / CSP** is report-only until the console is clean.
 - **SEC-06**: files still open inline by decision; they are now `no-store`.
 - **SEC-08 (CSRF)**: no token; cookies are `SameSite=Lax` and `onrender.com` is on the public-suffix list. Revisit if the site moves to a custom domain with sibling subdomains.

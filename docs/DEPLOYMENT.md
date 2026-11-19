@@ -19,18 +19,13 @@ Enter in the Render dashboard (`sync: false`): `DATABASE_URL` (Neon pooled), `DA
 
 For a real (non-demo) launch also set: `DEMO_MODE=false`, `EMAIL_ENABLED=true`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`. Startup refuses to run in production without them. Optional tuning: `LOGIN_MAX_FAILURES`, `LOGIN_LOCKOUT_MINUTES`, `MAX_UPLOAD_MB`, `OTP_EXPIRE_MINUTES`.
 
-`DEBUG_CLIENT_IP_HEADERS=true` is a temporary diagnostic (see "Rate limits behind Render"). Leave it unset.
-
 The frontend needs `VITE_API_URL` (`/api`) at build time.
 
 ## Rate limits behind Render
 
-The API's per-IP limits depend on knowing the visitor's real IP. The Dockerfile currently trusts every `X-Forwarded-For` value, which a client can forge, so IP limits can be bypassed. The per-email sign-in limit does not depend on this. To choose the right setting:
+Per-IP limits count requests per visitor address. Measured on the live service on 19 Nov 2026: Render puts Cloudflare in front of the API, and Cloudflare sets `CF-Connecting-IP` to the visitor's real address, identical through the static site and when calling the API directly. `X-Forwarded-For` starts with whatever the visitor sends, so it is not trusted: the Dockerfile runs uvicorn with `--no-proxy-headers`, and `app/core/client_ip.py` reads `CF-Connecting-IP` (setting `CLIENT_IP_HEADER`), falling back to the socket address when the header is missing or not an IP (local development, Render's health check).
 
-1. Set `DEBUG_CLIENT_IP_HEADERS=true` on the API service and redeploy.
-2. Call the API both through the site (`https://<site>/api/health`) and directly (`https://<api>.onrender.com/health`), once from your normal connection and once from a phone on mobile data.
-3. Copy the `CLIENT-IP-DEBUG` lines from the Render log (they hold IP headers only, no cookies or bodies).
-4. Set the variable back to `false`.
+If the API is ever reachable without Cloudflare in front (another host, a private network), set `CLIENT_IP_HEADER` to an empty value, otherwise a client could forge the header. The per-email sign-in limit does not depend on any of this.
 
 ## Uploads (known gap)
 

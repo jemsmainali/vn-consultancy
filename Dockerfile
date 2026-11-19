@@ -23,5 +23,6 @@ RUN useradd --create-home appuser && mkdir -p /app/uploads && chown appuser /app
 USER appuser
 
 # Migrations run on every start (idempotent); Render's free plan has no pre-deploy step.
-# --proxy-headers so rate limits key on the real client IP, not Render's proxy.
-CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
+# --no-proxy-headers: never trust a client-supplied X-Forwarded-For. Per-IP rate limits read the
+# Cloudflare-set CF-Connecting-IP header instead (app/core/client_ip.py).
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --no-proxy-headers"]
