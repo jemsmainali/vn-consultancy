@@ -22,5 +22,7 @@ class GalleryItem(Base):
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default=text("0"), index=True)
     published: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text("false"), index=True)
     publication_authorized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text("false"))
+    # Staff mark photos for the public Success Stories row; NULL (older rows) means not marked.
+    is_success_story: Mapped[bool | None] = mapped_column(Boolean, nullable=True, default=False, server_default=text("false"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

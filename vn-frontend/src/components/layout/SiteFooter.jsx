@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { formatPhoneDisplay, siteContent, siteContentReady, yearsOfExperience } from '../../data/siteContent'
 import CountryFlag from '../CountryFlag'
+import HomeLink from './HomeLink'
 import { destinationPath, destinations } from '../../data/destinations/registry'
 
 function FooterIcon({ name }) {
@@ -16,6 +17,7 @@ function FooterIcon({ name }) {
 }
 
 function FooterLink({ item, children }) {
+  if (item.to === '/') return <HomeLink>{children || item.label}</HomeLink>
   return item.to.startsWith('/') ? <Link to={item.to}>{children || item.label}</Link> : <a href={item.to}>{children || item.label}</a>
 }
 
@@ -39,14 +41,14 @@ export default function SiteFooter() {
         <p className="vn-footer-eyebrow">Free counselling</p>
         <h2>Ready to plan your study abroad journey?</h2>
       </div>
-      <Link className="vn-footer-cta-button" to="/#enquire">Book free counselling <span aria-hidden="true">→</span></Link>
+      <Link className="vn-footer-cta-button glow-cta" to="/#enquire">Book free counselling</Link>
     </div>}
 
     <div className="vn-footer-main">
       <div className="vn-footer-brand">
-        <Link className={`vn-footer-logo${brand.lightLogo ? ' is-light-logo' : ''}`} to="/" aria-label={`${brand.name} home`}>
+        <HomeLink className={`vn-footer-logo${brand.lightLogo ? ' is-light-logo' : ''}`} aria-label={`${brand.name} home`}>
           <img src={logo.src} alt={logo.alt} width="184" height="48" loading="lazy" />
-        </Link>
+        </HomeLink>
         <p className="vn-footer-description">{siteContentReady(footer.description) ? footer.description : brand.tagline}</p>
         {foundedReady && <p className="vn-footer-since">
           <strong>Since {brand.foundedYear}</strong><span aria-hidden="true">·</span>{yearsOfExperience()}+ years guiding Nepali students

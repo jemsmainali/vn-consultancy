@@ -27,7 +27,7 @@ export default function DestinationCards() {
           </Link>
         </ScrollReveal>)}
       </ul>
-      <p className="home-destination-more"><Link className="home-text-link" to="/destinations">Compare all destinations<span aria-hidden="true">→</span></Link></p>
+      <p className="home-destination-more"><Link className="home-text-link" to="/destinations">Compare all destinations</Link></p>
     </div>
   </section>
 }

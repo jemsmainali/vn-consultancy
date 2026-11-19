@@ -18,7 +18,7 @@ from app.utils.file_validation import validate_and_save_upload
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-OWNER_ROLES = (UserRole.student, UserRole.principal, UserRole.parent, UserRole.other)
+OWNER_ROLES = (UserRole.student, UserRole.principal, UserRole.parent, UserRole.other, UserRole.agent)
 PAGE_SIZE = 10
 
 
@@ -30,11 +30,11 @@ def _document_path(stored_filename: str) -> str:
 
 @router.post("/upload", response_model=DocumentOut, status_code=status.HTTP_201_CREATED)
 async def upload_document(
-    doc_type: str = Form(...),
-    college_name: str = Form(...),
-    university_name: str = Form(...),
+    doc_type: str = Form(..., min_length=1, max_length=100),
+    college_name: str = Form(..., min_length=1, max_length=255),
+    university_name: str = Form(..., min_length=1, max_length=255),
     file: UploadFile = File(...),
-    current_user: User = Depends(require_role(UserRole.student, UserRole.principal, UserRole.parent, UserRole.other)),
+    current_user: User = Depends(require_role(*OWNER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
     saved = await validate_and_save_upload(file)
@@ -253,4 +253,5 @@ async def download_document(
         media_type=document.mime_type,
         filename=document.original_filename,
         content_disposition_type="inline",
+        headers={"Cache-Control": "private, no-store"},  # never keep other people's documents in a shared cache
     )

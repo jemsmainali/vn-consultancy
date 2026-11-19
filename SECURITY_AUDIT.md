@@ -43,7 +43,7 @@ A development-style PostgreSQL URL with a password field is committed in `.env.e
 
 | Check | Status | Evidence and result |
 |---|---|---|
-| Role selection, privilege approval, and mass assignment | PASS | `app/api/auth.py:173-181, 225-227, 260-267, 336-398, 418-429, 501-528`; elevated signup requires an invite code, is marked unapproved, and cannot log in or receive a token until approved. There is no admin role. `UserUpdate` excludes role and admin fields (`app/schemas/user.py:95-105`). |
+| Role selection, privilege approval, and mass assignment | PASS | `app/api/auth.py:173-181, 225-227, 260-267, 336-398, 418-429, 501-528`; staff signup is refused unless the address is in `STAFF_EMAILS`; principal and agent signups must verify their email and stay pending, and `get_current_user` (`app/api/deps.py`) returns 403 on every private API except `/auth/me` and `/auth/refresh` until staff approve them (since 2026-11-18). There is no admin role. `UserUpdate` excludes role and admin fields (`app/schemas/user.py:95-105`). |
 | Document/user/message/enquiry authorization and IDOR logic | PASS | `app/api/documents.py:67-124, 127-142, 170-183, 204-256` scopes document lists to the owner and checks owner/staff on ID routes. `app/api/messages.py:46-104` scopes threads and read updates to participants. Enquiry staff routes require staff (`app/api/enquiries.py:83-161`); user management requires staff (`app/api/auth.py:432-528`). Source logic prevents user A from reading user B's document/message. This was a code-path review, not a live two-user request test. Message document association is separately reported in SEC-14. |
 | JWT secret strength, algorithm, expiry, refresh, logout, claims | FAIL | Token creation includes `iat`, `exp`, `jti`, subject, role, and type (`app/core/security.py:25-56`), with a 20-minute access and 7-day refresh default (`app/core/config.py:9-12`). Decode restricts to the configured algorithm, but no strong-secret/startup validation exists; logout has no server-side revocation (SEC-01, SEC-02, SEC-07). |
 | Frontend token storage and XSS impact | PASS | Browser auth uses `HttpOnly` cookies with `credentials: 'include'`; no `localStorage` or `sessionStorage` token use found (`app/api/auth.py:55-77`; `vn-frontend/src/api.js:7-12`). This avoids direct token reads by injected JavaScript, while XSS can still act as the user. |
@@ -65,7 +65,7 @@ A development-style PostgreSQL URL with a password field is committed in `.env.e
 
 ## What is already good
 
-- Privileged roles require configured invite codes and remain pending until an existing staff user approves them.
+- Staff sign-up is limited to `STAFF_EMAILS`. Principals and agents must verify their email and remain pending, able to sign in but blocked server-side from every private API, until an existing staff user approves them.
 - Passwords use bcrypt. Access and refresh JWTs have expiry claims and distinct token types; decoding restricts to the configured algorithm.
 - Browser tokens are held in `HttpOnly`, `SameSite=Lax` cookies rather than local storage. Refresh checks current user active, verified, and approval state.
 - Document list and ID routes check ownership or staff role; message threads are limited to the two participants.
@@ -90,3 +90,16 @@ A development-style PostgreSQL URL with a password field is committed in `.env.e
 ## Phase B note: token storage migration
 
 Do not migrate token storage to cookies in a future fix pass: the frontend already uses `HttpOnly` cookies. If deployment topology or browser requirements change, retain cookie storage and document any cookie attribute or CSRF changes before rollout.
+
+## Status after the `security-hardening` branch (18 November 2026)
+
+Fixed and covered by tests: SEC-03 (bounded upload reads, 413 for oversized requests), SEC-07 (logout, password reset and deactivation revoke sessions), SEC-09 (staff actions return a narrow response), SEC-10 (sign-up answers the same for new and registered emails), SEC-11 (`/openapi.json` hidden in production), SEC-13 (limits on all free-text fields), SEC-15 (all Python dependencies upgraded and pinned; `pip-audit` clean; `python-jose` replaced by PyJWT), plus: per-email sign-in throttle, staff cannot deactivate/reject/reactivate other staff, malformed ids return 422, `Cache-Control: no-store` on documents and photos, login timing, DEMO_MODE startup notice, literal `%`/`_` in staff search, static-site HSTS/Referrer-Policy/Permissions-Policy and a report-only CSP.
+
+Open:
+- **IP rate limits**: fixed. They now count against Cloudflare's `CF-Connecting-IP` (verified from Render logs, 19 November 2026) and ignore the forgeable `X-Forwarded-For`; see `docs/DEPLOYMENT.md`.
+- **SEC-04 / CSP** is report-only until the console is clean.
+- **SEC-06**: files still open inline by decision; they are now `no-store`.
+- **SEC-08 (CSRF)**: no token; cookies are `SameSite=Lax` and `onrender.com` is on the public-suffix list. Revisit if the site moves to a custom domain with sibling subdomains.
+- **Uploads on ephemeral disk**, unencrypted at rest: see `docs/DEPLOYMENT.md`.
+- **Frontend**: react-router-dom 6.30.6 has two advisories fixed only in 7.18; neither applies (no SSR, no user-controlled navigation targets). vite 5 / tailwind 3 build-tool advisories need major upgrades and never reach the browser.
+- **Design**: there is no admin tier; staff accounts can only be changed in the database.

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
@@ -20,13 +22,18 @@ from app.api.study_plan import router as study_plan_router
 from app.api.destinations import router as destinations_router
 
 
-app = FastAPI(
-    title="VN Group API",
-    version="1.0.0",
-    # Hide interactive docs in production - don't expose your whole schema publicly.
-    docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
-    redoc_url=None,
-)
+def api_doc_urls(environment: str) -> dict:
+    """Interactive docs and the OpenAPI schema are for development only; in production they would
+    hand anyone a map of every route and field."""
+    if environment == "production":
+        return {"docs_url": None, "openapi_url": None, "redoc_url": None}
+    return {"docs_url": "/docs", "openapi_url": "/openapi.json", "redoc_url": None}
+
+
+app = FastAPI(title="VN Group API", version="1.0.0", **api_doc_urls(settings.ENVIRONMENT))
+
+for _warning in settings.startup_warnings:
+    logging.getLogger("uvicorn.error").warning("SECURITY NOTICE: %s", _warning)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -48,6 +55,18 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+
+# Refuse oversized request bodies up front (uploads are capped at MAX_UPLOAD_MB; the rest is a little form data).
+MAX_BODY_BYTES = (settings.MAX_UPLOAD_MB + 1) * 1024 * 1024
+
+
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > MAX_BODY_BYTES:
+        return JSONResponse(status_code=413, content={"detail": "Request is too large"})
+    return await call_next(request)
 
 
 @app.middleware("http")

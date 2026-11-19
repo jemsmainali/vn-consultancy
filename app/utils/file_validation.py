@@ -11,6 +11,8 @@ from fastapi import UploadFile, HTTPException
 
 from app.core.config import settings
 
+CHUNK_BYTES = 64 * 1024
+
 
 async def validate_and_save_upload(
     file: UploadFile,
@@ -18,7 +20,7 @@ async def validate_and_save_upload(
     allowed_mimes: list[str] | None = None,
 ) -> dict:
     """
-    Reads the file into memory, verifies size + real MIME type, and writes it
+    Reads the file in bounded chunks, verifies size + real MIME type, and writes it
     to disk under a randomly generated name. Returns metadata to store in the DB.
 
     `allowed_mimes` overrides settings.allowed_mime_list for this call
@@ -29,13 +31,19 @@ async def validate_and_save_upload(
     allowed = allowed_mimes if allowed_mimes is not None else settings.allowed_mime_list
     max_bytes = settings.MAX_UPLOAD_MB * 1024 * 1024
 
-    contents = await file.read()
-    size = len(contents)
+    # Read in small chunks and stop as soon as the limit is passed, so an oversized
+    # upload is refused without ever being held in memory in full.
+    chunks: list[bytes] = []
+    size = 0
+    while chunk := await file.read(CHUNK_BYTES):
+        size += len(chunk)
+        if size > max_bytes:
+            raise HTTPException(400, f"File exceeds {settings.MAX_UPLOAD_MB}MB limit")
+        chunks.append(chunk)
+    contents = b"".join(chunks)
 
     if size == 0:
         raise HTTPException(400, "Uploaded file is empty")
-    if size > max_bytes:
-        raise HTTPException(400, f"File exceeds {settings.MAX_UPLOAD_MB}MB limit")
 
     # Sniff real content type from bytes - ignore whatever the client claims.
     detected_mime = magic.from_buffer(contents, mime=True)

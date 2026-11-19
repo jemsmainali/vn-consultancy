@@ -1,12 +1,14 @@
 """
 All password hashing and JWT logic lives here, in one place, so it's easy
-to audit. Nothing else in the app should touch jose/passlib directly.
+to audit. Nothing else in the app should touch jwt/passlib directly.
 """
 from datetime import datetime, timedelta, timezone
 from typing import Literal
+import hashlib
 import uuid
 
-from jose import jwt, JWTError
+import jwt
+from jwt import PyJWTError as JWTError
 from passlib.context import CryptContext
 
 from app.core.config import settings
@@ -19,6 +21,20 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+# Checked against when the email is unknown, so a wrong email takes as long as a wrong password.
+_DUMMY_HASH: str | None = None
+
+
+def verify_password_or_dummy(plain_password: str, hashed_password: str | None) -> bool:
+    global _DUMMY_HASH
+    if hashed_password is None:
+        if _DUMMY_HASH is None:
+            _DUMMY_HASH = pwd_context.hash("not-a-real-password")
+        pwd_context.verify(plain_password, _DUMMY_HASH)
+        return False
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -51,7 +67,24 @@ def create_refresh_token(subject: str, role: str) -> str:
     )
 
 
-def decode_token(token: str, expected_type: Literal["access", "refresh"] = "access") -> dict:
+def create_email_verification_token(user_id: str) -> str:
+    """Signed, 24-hour link token. The database keeps only its hash and marks it used."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": user_id,
+        "type": "verify_email",
+        "iat": now,
+        "exp": now + timedelta(hours=settings.EMAIL_VERIFY_EXPIRE_HOURS),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+def decode_token(token: str, expected_type: Literal["access", "refresh", "verify_email"] = "access") -> dict:
     """Raises JWTError on any invalid, expired, or mismatched-type token."""
     payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     if payload.get("type") != expected_type:

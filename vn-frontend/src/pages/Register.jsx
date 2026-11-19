@@ -1,20 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { Err } from '../ui'
 import PasswordInput from '../components/ui/PasswordInput'
 import AuthLayout, { AuthAside } from '../components/auth/AuthLayout'
 import AuthField from '../components/auth/AuthField'
+import AccountNoticeDialog from '../components/auth/AccountNoticeDialog'
 
 const ROLES = [
   { value: 'student', label: 'Student' },
   { value: 'principal', label: 'College/University Principal' },
+  { value: 'agent', label: 'Agent' },
   { value: 'parent', label: 'Parent / Guardian' },
   { value: 'other', label: 'Other' },
   { value: 'consultancy_staff', label: 'VN Group Staff' },
 ]
-const ROLES_REQUIRING_BANK_DETAILS = new Set(ROLES.filter((role) => role.value !== 'student').map((role) => role.value))
-const REQUIRE_BANK_DETAILS = import.meta.env.VITE_REQUIRE_BANK_DETAILS === 'true'
+const ROLES_REQUIRING_BANK_DETAILS = new Set(['other']) // keep in sync with app/schemas/user.py
+const BANK_FIELDS = ['bank_account_name', 'bank_name', 'bank_account_number', 'bank_nominee_name']
+const EMPTY_BANK = { bank_account_name: '', bank_name: '', bank_account_number: '', bank_nominee_name: '' }
+const BANK_PERSON_NAME = /^[\p{L}\p{N} .,'&()\-]+$/u
 const BANK_ACCOUNT_NUMBER_MIN_LENGTH = 8
 const BANK_ACCOUNT_NUMBER_MAX_LENGTH = 24
 
@@ -40,11 +44,11 @@ function Section({ title, description, children, ...props }) {
 export default function Register() {
   const nav = useNavigate()
   const [f, setF] = useState({
-    full_name: '', email: '', password: '', role: 'student', invite_code: '',
+    full_name: '', email: '', password: '', role: 'student',
     national_id: '', date_of_birth: '', gender: '', citizenship: '', passport_number: '',
     target_course_level: '', target_field: '', target_country: '',
     parent_name: '', parent_phone: '', parent_email: '',
-    bank_name: '', bank_account_number: '',
+    ...EMPTY_BANK,
   })
   const [showParent, setShowParent] = useState(false)
   const [agreed, setAgreed] = useState(false)
@@ -53,9 +57,12 @@ export default function Register() {
   const [photoErr, setPhotoErr] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [noticeOpen, setNoticeOpen] = useState(false)
+  const formRef = useRef(null)
+  const continueAfterNotice = useRef(false)
   const [bankFieldErrors, setBankFieldErrors] = useState({})
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
-  const bankDetailsVisible = REQUIRE_BANK_DETAILS && ROLES_REQUIRING_BANK_DETAILS.has(f.role)
+  const bankDetailsVisible = ROLES_REQUIRING_BANK_DETAILS.has(f.role)
 
   useEffect(() => {
     const previousTitle = document.title
@@ -71,7 +78,7 @@ export default function Register() {
   }
 
   const changeRole = (e) => {
-    setF((value) => ({ ...value, role: e.target.value, bank_name: '', bank_account_number: '' }))
+    setF((value) => ({ ...value, role: e.target.value, ...EMPTY_BANK }))
     setBankFieldErrors({})
   }
 
@@ -94,18 +101,47 @@ export default function Register() {
     setPreview(URL.createObjectURL(file))
   }
 
-  const submit = async (e) => {
+  // Every "Create account" click (or Enter) opens the official-payments notice first, before the
+  // browser's required-field check, so it always appears. Nothing is sent until the user continues.
+  const openNotice = (e) => {
+    e.preventDefault()
+    if (!busy) setNoticeOpen(true)
+  }
+
+  // After "I understand and continue": once the dialog has closed (and returned focus), run the
+  // browser's required-field check, then the existing client validation and submit.
+  useEffect(() => {
+    if (noticeOpen || !continueAfterNotice.current) return
+    continueAfterNotice.current = false
+    if (formRef.current?.reportValidity()) submit({ preventDefault() {} })
+  }, [noticeOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Client validation; when it passes, the account is created.
+  const submit = (e) => {
     e.preventDefault(); setErr('')
+    if (busy) return
     if (!agreed) { setErr('Please accept the Terms and Conditions to continue.'); return }
     if (!photo) { setErr('Please upload a profile photo.'); return }
-    if (!NID_PATTERN.test(f.national_id)) {
+    if (f.national_id && !NID_PATTERN.test(f.national_id)) {
       setErr('National ID must be exactly 10 digits — the number on your National ID Card.')
       return
     }
     if (bankDetailsVisible) {
+      const accountName = f.bank_account_name.trim().replace(/\s+/g, ' ')
+      const nomineeName = f.bank_nominee_name.trim().replace(/\s+/g, ' ')
       const name = f.bank_name.trim()
       const accountNumber = f.bank_account_number.replace(/[ -]/g, '')
       const nextErrors = {}
+      const personNameError = (value, label) => {
+        if (!value) return `Enter the ${label.toLowerCase()}.`
+        if (value.length < 2 || value.length > 100) return `${label} must be 2 to 100 characters.`
+        if (!BANK_PERSON_NAME.test(value)) return 'Use letters, numbers, spaces, periods, commas, apostrophes, ampersands, hyphens, and parentheses only.'
+        return ''
+      }
+      const accountNameError = personNameError(accountName, 'Account holder name')
+      if (accountNameError) nextErrors.bank_account_name = accountNameError
+      const nomineeNameError = personNameError(nomineeName, 'Nominee name')
+      if (nomineeNameError) nextErrors.bank_nominee_name = nomineeNameError
       if (!name) nextErrors.bank_name = 'Enter the bank name.'
       else if (name.length < 2 || name.length > 100) nextErrors.bank_name = 'Bank name must be 2 to 100 characters.'
       else if (!/^[\p{L}\p{N} .&()\-]+$/u.test(name)) nextErrors.bank_name = 'Use letters, numbers, spaces, periods, ampersands, hyphens, and parentheses only.'
@@ -117,6 +153,11 @@ export default function Register() {
       setBankFieldErrors(nextErrors)
       if (Object.keys(nextErrors).length) return
     }
+    createAccount()
+  }
+
+  // Runs only after "I understand and continue" in the notice and validation.
+  const createAccount = async () => {
     setBusy(true)
     try {
       const formData = new FormData()
@@ -124,7 +165,7 @@ export default function Register() {
       formData.append('email', f.email)
       formData.append('password', f.password)
       formData.append('role', f.role)
-      formData.append('national_id', f.national_id)
+      if (f.national_id) formData.append('national_id', f.national_id)
       formData.append('date_of_birth', f.date_of_birth)
       formData.append('gender', f.gender)
       formData.append('citizenship', f.citizenship)
@@ -135,10 +176,11 @@ export default function Register() {
         if (f.target_field) formData.append('target_field', f.target_field)
         if (f.target_country) formData.append('target_country', f.target_country)
       }
-      if (f.role === 'principal' || f.role === 'consultancy_staff') formData.append('invite_code', f.invite_code)
       if (bankDetailsVisible) {
+        formData.append('bank_account_name', f.bank_account_name.trim().replace(/\s+/g, ' '))
         formData.append('bank_name', f.bank_name.trim())
         formData.append('bank_account_number', f.bank_account_number.replace(/[ -]/g, ''))
+        formData.append('bank_nominee_name', f.bank_nominee_name.trim().replace(/\s+/g, ' '))
       }
       if (showParent) {
         if (f.parent_name) formData.append('parent_name', f.parent_name)
@@ -148,17 +190,17 @@ export default function Register() {
       formData.append('photo', photo)
 
       await api('/auth/register', { method: 'POST', body: formData })
-      setF((value) => ({ ...value, bank_name: '', bank_account_number: '' }))
+      setF((value) => ({ ...value, ...EMPTY_BANK }))
       setBankFieldErrors({})
-      nav('/verify?sent=1&email=' + encodeURIComponent(f.email))
+      nav('/check-inbox?sent=1&email=' + encodeURIComponent(f.email.trim().toLowerCase()))
     } catch (x) {
+      // 502: the account was created but the verification email could not be sent.
+      if (x.status === 502) return nav('/check-inbox?mailerr=1&email=' + encodeURIComponent(f.email.trim().toLowerCase()))
       setErr(x.message)
-      if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, bank_name: x.fieldErrors.bank_name || '', bank_account_number: x.fieldErrors.bank_account_number || '' }))
+      if (x.fieldErrors) setBankFieldErrors((current) => ({ ...current, ...Object.fromEntries(BANK_FIELDS.map((key) => [key, x.fieldErrors[key] || ''])) }))
     }
     setBusy(false)
   }
-
-  const needsInvite = f.role === 'principal' || f.role === 'consultancy_staff'
 
   return (
     <AuthLayout
@@ -170,7 +212,7 @@ export default function Register() {
           description="One account for your documents, messages and application progress with VN Group."
           points={[
             'Fill in your profile and personal details',
-            'Verify your email with a one-time code',
+            'Confirm your email with the link we send you',
             'Share documents and talk with our team',
           ]}
         />
@@ -184,7 +226,7 @@ export default function Register() {
         </p>
       </div>
 
-      <form onSubmit={submit} className="auth-form auth-register-form">
+      <form ref={formRef} onSubmit={openNotice} className="auth-form auth-register-form">
         <Section title="Profile" description="Your photo, account type and sign-in details.">
           <div className="auth-photo">
             <div className="auth-photo-preview">
@@ -217,20 +259,23 @@ export default function Register() {
           </div>
 
           <div className="auth-grid">
-            <AuthField label="I am registering as" span={!needsInvite}>
+            <AuthField
+              label="I am registering as"
+              hint={f.role === 'principal' || f.role === 'agent'
+                ? 'After you verify your email, VN Group staff review and approve this account type. Until then you will only see an "awaiting approval" page.'
+                : f.role === 'consultancy_staff'
+                  ? 'Only approved VN Group staff email addresses can create a staff account.'
+                  : undefined}
+              span
+            >
               <select className="auth-input auth-select" value={f.role} onChange={changeRole}>
                 {ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </AuthField>
-            {needsInvite && (
-              <AuthField label="Invite code from VN Group">
-                <input className="auth-input" required autoComplete="off" value={f.invite_code} onChange={set('invite_code')} />
-              </AuthField>
-            )}
             <AuthField label="Full name" span>
               <input className="auth-input" required autoComplete="name" placeholder="As shown on your passport or ID" value={f.full_name} onChange={set('full_name')} />
             </AuthField>
-            <AuthField label="Email address">
+            <AuthField label="Email address" hint="Use an inbox you can open — we'll email you a link to confirm it.">
               <input className="auth-input" type="email" required autoComplete="email" placeholder="you@example.com" value={f.email} onChange={set('email')} />
             </AuthField>
             <AuthField label="Password" hint="At least 8 characters.">
@@ -259,11 +304,11 @@ export default function Register() {
             <AuthField
               label="National ID Card number"
               hint="The 10-digit number on your National ID Card (not the old citizenship certificate number)."
+              optional
               span
             >
               <input
                 className="auth-input"
-                required
                 value={f.national_id}
                 onChange={setNationalId}
                 inputMode="numeric"
@@ -278,11 +323,17 @@ export default function Register() {
         {bankDetailsVisible && (
           <Section title="Bank details" description="Required for this account type.">
             <div className="auth-grid">
-              <AuthField label="Bank name" error={bankFieldErrors.bank_name} span>
-                <input className="auth-input" type="text" required autoComplete="off" value={f.bank_name} onChange={setBankField('bank_name')} />
+              <AuthField label="Account holder name" hint="Exactly as the bank shows it." error={bankFieldErrors.bank_account_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="e.g. Sita Sharma" value={f.bank_account_name} onChange={setBankField('bank_account_name')} />
               </AuthField>
-              <AuthField label="Bank account number" error={bankFieldErrors.bank_account_number} span>
-                <input className="auth-input" type="text" inputMode="numeric" required autoComplete="off" value={f.bank_account_number} onChange={setBankField('bank_account_number')} />
+              <AuthField label="Bank name" error={bankFieldErrors.bank_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="Full name of your bank" value={f.bank_name} onChange={setBankField('bank_name')} />
+              </AuthField>
+              <AuthField label="Bank account number" hint="8 to 24 digits." error={bankFieldErrors.bank_account_number} span>
+                <input className="auth-input" type="text" inputMode="numeric" required autoComplete="off" placeholder="Digits only" value={f.bank_account_number} onChange={setBankField('bank_account_number')} />
+              </AuthField>
+              <AuthField label="Nominee name" hint="The nominee registered on this bank account." error={bankFieldErrors.bank_nominee_name} span>
+                <input className="auth-input" type="text" required autoComplete="off" maxLength={100} placeholder="e.g. Hari Sharma" value={f.bank_nominee_name} onChange={setBankField('bank_nominee_name')} />
               </AuthField>
               <p className="auth-secure-note auth-field--span">
                 <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="8.5" width="12" height="8" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5M10 11.5v2"/></svg>
@@ -367,7 +418,7 @@ export default function Register() {
           <Err msg={err} />
 
           <div className="auth-actions">
-            <button type="submit" className="auth-submit" disabled={busy} aria-busy={busy}>
+            <button type="submit" className="auth-submit" disabled={busy} aria-busy={busy} onClick={openNotice}>
               {busy ? <><span className="auth-spinner" aria-hidden="true" />Creating account…</> : 'Create account'}
             </button>
             <p className="auth-switch auth-switch--inline">
@@ -376,6 +427,7 @@ export default function Register() {
           </div>
         </div>
       </form>
+      <AccountNoticeDialog open={noticeOpen} onConfirm={() => { continueAfterNotice.current = true; setNoticeOpen(false) }} onCancel={() => setNoticeOpen(false)} />
     </AuthLayout>
   )
 }

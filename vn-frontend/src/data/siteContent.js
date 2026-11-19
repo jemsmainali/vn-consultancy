@@ -20,9 +20,38 @@ const suppliedIllustration = (name, width, height, alt) => ({
   sizes: '(max-width: 560px) calc(100vw - 48px), (max-width: 820px) 80vw, 320px',
 })
 
+// Licensed Unsplash photos stored locally (see PHOTO_CREDITS.md). Illustrative only, never presented as VN Group activity.
+const licensedPhoto = (name, height, alt, sizes) => ({
+  src: `/images/site/${name}-1200.jpg`,
+  webpSrc: `/images/site/${name}-1200.webp`,
+  webpSrcSet: [480, 800, 1200].map((size) => `/images/site/${name}-${size}.webp ${size}w`).join(', '),
+  sizes,
+  width: 1200,
+  height,
+  alt,
+  licensed: true,
+})
+// WebP only: src is the largest WebP, so there is no JPEG fallback to keep in sync.
+const webpPhoto = (folder, name, widths, width, height, alt, sizes) => {
+  const base = `/images/vn-photos/${folder}/${name}`
+  return {
+    src: `${base}-${widths[widths.length - 1]}.webp`,
+    webpSrcSet: widths.map((size) => `${base}-${size}.webp ${size}w`).join(', '),
+    sizes,
+    width,
+    height,
+    alt,
+  }
+}
+const VISIT_SIZES = '(max-width: 640px) 78vw, 400px'
+const PICNIC_SIZES ='(max-width: 760px) 50vw, 380px'
+const SERVICE_SIZES ='(max-width: 640px) calc(100vw - 32px), (max-width: 1100px) 46vw, 30vw'
+const STEP_SIZES = '(max-width: 900px) calc(100vw - 32px), 44vw'
+
 export const siteImages = {
   logo: { src: '/images/vn-group-logo.jpg', alt: 'VN Group Study Abroad' },
-  hero: photo('hero', 'hero-main', [480, 800, 1200], 1200, 1200, 900, 'VN Group counsellors and students with a Westcliff University representative at an info session in Kathmandu', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 52vw, 620px'),
+  lightLogo: { src: '/images/vn-group-logo-light.png', alt: 'VN Group Study Abroad' },
+  hero: photo('hero', 'hero-main', [480, 800, 1200], 1200, 1195, 819, 'VN Group counsellors and students with a Westcliff University representative at an info session in Kathmandu', '100vw'),
   australia: photo('destinations', 'australia-card', [480, 720], 720, 720, 405, 'Sydney Opera House, Australia', '(max-width: 560px) 45vw, (max-width: 820px) 46vw, 23vw'),
   counselling: photo('services', 'counselling-session', [480, 800, 1200], 1200, 1200, 800, 'A VN Group counsellor speaking to a group of students', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 46vw, 560px'),
   counsellingTopics: suppliedIllustration('counselling', 735, 556, 'Counselling diagram showing advice, help, empathy, and support'),
@@ -34,9 +63,35 @@ export const siteImages = {
   ielts: suppliedIllustration('Iltes', 736, 736, 'Illustration of a study counsellor and student support services'),
   griffin: photo('partners', 'partner-griffin-college', [480, 800, 960], 960, 960, 720, 'VN Group representative visiting Griffin College', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
   sahe: photo('partners', 'partner-sahe', [480, 800, 1200], 1200, 1200, 900, 'VN Group representatives at Southern Academy of Higher Education', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  melbourneArrival: photo('partners', 'partner-melbourne-arrival', [480, 800, 1200], 1200, 1200, 900, 'VN Group representative with a suitcase beneath the Melbourne sign at Melbourne Airport', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  notreDame: photo('partners', 'partner-notre-dame', [480, 800, 1200], 1200, 1200, 900, 'VN Group representative holding a university tote bag outside The University of Notre Dame Australia', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  aiihe: photo('partners', 'partner-aiihe', [480, 800, 1200], 1200, 1200, 900, 'VN Group representative shaking hands with a host at Australian International Institute of Higher Education', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  sydneyCityCollege: photo('partners', 'partner-sydney-city-college', [480, 800, 1200], 1200, 1200, 900, 'VN Group representative at the reception of Sydney City College of Management', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  charlesSturt: photo('partners', 'partner-charles-sturt', [480, 800, 1200], 1200, 1200, 900, 'VN Group representatives with staff at the Charles Sturt University reception desk', '(max-width: 700px) calc(100vw - 40px), (max-width: 1280px) 45vw, 560px'),
+  // JPEG only (no WebP set); ResponsiveImage falls back to src.
+  machhapuchchhreBank: { src: '/images/gallery/partner-machhapuchchhre-bank-1200.jpg', width: 1200, height: 900, alt: 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office' },
+  officeVisit: { src: '/images/gallery/partner-office-visit-1200.jpg', width: 720, height: 960, alt: 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office', position: 'center 30%' },
   partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team meeting with a partner delegation', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
-  events: photo('about', 'events-wide', [480, 800, 1200], 1200, 1200, 675, 'VN Group team attending an international education conference', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 90vw, 1120px'),
-  ceo: { src: '/images/ceo.jpg', alt: 'Portrait of VN Group managing director and founder' },
+  // Partner visits and official meetings (homepage).
+  nepalEmbassyCanberra: { ...photo('partners', 'visit-nepal-embassy-canberra', [480, 800, 1200], 800, 1200, 1600, 'A VN Group representative with H.E. Kailash Raj Pokharel, Ambassador of Nepal to Australia, at the Embassy of Nepal in Canberra', VISIT_SIZES), position: 'center 35%' },
+  tafeQueensland: { ...photo('partners', 'visit-tafe-queensland', [480, 800, 1200], 800, 1200, 1600, 'A VN Group representative with a TAFE Queensland staff member beside a TAFE Queensland campus information sign', VISIT_SIZES), position: 'center 55%' },
+  australianEmbassyKathmandu: photo('partners', 'visit-australian-embassy-kathmandu', [480, 800, 1080], 800, 1080, 810, 'The FECON team with H.E. Peter Budd, Ambassador of Australia to Nepal, in a meeting room at the Australian Embassy in Kathmandu', VISIT_SIZES),
+  admissionsSession: { ...photo('services', 'admissions-westcliff-session', [480, 800, 1200], 1200, 1200, 1600, 'A Westcliff University representative presenting to students at a VN Group info session in Kathmandu', SERVICE_SIZES), position: 'center 30%' },
+  stepCounselling: photo('steps', 'counselling-maryville', [480, 800, 960], 960, 960, 720, 'Students in an admissions session at a desk with a Maryville University sign', STEP_SIZES),
+  stepIntakeBriefing: { ...photo('steps', 'intake-briefing', [480, 800, 1200], 1200, 1200, 761, 'A VN Group presenter explaining university intake dates beside a projected academic calendar', STEP_SIZES), position: '35% center' },
+  stepVisaGrant: { ...photo('steps', 'visa-grant-office', [480, 800, 1200], 1200, 1200, 1600, 'A student holding a visa grant letter with a VN Group counsellor at the VN Group office', STEP_SIZES), position: 'center 30%' },
+  serviceCampus: licensedPhoto('service-campus', 786, 'A university campus building across a green lawn', SERVICE_SIZES),
+  serviceGraduation: licensedPhoto('service-graduation', 800, 'Graduates throwing their caps in front of a university building', SERVICE_SIZES),
+  serviceDocuments: licensedPhoto('service-documents', 801, 'Two people reviewing documents beside a laptop', SERVICE_SIZES),
+  serviceExam: licensedPhoto('service-exam', 800, 'A student filling in a test answer sheet with a pencil', SERVICE_SIZES),
+  serviceLuggage: licensedPhoto('service-luggage', 800, 'A traveller standing in a doorway with two suitcases', SERVICE_SIZES),
+  stepConsultation: licensedPhoto('step-consultation', 800, 'An adviser and a student talking across a desk', STEP_SIZES),
+  stepPlanning: licensedPhoto('step-planning', 799, 'A hand tracing a route on a world map beside a notebook', STEP_SIZES),
+  stepApplication: licensedPhoto('step-application', 800, 'A student working on an application at a laptop', STEP_SIZES),
+  stepOffer: licensedPhoto('step-offer', 900, 'A group of students celebrating good news at a laptop', STEP_SIZES),
+  stepChecklist: licensedPhoto('step-checklist', 800, 'An open notebook with a pen and glasses, ready for a checklist', STEP_SIZES),
+  stepDepartures: licensedPhoto('step-departures', 800, 'A traveller looking up at an airport departures board', STEP_SIZES),
+  ceo: { ...webpPhoto('about', 'ceo-pawan-mainali', [480, 800], 800, 800, 'Pawan Mainali, Managing Director of VN Group', '(max-width: 760px) 280px, 340px'), src: '/images/ceo.jpg', position: '50% 20%' },
   loginGraduate: { src: '/images/login-graduate.jpg', alt: 'A smiling graduate celebrating with both arms raised', width: 360, height: 360 },
 }
 
@@ -66,14 +121,15 @@ export const siteContent = {
     name: 'VN Group Study Abroad',
     tagline: 'Clear next steps for students in Nepal exploring international education.',
     logo: siteImages.logo,
+    lightLogo: siteImages.lightLogo,
     foundedYear: 2012,
   },
   navigation: {
     about: [
-      { label: 'Our Story', detail: 'Meet VN Group and its leadership.', to: '/about' },
-      { label: 'Our Team', detail: 'Learn about the people at VN Group.', to: '/about' },
-      { label: 'Why VN Group', detail: 'Read our approach to study guidance.', to: '/about' },
-      { label: 'Partner Universities', detail: 'See partner visits and institutions.', to: '/#partner-visits-title' },
+      { label: 'Our Story', detail: 'Meet VN Group and its leadership.', icon: 'story', to: '/about' },
+      { label: 'Our Team', detail: 'Learn about the people at VN Group.', icon: 'team', to: '/about' },
+      { label: 'Why VN Group', detail: 'Read our approach to study guidance.', icon: 'shield', to: '/about' },
+      { label: 'Partner Universities', detail: 'See partner visits and institutions.', icon: 'university', to: '/#partner-visits-title' },
     ],
     services: [
       { label: 'Counselling', detail: 'Talk through your interests and next steps.', icon: 'conversation', to: '/#service-counselling' },
@@ -84,20 +140,20 @@ export const siteContent = {
       { label: 'Pre-departure Briefing', detail: 'Review a practical preparation checklist.', icon: 'plane', to: '/#service-pre-departure' },
     ],
     resources: [
-      { label: 'Success Stories', detail: 'Explore student support and outcomes.', to: '/#services' },
-      { label: 'Blog', detail: 'Read answers and study guidance.', to: '/faqs' },
-      { label: 'FAQs', detail: 'Browse frequently asked questions.', to: '/faqs' },
-      { label: 'How It Works', detail: 'See the student journey step by step.', to: '/journey' },
-      { label: 'Gallery', detail: 'Visa successes, departures and partner visits.', to: '/gallery' },
+      { label: 'Success Stories', detail: 'Explore student support and outcomes.', icon: 'star', to: '/#services' },
+      // Blog link hidden until a /blog route with real posts exists (it pointed at /faqs).
+      { label: 'FAQs', detail: 'Browse frequently asked questions.', icon: 'question', to: '/faqs' },
+      { label: 'How It Works', detail: 'See the student journey step by step.', icon: 'route', to: '/journey' },
+      { label: 'Gallery', detail: 'Visa successes, departures and partner visits.', icon: 'gallery', to: '/gallery' },
     ],
   },
   home: {
     hero: {
       eyebrow: 'years of trusted guidance',
-      title: 'Your next chapter starts with',
-      emphasis: 'a clear plan.',
-      rotatingCountries: ['Australia', 'United States', 'Canada', 'Japan', 'South Korea'],
-      description: 'Expert guidance for students and families in Nepal pursuing world-class education. We help you understand your options and plan your next steps.',
+      title: 'Think of study abroad,',
+      emphasis: 'choose VN Group.',
+      rotatingCountries: ['Australia', 'United States', 'United Kingdom', 'Canada', 'Japan', 'South Korea'],
+      description: 'Discover global opportunities. Build your future with VN Group.',
       primaryLabel: 'Free Counselling',
       secondaryLabel: 'Explore Destinations',
       photo: siteImages.hero,
@@ -116,26 +172,45 @@ export const siteContent = {
     ],
     countries,
     process: [
-      { title: 'Free Counselling', description: 'Talk through your goals, questions, and potential next steps.', icon: 'conversation' },
-      { title: 'Choose Course and Country', description: 'Compare study options against your interests and plans.', icon: 'compass', image: siteImages.choose },
-      { title: 'Apply', description: 'Prepare and submit an application to your chosen institution.', icon: 'document', image: siteImages.apply },
-      { title: 'Visa', description: 'Review the relevant visa process and organize your documents.', icon: 'passport', image: siteImages.visa },
-      { title: 'Fly', description: 'Use a pre-departure checklist as you prepare for travel.', icon: 'plane', image: siteImages.fly },
+      { title: 'Free Counselling', description: 'Talk through your goals, academic background and budget with a counsellor, and leave with clear next steps.', image: siteImages.stepCounselling },
+      { title: 'Choose Your Course and Country', description: 'Compare programmes, entry requirements, costs and destinations to build a realistic shortlist.', image: siteImages.stepIntakeBriefing },
+      { title: 'University Application', description: 'Prepare your statement of purpose and supporting documents, then apply to the universities on your shortlist.', image: siteImages.stepApplication },
+      { title: 'Receive Your Offer', description: 'Review the offer conditions, accept your place and complete any deposit or document steps the university asks for.', image: siteImages.stepOffer },
+      { title: 'Visa Preparation', description: 'Organise your financial evidence and documents against the official visa requirements for your destination.', image: siteImages.stepVisaGrant },
+      { title: 'Pre-departure Preparation', description: 'Plan travel, accommodation and arrival, with a briefing on what to expect in your first weeks abroad.', image: siteImages.stepDepartures },
     ],
     services: [
-      { id: 'counselling', title: 'Counselling', description: 'Talk through your study interests, questions, and potential next steps.', linkLabel: 'Learn more', image: siteImages.counselling, illustration: siteImages.counsellingTopics },
-      { id: 'admissions', title: 'Admissions', description: 'Explore course options and application requirements.', linkLabel: 'Learn more', image: siteImages.choose },
-      { id: 'scholarships', title: 'Scholarships', description: 'Review scholarship information provided by institutions.', linkLabel: 'Learn more', image: siteImages.scholarships },
-      { id: 'visa-filing', title: 'Visa Filing', description: 'Organize the visa process and its supporting documents.', linkLabel: 'Learn more', image: siteImages.apply },
-      { id: 'test-prep', title: 'IELTS/PTE Guidance', description: 'Discuss English-language test preparation and score requirements.', linkLabel: 'Learn more', image: siteImages.ielts },
-      { id: 'pre-departure', title: 'Pre-departure Briefing', description: 'Review a practical checklist for preparing to study abroad.', linkLabel: 'Learn more', image: siteImages.fly },
+      { id: 'counselling', title: 'Career & Study Counselling', description: 'A free, one-to-one conversation about your grades, interests, budget and career goals, so you can compare courses and countries with clear information before you commit.', points: ['Course and career direction', 'Country and budget comparison', 'A realistic timeline and next steps'], linkLabel: 'Book free counselling', to: '/#enquire', image: siteImages.counselling },
+      { id: 'admissions', title: 'University Admissions', description: 'Shortlisting programmes that fit your academic record, checking entry requirements and preparing complete applications.', linkLabel: 'Explore destinations', to: '/destinations', image: siteImages.admissionsSession },
+      { id: 'scholarships', title: 'Scholarship Guidance', description: 'Finding scholarships you may be eligible for and understanding their criteria and deadlines. Awards are decided by institutions and funders.', linkLabel: 'Read scholarship FAQs', to: '/faqs', image: siteImages.serviceGraduation },
+      { id: 'visa-filing', title: 'Visa Application Support', description: 'Understanding your destination’s visa requirements, organising financial and academic documents, and reviewing your file before you submit.', linkLabel: 'See the full process', to: '/journey', image: siteImages.serviceDocuments },
+      { id: 'test-prep', title: 'IELTS/PTE Preparation', description: 'Which English test your universities and visa accept, the scores to aim for, and how to plan your preparation.', linkLabel: 'Read English test FAQs', to: '/faqs', image: siteImages.serviceExam },
+      { id: 'pre-departure', title: 'Pre-departure Guidance', description: 'A practical briefing before you fly: travel documents, accommodation, money, packing and your first weeks abroad.', linkLabel: 'See the full process', to: '/journey', image: siteImages.serviceLuggage },
     ],
     successStories: [],
     partnerLogos: [],
+    // "Partner visits and official meetings". Shown newest first by `date` ('YYYY-MM'); undated items follow
+    // in this order. Optional fields (place, date, description, tag) are hidden when empty, and an item
+    // without a photo is hidden. Embassies and consulates are official meetings, never "partners".
+    // tag: 'Institution visit' | 'Official meeting'.
     partnerVisits: [
-      { image: siteImages.griffin, caption: 'Visiting Griffin College, Australia' },
-      { image: siteImages.sahe, caption: 'Visiting Southern Academy of Higher Education' },
-      { image: siteImages.partnerMeeting, caption: 'Meeting with a partner delegation' },
+      { image: siteImages.nepalEmbassyCanberra, title: 'Meeting with H.E. Kailash Raj Pokharel, Ambassador of Nepal to Australia and New Zealand', place: 'Embassy of Nepal, Canberra', date: '2024-05', description: 'Our FECON delegation met the Ambassador to discuss student concerns.', tag: 'Official meeting' },
+      { image: siteImages.tafeQueensland, title: 'Visit to TAFE Queensland', date: '2024-05', description: 'Learning about the courses offered to international students during the FECON FAM Trip 2024.', tag: 'Institution visit' },
+      // No photo supplied yet: hidden until `image` is set.
+      { image: null, title: 'Meeting with H.E. Mahesh Dahal, Ambassador of Nepal to Australia', place: 'Embassy of Nepal, Australia', date: '2020-02', description: 'A successful meeting of the FECON delegation.', tag: 'Official meeting' },
+      // Photo to be supplied; spelling "Yonzon" awaiting confirmation (posts also use "Younjan").
+      { image: null, title: 'Meeting with Mr. Chandra Yonzon, Consul General of Nepal in Victoria', place: 'Victoria, Australia', date: '2020-02', description: '', tag: 'Official meeting' },
+      { image: siteImages.australianEmbassyKathmandu, title: 'Meeting with H.E. Peter Budd, Ambassador of Australia to Nepal', place: 'Australian Embassy, Kathmandu', date: '2020-01', description: 'A meeting with the FECON team.', tag: 'Official meeting' },
+      { image: siteImages.machhapuchchhreBank, title: 'With Machhapuchchhre Bank Limited' },
+      { image: siteImages.officeVisit, title: 'Welcoming a visiting guest to our office' },
+      { image: siteImages.griffin, title: 'Visiting Griffin College, Australia', tag: 'Institution visit' },
+      { image: siteImages.sahe, title: 'Visiting Southern Academy of Higher Education', tag: 'Institution visit' },
+      { image: siteImages.partnerMeeting, title: 'Meeting with a partner delegation' },
+      { image: siteImages.notreDame, title: 'Visiting The University of Notre Dame Australia', tag: 'Institution visit' },
+      { image: siteImages.aiihe, title: 'Meeting at Australian International Institute of Higher Education', tag: 'Institution visit' },
+      { image: siteImages.charlesSturt, title: 'With the team at Charles Sturt University', tag: 'Institution visit' },
+      { image: siteImages.sydneyCityCollege, title: 'Visiting Sydney City College of Management', tag: 'Institution visit' },
+      { image: siteImages.melbourneArrival, title: 'Arriving in Melbourne for partner visits' },
     ],
     enquiry: {
       countries: countries.map(({ name }) => name),
@@ -205,14 +280,25 @@ export const siteContent = {
       { label: 'Refund Policy', to: '/refund-policy' },
     ],
   },
-  leadership: {
-    name: 'Pawan Mainali',
-    title: 'Managing Director & Founder',
-    credentials: '',
-    image: siteImages.ceo,
-    message: 'When we founded VN Group, our vision was simple yet profound: to bridge the gap between ambitious students in Nepal and world-class international education. Navigating universities abroad can feel overwhelming, but with transparent guidance, meticulous document preparation, and honest counseling, we turn uncertainty into achievement. Your aspirations are our personal mission.',
-  },
   about: {
+    ceoName: 'Pawan Mainali',
+    ceoTitle: 'Managing Director',
+    ceoPhoto: siteImages.ceo,
+    // The About page shows the message only once VN Group has approved this exact text.
+    ceoMessageApproved: true,
+    // Photo folder beside the message: the partner-visit photos (VN Group confirmed Pawan is in all of them).
+    ceoAlbumTitle: 'Pawan with partners and officials',
+    // {foundedYear} is filled in from brand.foundedYear.
+    ceoMessage: 'Welcome to VN Group. Since {foundedYear}, our team has helped students and families in Nepal take confident steps towards studying abroad. We believe every student deserves honest advice, a clear plan and a team that stays with them from the first conversation to the day they fly. We meet universities, embassies and education partners in person, so the guidance we give you is based on what we have seen ourselves. Studying abroad is a big decision, and we treat it that way. Whether you are just exploring or ready to apply, we would be glad to talk with you.',
+    // "Life at VN Group" strip: 2 to 6 photos; the strip is hidden when none load.
+    lifePhotos: [
+      webpPhoto('about', 'team-picnic-1', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+      webpPhoto('about', 'team-picnic-2', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+      webpPhoto('about', 'team-picnic-3', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+      webpPhoto('about', 'team-picnic-4', [480, 800], 800, 799, 'VN Group team picnic', PICNIC_SIZES),
+      { ...webpPhoto('about', 'team-picnic-5', [480, 800], 800, 1067, 'VN Group team picnic', PICNIC_SIZES), position: 'center 62%' },
+      webpPhoto('about', 'team-picnic-6', [480, 800], 800, 600, 'VN Group team picnic', PICNIC_SIZES),
+    ],
     timeline: [{ year: 2012, title: 'VN Group founded' }],
     institutionsEyebrow: 'Our approach',
     institutionsTitle: 'How we work with institutions',
@@ -227,6 +313,15 @@ export const siteContent = {
     refund: { title: 'Refund Policy', body: 'TODO_REPLACE' },
   },
 }
+
+const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+// 'YYYY-MM' -> 'May 2024'.
+export const formatMonthYear = (value) => monthYear.format(new Date(`${value}-01T00:00:00Z`))
+
+// Partner visits that have a photo, newest first by 'YYYY-MM'; undated ones keep their listed order after.
+export const partnerVisitsWithPhotos = () => siteContent.home.partnerVisits
+  .filter((visit) => visit.image && visit.title)
+  .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
 
 export const yearsOfExperience = (now = new Date()) => now.getFullYear() - siteContent.brand.foundedYear
 

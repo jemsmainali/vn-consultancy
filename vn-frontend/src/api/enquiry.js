@@ -1,7 +1,7 @@
-const configuredApiBase = import.meta.env.VITE_API_URL?.trim()
-export const enquiryEndpoint = configuredApiBase
-  ? new URL('/enquiries', configuredApiBase).toString()
-  : '/api/enquiries'
+import { API_BASE } from '../api'
+
+// Plain concatenation like the rest of the API calls: `new URL()` throws on a relative base such as "/api".
+export const enquiryEndpoint = `${API_BASE.replace(/\/+$/, '')}/enquiries`
 
 // Pydantic prefixes custom validator messages with "Value error, ".
 const cleanMessage = (message) => String(message || '').replace(/^Value error,\s*/i, '')
@@ -15,7 +15,7 @@ export async function submitEnquiry(payload) {
       body: JSON.stringify(payload),
     })
   } catch (cause) {
-    console.error(`Could not reach ${enquiryEndpoint}. Set VITE_API_URL to the enquiry API base or configure the /api/enquiries proxy.`, cause)
+    console.error(`Could not reach ${enquiryEndpoint}. Check VITE_API_URL.`, cause)
     throw new Error('We could not reach our server. Check your connection and try again.')
   }
   const data = await response.json().catch(() => null)

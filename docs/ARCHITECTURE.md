@@ -19,11 +19,11 @@
 ## Auth and roles
 - JWT access (20 min) and refresh (7 days) tokens in httpOnly cookies (`access_token` path `/`, `refresh_token` path `/auth`). Refresh rotates both.
 - `app/api/deps.py`: `get_current_user` reads the cookie; `require_role(*roles)` returns 403 otherwise.
-- `UserRole`: `student`, `principal`, `parent`, `other`, `consultancy_staff`. Email OTP verification on register. `principal` and `consultancy_staff` need staff approval (`is_approved`). Optional encrypted bank details for non-students (`REQUIRE_BANK_DETAILS_FOR_NON_STUDENTS`).
+- `UserRole`: `student`, `principal`, `parent`, `other`, `consultancy_staff`. Email OTP verification on register. `principal` and `consultancy_staff` need staff approval (`is_approved`). Required bank details for the `other` role only (account name, bank name, Fernet-encrypted account number, nominee name; needs `BANK_DATA_ENCRYPTION_KEY`); never returned by any API.
 - Frontend: `auth.jsx` `AuthProvider` loads `/auth/me`; `api.js` `api()` retries once after `/auth/refresh` on 401, else redirects to `/login`.
 
 ## Models (`app/models/`)
-`User` (profile, passport, target course level/field/country, parent contact, photo, flags) · `UserBankDetails` · `EmailOTP` · `Document` (owner, doc_type, college/university, file meta, status `pending|under_review|reviewed|rejected`) · `StudentEnquiry` (lead with status `new→contacted→counselling→documents_pending→application_in_progress→submitted→decision_received→closed`, assignee, follow-up, notes) · `Message` (sender, receiver, optional document_id, read) · `GalleryItem` · `AuditLog`. Migrations: `alembic/versions/` (9 revisions).
+`User` (profile, passport, target course level/field/country, parent contact, photo, flags) · `UserBankDetails` · `EmailOTP` · `Document` (owner, doc_type, college/university, file meta, status `pending|under_review|reviewed|rejected`) · `StudentEnquiry` (lead with status `new→contacted→counselling→documents_pending→application_in_progress→submitted→decision_received→closed`, assignee, follow-up, notes) · `Message` (sender, receiver, optional document_id, read) · `GalleryItem` · `AuditLog`. Migrations: `alembic/versions/` (13 revisions).
 
 ## Layout components
 - `ui.jsx`: portal `Layout` (sidebar with `WORKSPACE_LINKS` and `STAFF_LINKS`, pending badge) and primitives: `Card`, `Btn`, `Input`, `Select`, `Field`, `PageHeader`, `StatusBadge`, `EmptyState`, `Pagination`, `Avatar`, `Icon`.

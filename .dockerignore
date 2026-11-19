@@ -1,0 +1,17 @@
+.git
+.env
+.env.*
+.neon
+venv
+.venv
+node_modules
+vn-frontend
+uploads
+tests
+.agents
+.claude
+.vscode
+**/__pycache__
+*.pyc
+*.dump
+*.sql

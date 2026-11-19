@@ -4,7 +4,7 @@ import { fetchMyPhoto, updateProfile, uploadProfilePhoto } from '../api'
 import { Card, Input, Select, Btn, Err, Icon, PageHeader, StatusBadge, initials } from '../ui'
 
 const ROLE_LABEL = {
-  student: 'Student', principal: 'Principal', parent: 'Parent/Guardian',
+  student: 'Student', principal: 'Principal', agent: 'Agent', parent: 'Parent/Guardian',
   other: 'Other', consultancy_staff: 'VN Group Staff',
 }
 

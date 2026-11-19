@@ -7,11 +7,12 @@ import ListSkeleton from '../components/ui/ListSkeleton'
 const ROLE_LABEL = {
   student: 'Student',
   principal: 'Principal',
+  agent: 'Agent',
   parent: 'Parent/Guardian',
   other: 'Other',
   consultancy_staff: 'Staff',
 }
-const ROLE_TONE = { consultancy_staff: 'gold', principal: 'indigo', student: 'info' }
+const ROLE_TONE = { consultancy_staff: 'gold', principal: 'indigo', agent: 'indigo', student: 'info' }
 
 export default function Users() {
   const [users, setUsers] = useState([])
@@ -90,10 +91,15 @@ export default function Users() {
                       <td data-label="Status"><StatusBadge tone={u.is_active ? 'success' : 'danger'}>{u.is_active ? 'Active' : 'Deactivated'}</StatusBadge></td>
                       <td data-label="Joined" className="whitespace-nowrap">{new Date(u.created_at).toLocaleDateString()}</td>
                       <td className="ui-cell-actions">
-                        <Btn type="button" size="sm" variant={u.is_active ? 'danger' : 'secondary'} onClick={() => toggle(u)} disabled={busyId === u.id}>
-                          {busyId === u.id && <span className="ui-spin" aria-hidden="true" />}
-                          {u.is_active ? 'Deactivate' : 'Reactivate'}
-                        </Btn>
+                        {u.role === 'consultancy_staff' ? (
+                          // The server refuses changes to staff accounts, so don't offer them.
+                          <span className="text-xs text-navy/60">Managed by VN Group admin</span>
+                        ) : (
+                          <Btn type="button" size="sm" variant={u.is_active ? 'danger' : 'secondary'} onClick={() => toggle(u)} disabled={busyId === u.id}>
+                            {busyId === u.id && <span className="ui-spin" aria-hidden="true" />}
+                            {u.is_active ? 'Deactivate' : 'Reactivate'}
+                          </Btn>
+                        )}
                       </td>
                     </tr>
                   ))}

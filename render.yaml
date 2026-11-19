@@ -1,0 +1,84 @@
+# Render Blueprint for the public DEMO (synthetic data only).
+# Frontend and API share one origin: the static site rewrites /api/* to the API service,
+# so the SameSite=Lax auth cookies stay first-party (Safari blocks cross-site cookies).
+# If Render gives the API a different hostname than vn-group-api.onrender.com,
+# update the /api/* destination below.
+services:
+  - type: web
+    name: vn-group-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: API_PATH_PREFIX
+        value: /api
+      - key: CORS_ORIGINS
+        value: https://vn-group-demo.onrender.com
+      - key: EMAIL_ENABLED
+        value: "false"
+      - key: FRONTEND_URL
+        value: https://vn-group-demo.onrender.com
+      - key: UPLOAD_DIR
+        value: /app/uploads
+      - key: SECRET_KEY
+        generateValue: true
+      # Secrets entered in the Render dashboard on first Blueprint sync:
+      - key: DATABASE_URL          # Neon *demo* database, pooled connection string
+        sync: false
+      - key: DATABASE_URL_UNPOOLED # same database, direct connection (used by migrations)
+        sync: false
+      - key: BANK_DATA_ENCRYPTION_KEY # Fernet key; back it up or stored numbers become unreadable
+        sync: false
+      - key: STAFF_EMAILS          # comma-separated addresses allowed to register as staff
+        sync: false
+
+  - type: web
+    name: vn-group-demo
+    runtime: static
+    # Build inside vn-frontend: from the repo root Render sees requirements.txt and tries to pip-install the API.
+    rootDir: vn-frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+      - key: VITE_DEMO_MODE
+        value: "true"
+      - key: NODE_VERSION
+        value: "22"
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+      # Keeps the ?token= of an emailed verification link from leaking to other sites in Referer.
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+      # REPORT-ONLY for now: the browser console lists what it would block, nothing is blocked yet.
+      # After a clean pass over every page and an uploaded-document view, rename to Content-Security-Policy.
+      - path: /*
+        name: Content-Security-Policy-Report-Only
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://vn-group-api.onrender.com/*
+      - type: rewrite
+        source: /*
+        destination: /index.html

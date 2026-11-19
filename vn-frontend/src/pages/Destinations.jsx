@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import CountryFlag from '../components/CountryFlag'
 import ScrollReveal from '../ScrollReveal'
 import VerifiedGuide from '../components/destinations/VerifiedGuide'
+import UniversityList, { hasUniversityList } from '../components/destinations/UniversityList'
 import { countryProfile, countryProfiles } from '../data/destinations/countries'
 import { destinationByName, destinationPath } from '../data/destinations/registry'
 import { claimTypes, exchangeRates, formatLocal, formatNpr, formatNprRange, formatRange, researchDate } from '../data/destinations/meta'
@@ -117,7 +118,7 @@ export function DestinationsHub() {
                   <span><small>Visa</small>{country.visa.name}</span>
                   <span><small>Work</small>{quickFact(country, 'Work while studying')}</span>
                 </span>
-                <span className="destination-guide-cta">Read the {country.name} guide<span aria-hidden="true">→</span></span>
+                <span className="destination-guide-cta">Read the {country.name} guide</span>
               </span>
             </Link>
           </ScrollReveal>)}
@@ -125,20 +126,7 @@ export function DestinationsHub() {
       </div>
     </section>
     <CompareDestinations />
-    <DisclaimerBand />
   </div>
-}
-
-function DisclaimerBand({ country }) {
-  return <section className="destination-cta-band">
-    <div className="data-container destination-cta-inner">
-      <div>
-        <h2>{country ? `Planning to study in ${country.name}?` : 'Not sure which country fits you?'}</h2>
-        <p>Talk it through with a VN Group counsellor. Admission and visa decisions are made by institutions and governments; we help you prepare a clear, honest application.</p>
-      </div>
-      <a className="home-button" href={enquiryHref(country?.name || '')}>Book free counselling<span aria-hidden="true">→</span></a>
-    </div>
-  </section>
 }
 
 // ---------- Detail ----------
@@ -150,8 +138,11 @@ const sections = [
   { id: 'visa', label: 'Student visa' },
   { id: 'fit', label: 'Best suited for' },
   { id: 'sources', label: 'Sources' },
+  { id: 'universities', label: 'Universities' },
   { id: 'full-guide', label: 'Full guide' },
 ]
+// The Universities tab only appears for countries with a university list.
+const sectionsFor = (slug) => sections.filter((section) => section.id !== 'universities' || hasUniversityList(slug))
 
 function useActiveSection(ids) {
   const [active, setActive] = useState(ids[0])
@@ -225,12 +216,13 @@ const publicGuideParts = ['overview', 'tuition', 'livingCosts', 'financialEviden
 export function DestinationDetail() {
   const { slug } = useParams()
   const country = countryProfile(slug)
-  const sectionIds = useMemo(() => sections.map((section) => section.id), [])
+  const pageSections = useMemo(() => sectionsFor(slug), [slug])
+  const sectionIds = useMemo(() => pageSections.map((section) => section.id), [pageSections])
   const active = useActiveSection(sectionIds)
 
   if (!country) return <div className="destinations-page"><header className="destinations-hero"><div className="data-container">
     <p className="data-eyebrow">Destination not found</p><h1>We don’t have a guide for that destination yet.</h1>
-    <p><Link className="home-text-link" to="/destinations">See all destination guides<span aria-hidden="true">→</span></Link></p>
+    <p><Link className="home-text-link" to="/destinations">See all destination guides</Link></p>
   </div></header></div>
 
   const index = countryProfiles.indexOf(country)
@@ -245,8 +237,8 @@ export function DestinationDetail() {
         <h1><CountryFlag code={country.code} name="" size={30} />Study in {country.name}</h1>
         <p>{country.intro}</p>
         <div className="destination-detail-actions">
-          <a className="home-button" href={enquiryHref(country.name)}>Get free advice for {country.name}<span aria-hidden="true">→</span></a>
-          <a className="home-button home-button-ghost" href="#costs">See costs<span aria-hidden="true">↓</span></a>
+          <Link className="home-button glow-cta" to={enquiryHref(country.name)}>Get free advice for {country.name}</Link>
+          <Link className="home-button home-button-ghost" to="#costs">See costs</Link>
         </div>
         <p className="destination-updated">Research checked {researchDate} · Rules change: always confirm with the official sources linked on this page.</p>
       </div>
@@ -258,7 +250,7 @@ export function DestinationDetail() {
     </dl>
 
     <nav className="destination-section-nav" aria-label={`${country.name} guide sections`}>
-      <div className="data-container"><ul>{sections.map((section) => <li key={section.id}><a href={`#${section.id}`} aria-current={active === section.id ? 'true' : undefined}>{section.label}</a></li>)}</ul></div>
+      <div className="data-container"><ul>{pageSections.map((section) => <li key={section.id}><Link to={`#${section.id}`} aria-current={active === section.id ? 'true' : undefined}>{section.label}</Link></li>)}</ul></div>
     </nav>
 
     <div className="data-container destination-detail-body">
@@ -310,16 +302,19 @@ export function DestinationDetail() {
         </details>
       </DetailSection>
 
-      <DetailSection id="full-guide" letter="G" title={`Full ${country.name} guide`}>
+      {hasUniversityList(country.slug) && <DetailSection id="universities" letter="G" title={`Universities in ${country.name}`}>
+        <UniversityList slug={country.slug} countryName={country.name} />
+      </DetailSection>}
+
+      <DetailSection id="full-guide" letter={hasUniversityList(country.slug) ? 'H' : 'G'} title={`Full ${country.name} guide`}>
         <VerifiedGuide slug={country.slug} name={country.name} omit={publicGuideParts} />
       </DetailSection>
 
       <nav className="destination-pager" aria-label="Other destinations">
-        <Link to={destinationPath(previous)}><small>Previous</small><span aria-hidden="true">←</span> {previous.name}</Link>
+        <Link to={destinationPath(previous)}><small>Previous</small>{previous.name}</Link>
         <Link to="/destinations" className="is-all">All destinations</Link>
-        <Link to={destinationPath(next)}><small>Next</small>{next.name} <span aria-hidden="true">→</span></Link>
+        <Link to={destinationPath(next)}><small>Next</small>{next.name}</Link>
       </nav>
     </div>
-    <DisclaimerBand country={country} />
   </div>
 }

@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import '@fontsource-variable/inter'
 import './index.css'
 import './public-site.css'
 import './leads.css'
@@ -23,7 +24,9 @@ import { Layout } from './ui'
 const HomePage = lazy(() => import('./HomePage'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
-const Verify = lazy(() => import('./pages/Verify'))
+const CheckInbox = lazy(() => import('./pages/CheckInbox'))
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'))
+const Pending = lazy(() => import('./pages/Pending'))
 const Documents = lazy(() => import('./pages/Documents'))
 const Messages = lazy(() => import('./pages/Messages'))
 const Approvals = lazy(() => import('./pages/Approvals'))
@@ -54,6 +57,8 @@ const Journey = lazy(() => import('./pages/Journey'))
 const NotFound = lazy(() => loadPublicSite().then((module) => ({ default: module.NotFound })))
 const Privacy = lazy(() => loadPublicSite().then((module) => ({ default: module.Privacy })))
 import WhatsAppButton from './components/layout/WhatsAppButton'
+import ScrollManager from './components/layout/ScrollManager'
+import PaymentNotice from './components/layout/PaymentNotice'
 
 function SkipNavigation() {
   const location = useLocation()
@@ -65,11 +70,8 @@ function SkipNavigation() {
       main.focus({ preventScroll: true })
       return true
     }
+    // Scrolling is ScrollManager's job; this only moves focus to the new page.
     const frame = window.requestAnimationFrame(() => {
-      if (!location.hash) {
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' })
-      }
       if (focusMain()) return
       const root = document.getElementById('root')
       if (!root) return
@@ -82,17 +84,21 @@ function SkipNavigation() {
     return () => window.cancelAnimationFrame(frame)
   }, [location.pathname])
 
-  return <a className="skip-link" href="#main">Skip to content</a>
+  // Focus (and scroll to) main without adding a #main history entry.
+  return <a className="skip-link" href="#main" onClick={(event) => { event.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
 }
 
 function RouteFallback() {
   return <div className="route-loading" role="status"><span className="route-loading-bar" /><span className="sr-only">Loading page</span></div>
 }
 
+// Pending principals and agents only ever see /pending; the API refuses them everywhere else too.
 function Guard() {
   const { user, loading } = useAuth()
   if (loading) return <p className="p-8">Loading...</p>
-  return user ? <Layout /> : <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" replace />
+  if (user.status === 'pending') return <Navigate to="/pending" replace />
+  return <Layout />
 }
 
 // Nested inside Guard; the API enforces the same student-only rule.
@@ -105,14 +111,25 @@ function StaffGuard() {
   const { user, loading } = useAuth()
   if (loading) return <p className="p-8">Loading...</p>
   if (!user) return <Navigate to="/login" replace />
+  if (user.status === 'pending') return <Navigate to="/pending" replace />
   if (user.role !== 'consultancy_staff') return <Navigate to="/" replace />
   return <Layout />
 }
 
+// Public demo build only (VITE_DEMO_MODE=true): make clear nothing here is a real record.
+const DemoNotice = () => import.meta.env.VITE_DEMO_MODE === 'true' ? (
+  <div role="note" style={{ background: '#102544', color: '#FFFFFF', textAlign: 'center', fontSize: 14, padding: '6px 16px' }}>
+    Demo site: sample data only. Please do not enter real personal, document or bank details.
+  </div>
+) : null
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
+      <ScrollManager />
       <SkipNavigation />
+      <DemoNotice />
+      <PaymentNotice />
       <AuthProvider>
         <Suspense fallback={<RouteFallback />}>
         <Routes>
@@ -134,7 +151,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/verify" element={<Verify />} />
+          <Route path="/check-inbox" element={<CheckInbox />} />
+          <Route path="/verify" element={<CheckInbox />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/pending" element={<Pending />} />
           <Route element={<Guard />}>
             <Route path="/portal" element={<Documents />} />
             <Route path="/messages" element={<Messages />} />

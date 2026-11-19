@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import ResponsiveImage from './ResponsiveImage'
 import ScrollReveal from './ScrollReveal'
@@ -14,57 +15,84 @@ import JourneyGallery from './components/home/JourneyGallery'
 import CountUp from './components/home/CountUp'
 import CountryFlag from './components/CountryFlag'
 import { destinationByName, destinationPath } from './data/destinations/registry'
+import { gsap } from './components/home/sectionMotion'
+import './home-hero.css'
 
 const hero = siteContent.home.hero
 const foundedYear = siteContent.brand.foundedYear
 const yearsExperience = yearsOfExperience()
-const visibleCountryName = (country) => country.name === 'United States' ? 'USA' : country.name === 'South Korea' ? 'Korea' : country.name
+const visibleCountryName = (country) => country.name === 'United States' ? 'USA' : country.name === 'South Korea' ? 'Korea' : country.name === 'United Kingdom' ? 'UK' : country.name
 const popularCountries = hero.rotatingCountries
   .map((name) => siteContent.home.countries.find((country) => country.name === name))
   .filter(Boolean)
-  .slice(0, 5)
+  .slice(0, 6)
 
-function HeroCountry({ country }) {
+function HeroCountry({ country, index }) {
   const guide = destinationByName(country.name)
-  return <Link className="hero-country-chip" to={guide ? destinationPath(guide) : '/destinations'}>
-    <CountryFlag code={country.code} name={country.name} size={19} />
+  return <Link className="vn-hero-country" style={{ '--i': index }} to={guide ? destinationPath(guide) : '/destinations'}>
+    <span className="vn-hero-flag"><CountryFlag code={country.code} name="" size={32} /></span>
     <span>{visibleCountryName(country)}</span>
   </Link>
 }
 
 function HomeHero() {
-  const hasCounselling = siteContent.home.services.some((service) => service.title.toLowerCase().includes('counselling'))
-  const hasVisaSupport = siteContent.home.services.some((service) => service.title.toLowerCase().includes('visa'))
+  const heroRef = useRef(null)
 
-  return <section className="home-hero data-home-hero" aria-labelledby="home-title">
-    <div className="home-container home-hero-grid">
-      <div className="home-hero-copy">
-        <p className="home-eyebrow home-hero-pill hero-in">Since {foundedYear} <span aria-hidden="true">·</span> {yearsExperience}+ {hero.eyebrow}</p>
-        <h1 id="home-title" className="hero-in" style={{ animationDelay: '80ms' }}>{hero.title} <em>{hero.emphasis}</em></h1>
-        <p className="home-hero-description hero-in" style={{ animationDelay: '160ms' }}>{hero.description}</p>
-        <div className="home-actions hero-in" style={{ animationDelay: '240ms' }}>
-          <a className="home-button" href="#enquire">{hero.primaryLabel}<span aria-hidden="true">↗</span></a>
-          <Link className="home-button home-button-ghost" to="/destinations">{hero.secondaryLabel}<span aria-hidden="true">→</span></Link>
+  useLayoutEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return undefined
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia()
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const photo = hero.querySelector('.vn-hero-media')
+        const lines = hero.querySelectorAll('[data-hero-line]')
+        const fades = hero.querySelectorAll('[data-hero-fade]')
+        // Opening: the photo settles from a slow push-in while the headline rises line by line.
+        gsap.timeline({ defaults: { ease: 'power3.out' } })
+          .from(photo, { scale: 1.14, opacity: 0, duration: 2.2, ease: 'power2.out' })
+          .from(lines, { yPercent: 110, duration: 1.25, stagger: 0.14, ease: 'power4.out' }, 0.35)
+          .from(fades, { opacity: 0, y: 24, duration: 1, stagger: 0.1, clearProps: 'opacity,transform' }, 0.95)
+        // Leaving: the photo drifts slower than the page and the copy lifts away as the hero scrolls out.
+        const leave = { trigger: hero, start: 'top top', end: 'bottom top', scrub: true }
+        gsap.to(photo, { yPercent: 16, ease: 'none', scrollTrigger: leave })
+        gsap.to(hero.querySelector('.vn-hero-inner'), { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { ...leave, end: '85% top' } })
+        gsap.to(hero.querySelector('.vn-hero-dim'), { opacity: 0.7, ease: 'none', scrollTrigger: leave })
+      })
+    }, hero)
+    return () => ctx.revert()
+  }, [])
+
+  return <section ref={heroRef} className="vn-hero" aria-labelledby="home-title">
+    <div className="vn-hero-media">
+      <ResponsiveImage image={hero.photo} className="vn-hero-photo" loading="eager" fetchPriority="high" objectPosition="center 42%" />
+    </div>
+    <div className="vn-hero-shade" aria-hidden="true" />
+    <div className="vn-hero-dim" aria-hidden="true" />
+    <div className="vn-hero-inner">
+      <p className="vn-hero-eyebrow" data-hero-fade>Since {foundedYear} <span aria-hidden="true">·</span> {yearsExperience}+ {hero.eyebrow}</p>
+      <h1 id="home-title" className="vn-hero-title">
+        <span className="vn-hero-line"><span data-hero-line>{hero.title}</span></span>
+        <span className="vn-hero-line"><em data-hero-line>{hero.emphasis}</em></span>
+      </h1>
+      <div className="vn-hero-foot">
+        <p className="vn-hero-lede" data-hero-fade>{hero.description}</p>
+        <div className="vn-hero-actions" data-hero-fade>
+          <Link className="vn-hero-button glow-cta" to="/#enquire">{hero.primaryLabel}</Link>
+          <Link className="vn-hero-button vn-hero-button-ghost" to="/destinations">{hero.secondaryLabel}</Link>
         </div>
-        <nav className="home-hero-countries hero-in" style={{ animationDelay: '320ms' }} aria-label="Popular study destinations">
-          {popularCountries.map((country) => <HeroCountry key={country.name} country={country} />)}
-        </nav>
       </div>
-      <div className="home-hero-media hero-in hero-in-media" style={{ animationDelay: '160ms' }}>
-        <span className="home-hero-glow" aria-hidden="true" />
-        <ResponsiveImage image={hero.photo} className="home-hero-photo" loading="eager" fetchPriority="high" objectPosition="center 40%" />
-        <div className="home-hero-proof-card">
-          <strong>{yearsExperience}+</strong>
-          <span>Years of trusted guidance</span>
-        </div>
-        {(hasCounselling || hasVisaSupport) && <div className="home-hero-services-card">
-          {hasCounselling && <span><b aria-hidden="true">✓</b> Free counselling</span>}
-          {hasVisaSupport && <span><b aria-hidden="true">✓</b> Visa support</span>}
-        </div>}
-      </div>
+    </div>
+    <div className="vn-hero-rail" data-hero-fade>
+      <nav className="vn-hero-countries" aria-label="Popular study destinations">
+        {popularCountries.map((country, index) => <HeroCountry key={country.name} country={country} index={index} />)}
+      </nav>
+      <Link className="vn-hero-scroll" to="/#about-vn"><span>Scroll</span><i aria-hidden="true" /></Link>
     </div>
   </section>
 }
+
+// Same photo as the Career & Study Counselling card, sized for the About column.
+const aboutImage = { ...siteImages.counselling, sizes: '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px' }
 
 function HomeAbout() {
   const facts = [
@@ -75,7 +103,7 @@ function HomeAbout() {
   return <section id="about-vn" className="data-section home-about-section" aria-labelledby="home-about-title">
     <div className="data-container home-about-grid">
       <ScrollReveal className="home-about-media" direction="left">
-        <ResponsiveImage image={siteImages.partnerMeeting} className="home-about-photo" />
+        <ResponsiveImage image={aboutImage} className="home-about-photo" />
       </ScrollReveal>
       <ScrollReveal className="home-about-copy" direction="right" delay={80}>
         <p className="data-eyebrow">About VN Group</p>
@@ -84,7 +112,7 @@ function HomeAbout() {
         <dl className="home-about-facts">
           {facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd><CountUp value={fact.value} suffix={fact.suffix} /></dd></div>)}
         </dl>
-        <Link className="home-text-link" to="/about">Meet our founder<span aria-hidden="true">→</span></Link>
+        <Link className="home-text-link" to="/about">Meet our founder</Link>
       </ScrollReveal>
     </div>
   </section>

@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from './auth'
 import CeoMessage from './CeoMessage'
-import ScrollReveal from './ScrollReveal'
 import ResponsiveImage from './ResponsiveImage'
-import { siteContent, siteContentReady, siteImages, yearsOfExperience } from './data/siteContent'
+import { siteContent, siteContentReady, yearsOfExperience } from './data/siteContent'
 import { destinationBySlug, destinationPath, destinations } from './data/destinations/registry'
 import CountryFlag from './components/CountryFlag'
 import SiteFooter from './components/layout/SiteFooter'
+import HomeLink from './components/layout/HomeLink'
+import ChatWidget from './components/layout/ChatWidget'
 import LegalPage from './components/layout/LegalPage'
 import EnquirySection from './components/home/EnquirySection'
 import FAQ from './components/home/FAQ'
@@ -24,7 +25,7 @@ const metadataFor = (pathname) => {
 
 const pageMetadata = {
   '/': [`${yearsExperience}+ Years of Study Abroad Guidance | VN Group`, `${yearsExperience}+ years of study abroad guidance for students in Nepal. Explore study options and plan your next steps with VN Group.`],
-  '/about': ['Leadership & Vision | VN Group', 'A message from VN Group leadership to students in Nepal exploring international education.'],
+  '/about': ['About Us | VN Group', 'About VN Group Study Abroad: our journey, how we work with institutions and life at VN Group.'],
   '/destinations': ['Study Destinations for Nepali Students | VN Group', 'Compare costs, visas, work rights and post-study options in 10 study destinations, with official sources and dated exchange rates.'],
   '/journey': ['How It Works – The Student Journey | VN Group', 'Eleven stages from free counselling to arrival abroad: what you do, how VN Group helps, documents needed and what affects the timeline.'],
   '/faqs': ['Study Abroad FAQs for Nepali Students | VN Group', 'Searchable answers on eligibility, English tests, costs, visas, part-time work and post-study options.'],
@@ -43,6 +44,15 @@ function NavIcon({ name }) {
     passport: <><rect x="4" y="2.8" width="12" height="14.4" rx="1.5"/><circle cx="10" cy="8" r="2.4"/><path d="M6.5 13h7"/></>,
     language: <><circle cx="10" cy="10" r="7"/><path d="M3.5 10h13M10 3c2 2 2 12 0 14m0-14c-2 2-2 12 0 14"/></>,
     plane: <><path d="m2.5 11 15-6-5.3 12-2.5-4.2z"/><path d="m9.7 12.8 3.5-3.5"/></>,
+    story: <><path d="M10 5.5C8.5 4.3 6.3 3.8 3 4v11.5c3.3-.2 5.5.3 7 1.5 1.5-1.2 3.7-1.7 7-1.5V4c-3.3-.2-5.5.3-7 1.5z"/><path d="M10 5.5V17"/></>,
+    team: <><circle cx="7.5" cy="7" r="2.7"/><path d="M2.5 16.5c.4-3 2.1-4.5 5-4.5s4.6 1.5 5 4.5"/><path d="M12.8 4.6a2.5 2.5 0 0 1 0 4.8m1.8 2.9c1.6.5 2.6 1.9 2.9 4.2"/></>,
+    shield: <><path d="M10 2.8 4 5v4.6c0 3.7 2.5 6.4 6 7.6 3.5-1.2 6-3.9 6-7.6V5z"/><path d="m7.4 10 1.8 1.8 3.5-3.6"/></>,
+    university: <><path d="M2.8 7 10 3.2 17.2 7z"/><path d="M4.5 7.5V14m3.8-6.5V14m3.4-6.5V14m3.8-6.5V14M3 16.8h14"/></>,
+    star: <path d="m10 3 2.1 4.4 4.7.6-3.4 3.3.9 4.7L10 13.7 5.7 16l.9-4.7L3.2 8l4.7-.6z"/>,
+    pen: <><path d="M3.5 16.5h13"/><path d="M12.6 3.9a1.6 1.6 0 0 1 2.3 2.3l-7.4 7.4-3 .8.8-3z"/></>,
+    question: <><circle cx="10" cy="10" r="7"/><path d="M8 7.9a2.1 2.1 0 0 1 4 .7c0 1.4-2 1.8-2 3m0 2.6h.01"/></>,
+    route: <><circle cx="5" cy="15" r="1.8"/><circle cx="15" cy="5" r="1.8"/><path d="M6.8 15h5.7a2.5 2.5 0 0 0 0-5h-5a2.5 2.5 0 0 1 0-5h5.7"/></>,
+    gallery: <><rect x="3" y="4" width="14" height="12" rx="1.5"/><circle cx="7.3" cy="8.2" r="1.3"/><path d="m3.5 14.5 4-4 3 3 2-2 4 4"/></>,
   }
   return <svg className="nav-item-icon" aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>
 }
@@ -51,6 +61,8 @@ export function PublicLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState('')
   const [isScrolled, setIsScrolled] = useState(() => typeof window !== 'undefined' && window.scrollY > 20)
+  // True while the header still sits over the homepage's full-screen hero photo.
+  const [isOverHero, setIsOverHero] = useState(true)
   const location = useLocation()
   const { user } = useAuth()
   const [activeSection, setActiveSection] = useState('')
@@ -60,14 +72,13 @@ export function PublicLayout() {
   const navRef = useRef(null)
   const hoverTimers = useRef({})
   const dropdownGroups = [
-    { id: 'about', label: 'About', items: siteContent.navigation.about },
+    { id: 'about', label: 'About', items: siteContent.navigation.about, icon: true },
     { id: 'services', label: 'Services', items: siteContent.navigation.services, icon: true },
     { id: 'destinations', label: 'Destinations', items: destinations.map((item) => ({ label: item.name, code: item.code, to: destinationPath(item) })), destination: true },
-    { id: 'resources', label: 'Resources', items: siteContent.navigation.resources },
+    { id: 'resources', label: 'Resources', items: siteContent.navigation.resources, icon: true },
   ]
   const closeMenu = () => { setMenuOpen(false); setOpenDropdown('') }
   const isHome = location.pathname === '/'
-  const linkTo = (to) => to.startsWith('/#') && location.pathname !== '/' ? `/${to.slice(1)}` : to
 
   const scheduleDropdown = (id, delay, action) => {
     window.clearTimeout(hoverTimers.current[id])
@@ -81,7 +92,9 @@ export function PublicLayout() {
       frame = window.requestAnimationFrame(() => {
         frame = 0
         const nextIsScrolled = window.scrollY > 20
+        const nextIsOverHero = window.scrollY < window.innerHeight - 96
         setIsScrolled((current) => current === nextIsScrolled ? current : nextIsScrolled)
+        setIsOverHero((current) => current === nextIsOverHero ? current : nextIsOverHero)
       })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -123,16 +136,6 @@ export function PublicLayout() {
     document.head.append(script)
     return () => script.remove()
   }, [isHome])
-
-  useEffect(() => {
-    if (!location.hash) return undefined
-    const frame = requestAnimationFrame(() => {
-      const target = document.getElementById(decodeURIComponent(location.hash.slice(1)))
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [location.pathname, location.hash])
 
   useEffect(() => {
     if (!isHome || !('IntersectionObserver' in window)) return undefined
@@ -204,11 +207,12 @@ export function PublicLayout() {
 
   return (
     <div className="public-site">
-      <header className={`site-header${isScrolled ? ' is-scrolled' : ''}`}>
+      <header className={`site-header${isScrolled ? ' is-scrolled' : ''}${isHome && isOverHero && !menuOpen ? ' is-over-hero' : ''}`}>
         <div className="site-header-inner">
-          <Link className="brand" to="/" aria-label="VN Group home" onClick={closeMenu}>
+          <HomeLink className="brand" aria-label="VN Group home" onClick={closeMenu}>
             <img className="brand-image" src={siteContent.brand.logo.src} alt={siteContent.brand.logo.alt} />
-          </Link>
+            {isHome && siteContent.brand.lightLogo && <img className="brand-image brand-image-light" src={siteContent.brand.lightLogo.src} alt={siteContent.brand.lightLogo.alt} />}
+          </HomeLink>
           <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-navigation" onClick={() => { setMenuOpen(!menuOpen); setOpenDropdown('') }}>
             <span className="sr-only">{menuOpen ? 'Close' : 'Open'} navigation menu</span>
             <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
@@ -224,27 +228,28 @@ export function PublicLayout() {
                 <div id={`${group.id}-subnav`} className={`about-dropdown${group.destination ? ' destinations-dropdown' : ''}${group.id === 'services' ? ' services-dropdown' : ''}`} aria-label={group.label} aria-hidden={!isOpen}>
                   <ul>
                     {group.items.map((item) => <li key={item.label}>
-                      <Link to={linkTo(item.to)} onClick={closeMenu}>
+                      <Link to={item.to} onClick={closeMenu}>
                         {group.icon && <NavIcon name={item.icon} />}
                         {group.destination && <CountryFlag code={item.code} name={item.label} size={20} />}
                         <span className="about-menu-copy"><strong>{item.label}</strong>{item.detail && <small>{item.detail}</small>}</span>
                       </Link>
                     </li>)}
                   </ul>
-                  {group.destination && <Link className="view-destinations-link" to="/destinations" onClick={closeMenu}>View all destinations <span aria-hidden="true">→</span></Link>}
+                  {group.destination && <Link className="view-destinations-link" to="/destinations" onClick={closeMenu}>View all destinations</Link>}
                 </div>
               </div>
             })}
-            <a href={isHome ? '#enquire' : '/#enquire'} onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</a>
+            <Link to="/#enquire" onClick={closeMenu} className={`site-nav-link${location.pathname === '/contact' || activeSection === 'enquire' || location.hash === '#enquire' ? ' active' : ''}`}>Contact</Link>
             <div className="site-nav-actions">
               <Link className="student-login-link" to={user ? '/portal' : '/login'} onClick={closeMenu} aria-label={user ? undefined : 'Login'}><svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="6.2" r="3"/><path d="M3.8 17c.4-3.3 2.5-5 6.2-5s5.8 1.7 6.2 5"/></svg>{user ? 'My account' : 'Login'}</Link>
-              <a className="button button-small" href={`${isHome ? '' : '/'}#enquire`} onClick={closeMenu}>Free Counselling</a>
+              <Link className="button button-small glow-cta" to="/#enquire" onClick={closeMenu}>Free Counselling</Link>
             </div>
           </nav>
         </div>
       </header>
       <main id="main" tabIndex={-1} key={location.pathname}><Outlet /></main>
       <SiteFooter />
+      <ChatWidget />
     </div>
   )
 }
@@ -253,12 +258,14 @@ function Eyebrow({ children }) { return <p className="eyebrow">{children}</p> }
 function PageIntro({ eyebrow, title, children }) {
   return <section className="page-intro"><Eyebrow>{eyebrow}</Eyebrow><h1>{title}</h1>{children && <p>{children}</p>}</section>
 }
+// About page photos: only the managing director's portrait (inside CeoMessage) and the "Life at VN Group" strip.
 export function About() {
-  const leadership = siteContent.leadership
   return <>
-    <CeoMessage name={leadership.name} title={leadership.title} credentials={leadership.credentials} imageSrc={leadership.image.src} imageAlt={leadership.image.alt} message={leadership.message} />
+    <PageIntro eyebrow="About us" title="About VN Group">{siteContent.brand.tagline}</PageIntro>
+    {siteContent.about.ceoMessageApproved && <CeoMessage />}
     <AboutTimeline />
-    <AboutPhotos />
+    <AboutApproach />
+    <LifeAtVnGroup />
   </>
 }
 
@@ -273,32 +280,39 @@ function AboutTimeline() {
   </section>
 }
 
-function AboutPhotos() {
-  return <div className="about-photo-content">
-    <section className="about-institutions" aria-labelledby="about-institutions-title">
-      <div className="about-photo-container about-institutions-grid">
-        <ScrollReveal className="about-institutions-photo" direction="left">
-          <ResponsiveImage image={siteImages.partnerMeeting} className="about-meeting-image" />
-        </ScrollReveal>
-        <ScrollReveal className="about-institutions-copy" direction="right" delay={100}>
-          <Eyebrow>{siteContent.about.institutionsEyebrow}</Eyebrow>
-          <h2 id="about-institutions-title">{siteContent.about.institutionsTitle}</h2>
-          {siteContentReady(siteContent.about.institutionsCopy) && <p>{siteContent.about.institutionsCopy}</p>}
-        </ScrollReveal>
+// The existing approach and events headings, now text only.
+function AboutApproach() {
+  const about = siteContent.about
+  return <section className="about-approach" aria-label="How VN Group works">
+    <div className="about-photo-container about-approach-grid">
+      <div className="about-approach-item">
+        <Eyebrow>{about.institutionsEyebrow}</Eyebrow>
+        <h2>{about.institutionsTitle}</h2>
+        {siteContentReady(about.institutionsCopy) && <p>{about.institutionsCopy}</p>}
       </div>
-    </section>
-    <section className="about-events" aria-labelledby="about-events-title">
-      <ResponsiveImage image={siteImages.events} className="about-events-image" />
-      <div className="about-events-overlay">
-        <div className="about-photo-container">
-          <ScrollReveal direction="fade-in">
-            <Eyebrow>{siteContent.about.eventsEyebrow}</Eyebrow>
-            <h2 id="about-events-title">{siteContent.about.eventsTitle}</h2>
-          </ScrollReveal>
-        </div>
+      <div className="about-approach-item">
+        <Eyebrow>{about.eventsEyebrow}</Eyebrow>
+        <h2>{about.eventsTitle}</h2>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+}
+
+function LifeAtVnGroup() {
+  const [failed, setFailed] = useState(() => new Set())
+  const photos = siteContent.about.lifePhotos.slice(0, 6).filter((photo) => !failed.has(photo.src))
+  if (!photos.length) return null
+  return <section className="about-life" aria-labelledby="about-life-title">
+    <div className="about-photo-container">
+      <Eyebrow>Our team</Eyebrow>
+      <h2 id="about-life-title">Life at VN Group</h2>
+      <ul className="about-life-grid">
+        {photos.map((photo) => <li key={photo.src}>
+          <ResponsiveImage image={photo} className="about-life-image" onUnavailable={() => setFailed((current) => new Set(current).add(photo.src))} />
+        </li>)}
+      </ul>
+    </div>
+  </section>
 }
 
 export function FAQs() { return <><PageIntro eyebrow="Questions" title={siteContent.pages.faqs.title}>{siteContent.pages.faqs.description}</PageIntro><FAQ variant="full" /></> }

@@ -56,8 +56,8 @@ export default function Login() {
     setBusy(true)
     setErr('')
     try {
-      await login(f.email, f.password)
-      nav('/')
+      const me = await login(f.email, f.password)
+      nav(me?.status === 'pending' ? '/pending' : '/')
     } catch (x) {
       setErr(x.message)
     } finally {
@@ -92,8 +92,8 @@ export default function Login() {
       <form onSubmit={submit} className="auth-form auth-stack">
         <Err msg={err} />
         {err.toLowerCase().includes('verify your email') && (
-          <Link to={`/verify?email=${encodeURIComponent(f.email)}`} className="auth-notice auth-notice--link">
-            Enter your verification code
+          <Link to={`/check-inbox?email=${encodeURIComponent(f.email)}`} className="auth-notice auth-notice--link">
+            Resend the verification email or enter your code
           </Link>
         )}
         {err.toLowerCase().includes('awaiting approval') && (

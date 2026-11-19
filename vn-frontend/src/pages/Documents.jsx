@@ -13,7 +13,7 @@ const STATUS_TONE = {
   rejected: 'danger',
 }
 const label = (s) => s.replace('_', ' ').replace(/^\w/, (c) => c.toUpperCase())
-const roleLabel = { student: 'Student', principal: 'Principal', parent: 'Parent/Guardian', other: 'Other', consultancy_staff: 'Staff' }
+const roleLabel = { student: 'Student', principal: 'Principal', agent: 'Agent', parent: 'Parent/Guardian', other: 'Other', consultancy_staff: 'Staff' }
 const DOC_TYPES = ['Transcript', 'Certificate', 'Recommendation letter', 'Passport', 'Other']
 
 export default function Documents() {

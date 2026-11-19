@@ -21,6 +21,7 @@ class GalleryItemOut(BaseModel):
     category: str
     position: int
     published: bool
+    is_success_story: bool = False
     image_url: str
     created_at: datetime
 
@@ -38,6 +39,7 @@ class GalleryItemUpdate(BaseModel):
     position: int | None = Field(default=None, ge=0, le=10000)
     published: bool | None = None
     publication_authorized: bool | None = None
+    is_success_story: bool | None = None
 
     @model_validator(mode="after")
     def disallow_null_updates(self):
