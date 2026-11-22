@@ -1,12 +1,11 @@
+import asyncio
 import hashlib
 import hmac
 import logging
 import secrets
-from email.message import EmailMessage
-from email.utils import formatdate, make_msgid
 from html import escape
 
-import aiosmtplib
+import resend
 
 from app.core.config import settings
 
@@ -46,38 +45,29 @@ def _html(heading: str, body_html: str, code: str | None = None, note: str = "")
 
 async def _send(to_email: str, subject: str, text: str, html: str) -> None:
     if not settings.EMAIL_ENABLED:
-        if settings.ENVIRONMENT == "production" and not settings.DEMO_MODE:
+        if settings.ENVIRONMENT == "production":
             # Never fall back to printing codes on a live server.
             raise EmailNotConfigured("EMAIL_ENABLED is false in production")
-        # Development / synthetic-data demo only: show the email in the server log instead of sending it.
+        # Development only: show the email in the server log instead of sending it.
         print(f"[DEV] Email to {to_email} - {subject}\n{text}", flush=True)
         return
 
-    msg = EmailMessage()
-    msg["From"] = settings.SMTP_FROM
-    msg["To"] = to_email
-    msg["Subject"] = subject
-    msg["Date"] = formatdate(localtime=True)
-    msg["Message-ID"] = make_msgid(domain=settings.SMTP_FROM.rsplit("@", 1)[-1].strip("> ") or None)
-    msg.set_content(text)
-    msg.add_alternative(html, subtype="html")
+    if not (settings.RESEND_API_KEY and settings.EMAIL_FROM):
+        raise EmailNotConfigured("RESEND_API_KEY and EMAIL_FROM must be set when EMAIL_ENABLED is true")
 
-    implicit_tls = settings.SMTP_PORT == 465
+    params = {"from": settings.EMAIL_FROM, "to": [to_email], "subject": subject, "text": text, "html": html}
     try:
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.SMTP_HOST,
-            port=settings.SMTP_PORT,
-            username=settings.SMTP_USER or None,
-            password=settings.SMTP_PASSWORD or None,
-            use_tls=implicit_tls,
-            start_tls=not implicit_tls,
-            timeout=20,
-        )
+        # The Resend SDK is blocking; run it off the event loop. The key is passed per request, never logged.
+        await asyncio.to_thread(_resend_send, params)
     except Exception as exc:
-        # Log the failure type only - never the message body, which contains the code.
-        logger.error("Email delivery to SMTP failed (%s): %s", type(exc).__name__, subject)
+        # Log the failure type only - never the message body (it contains the code) or the API key.
+        logger.error("Email delivery via Resend failed (%s): %s", type(exc).__name__, subject)
         raise
+
+
+def _resend_send(params: dict) -> None:
+    resend.api_key = settings.RESEND_API_KEY
+    resend.Emails.send(params)
 
 
 async def send_verification_email(to_email: str, name: str, link: str, code: str) -> None:

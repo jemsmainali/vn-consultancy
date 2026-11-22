@@ -116,15 +116,11 @@ function StaffGuard() {
   return <Layout />
 }
 
-// Public demo build only (VITE_DEMO_MODE=true): make clear nothing here is a real record.
-
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <ScrollManager />
       <SkipNavigation />
-      <DemoNotice />
       <PaymentNotice />
       <AuthProvider>
         <Suspense fallback={<RouteFallback />}>

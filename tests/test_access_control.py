@@ -769,16 +769,6 @@ class AccessControlTests(unittest.TestCase):
         self.assertEqual(names(f"_{token}"), [f"Wild_{token} Two"])
         self.assertEqual(len(names(f"{token}")), 3)
 
-    def test_startup_warns_about_demo_mode_in_production(self):
-        from app.core.config import Settings
-        base = dict(_env_file=None, SECRET_KEY="s" * 40, DATABASE_URL="postgresql://x", COOKIE_SECURE=True,
-                    CORS_ORIGINS="https://a.example.com", FRONTEND_URL="https://a.example.com")
-        demo = Settings(ENVIRONMENT="production", DEMO_MODE=True, **base)
-        self.assertTrue(any("DEMO_MODE=true in production" in w for w in demo.startup_warnings))
-        live = Settings(ENVIRONMENT="production", DEMO_MODE=False, EMAIL_ENABLED=True, SMTP_HOST="h", SMTP_FROM="f@x.com", **base)
-        self.assertEqual(live.startup_warnings, [])
-        self.assertEqual(Settings(ENVIRONMENT="development", DEMO_MODE=True, **base).startup_warnings, [])
-
     # ---- hardening: per-IP rate limit keys ------------------------------------
 
     def _resend_statuses(self, headers_list):
