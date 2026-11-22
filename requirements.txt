@@ -16,6 +16,6 @@ python-magic==0.4.27
 slowapi==0.1.9
 email-validator==2.2.0
 python-dotenv==1.2.4
-resend==2.55.0
+httpx==0.28.1
 # Transitive package pinned because older releases have published security advisories.
 dnspython==2.9.2

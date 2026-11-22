@@ -13,11 +13,11 @@ Python is pinned by the Docker base image (`python:3.11-slim`, `.python-version`
 
 ## Environment variables for the API
 
-Set by `render.yaml` (no action): `ENVIRONMENT=production`, `COOKIE_SECURE=true`, `CORS_ORIGINS`, `FRONTEND_URL`, `UPLOAD_DIR`, `EMAIL_ENABLED`, `EMAIL_FROM`, `SECRET_KEY` (generated).
+Set by `render.yaml` (no action): `ENVIRONMENT=production`, `COOKIE_SECURE=true`, `CORS_ORIGINS`, `FRONTEND_URL`, `UPLOAD_DIR`, `EMAIL_ENABLED`, `EMAIL_FROM_NAME`, `EMAIL_FROM_ADDRESS`, `SECRET_KEY` (generated).
 
-Enter in the Render dashboard (`sync: false`): `DATABASE_URL` (Neon pooled), `DATABASE_URL_UNPOOLED` (Neon direct, used by migrations), `BANK_DATA_ENCRYPTION_KEY` (Fernet key, back it up), `RESEND_API_KEY`, `STAFF_EMAILS`.
+Enter in the Render dashboard (`sync: false`): `DATABASE_URL` (Neon pooled), `DATABASE_URL_UNPOOLED` (Neon direct, used by migrations), `BANK_DATA_ENCRYPTION_KEY` (Fernet key, back it up), `BREVO_API_KEY`, `STAFF_EMAILS`.
 
-Email is sent through the Resend HTTPS API (Render's free plan blocks SMTP). Startup refuses to run in production unless `EMAIL_ENABLED=true`, `RESEND_API_KEY` and `EMAIL_FROM` are set. Optional tuning: `LOGIN_MAX_FAILURES`, `LOGIN_LOCKOUT_MINUTES`, `MAX_UPLOAD_MB`, `OTP_EXPIRE_MINUTES`.
+Email is sent through Brevo's transactional HTTPS API (Render's free plan blocks SMTP). Startup refuses to run in production unless `EMAIL_ENABLED=true`, `BREVO_API_KEY`, `EMAIL_FROM_NAME` and `EMAIL_FROM_ADDRESS` are set. Optional tuning: `LOGIN_MAX_FAILURES`, `LOGIN_LOCKOUT_MINUTES`, `MAX_UPLOAD_MB`, `OTP_EXPIRE_MINUTES`.
 
 The frontend needs `VITE_API_URL` (`https://api.myvngroup.com`) at build time. Leave `API_PATH_PREFIX` unset: the API is called on its own host, so the refresh cookie path is `/auth`.
 

@@ -17,8 +17,10 @@ services:
         value: https://myvngroup.com,https://www.myvngroup.com
       - key: EMAIL_ENABLED
         value: "true"
-      - key: EMAIL_FROM
-        value: VN Group <noreply@send.myvngroup.com>
+      - key: EMAIL_FROM_NAME
+        value: VN Group
+      - key: EMAIL_FROM_ADDRESS
+        value: noreply@send.myvngroup.com
       - key: FRONTEND_URL
         value: https://myvngroup.com
       - key: UPLOAD_DIR
@@ -32,7 +34,7 @@ services:
         sync: false
       - key: BANK_DATA_ENCRYPTION_KEY # Fernet key; back it up or stored numbers become unreadable
         sync: false
-      - key: RESEND_API_KEY        # Resend API key (sends OTP, verification and approval emails)
+      - key: BREVO_API_KEY         # Brevo API key (sends OTP, verification and approval emails)
         sync: false
       - key: STAFF_EMAILS          # comma-separated addresses allowed to register as staff
         sync: false

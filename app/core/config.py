@@ -48,9 +48,10 @@ class Settings(BaseSettings):
     PRINCIPAL_INVITE_CODE: str = ""
 
     EMAIL_ENABLED: bool = False
-    # Resend HTTPS API (Render's free plan blocks SMTP ports).
-    RESEND_API_KEY: str = ""
-    EMAIL_FROM: str = ""  # e.g. "VN Group <noreply@send.example.com>"
+    # Brevo transactional HTTPS API (Render's free plan blocks SMTP ports).
+    BREVO_API_KEY: str = ""
+    EMAIL_FROM_NAME: str = ""
+    EMAIL_FROM_ADDRESS: str = ""  # e.g. noreply@send.example.com
     OTP_EXPIRE_MINUTES: int = 10
     OTP_MAX_ATTEMPTS: int = 5
 
@@ -88,8 +89,8 @@ class Settings(BaseSettings):
             problems.append("SECRET_KEY must be a random value of at least 32 characters")
         if not self.COOKIE_SECURE:
             problems.append("COOKIE_SECURE must be true")
-        if not self.EMAIL_ENABLED or not (self.RESEND_API_KEY and self.EMAIL_FROM):
-            problems.append("EMAIL_ENABLED=true, RESEND_API_KEY and EMAIL_FROM must be set")
+        if not self.EMAIL_ENABLED or not (self.BREVO_API_KEY and self.EMAIL_FROM_NAME and self.EMAIL_FROM_ADDRESS):
+            problems.append("EMAIL_ENABLED=true, BREVO_API_KEY, EMAIL_FROM_NAME and EMAIL_FROM_ADDRESS must be set")
         if any(o == "*" or "localhost" in o or "127.0.0.1" in o or o.startswith("http://") for o in self.cors_origins_list):
             problems.append("CORS_ORIGINS must list only https:// production origins")
         if not self.FRONTEND_URL.startswith("https://") or "localhost" in self.FRONTEND_URL:
