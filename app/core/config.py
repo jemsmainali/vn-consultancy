@@ -48,11 +48,10 @@ class Settings(BaseSettings):
     PRINCIPAL_INVITE_CODE: str = ""
 
     EMAIL_ENABLED: bool = False
-    SMTP_HOST: str = ""
-    SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
-    SMTP_FROM: str = ""
+    # Brevo transactional HTTPS API (Render's free plan blocks SMTP ports).
+    BREVO_API_KEY: str = ""
+    EMAIL_FROM_NAME: str = ""
+    EMAIL_FROM_ADDRESS: str = ""  # e.g. noreply@send.example.com
     OTP_EXPIRE_MINUTES: int = 10
     OTP_MAX_ATTEMPTS: int = 5
 
@@ -73,9 +72,6 @@ class Settings(BaseSettings):
 
     COOKIE_SECURE: bool = False  # set True in production — cookies only sent over HTTPS then
 
-    # Public demo with synthetic data only. Allows production without SMTP (Render's free tier
-    # blocks outbound mail ports); OTP emails are then written to the private server log.
-    DEMO_MODE: bool = False
     # Prefix a reverse proxy adds in front of the API (e.g. "/api" behind the static-site rewrite).
     # Keeps the refresh cookie's path matching what the browser actually requests.
     API_PATH_PREFIX: str = ""
@@ -93,8 +89,8 @@ class Settings(BaseSettings):
             problems.append("SECRET_KEY must be a random value of at least 32 characters")
         if not self.COOKIE_SECURE:
             problems.append("COOKIE_SECURE must be true")
-        if not self.DEMO_MODE and (not self.EMAIL_ENABLED or not (self.SMTP_HOST and self.SMTP_FROM)):
-            problems.append("EMAIL_ENABLED, SMTP_HOST and SMTP_FROM must be set")
+        if not self.EMAIL_ENABLED or not (self.BREVO_API_KEY and self.EMAIL_FROM_NAME and self.EMAIL_FROM_ADDRESS):
+            problems.append("EMAIL_ENABLED=true, BREVO_API_KEY, EMAIL_FROM_NAME and EMAIL_FROM_ADDRESS must be set")
         if any(o == "*" or "localhost" in o or "127.0.0.1" in o or o.startswith("http://") for o in self.cors_origins_list):
             problems.append("CORS_ORIGINS must list only https:// production origins")
         if not self.FRONTEND_URL.startswith("https://") or "localhost" in self.FRONTEND_URL:
@@ -106,13 +102,7 @@ class Settings(BaseSettings):
     @property
     def startup_warnings(self) -> list[str]:
         """Settings that are allowed but deserve a loud note in the server log."""
-        warnings = []
-        if self.ENVIRONMENT == "production" and self.DEMO_MODE:
-            warnings.append(
-                "DEMO_MODE=true in production: verification links, codes and reset codes are written to this log. "
-                "Use it only with synthetic data; set DEMO_MODE=false and configure SMTP before real users register."
-            )
-        return warnings
+        return []
 
     @property
     def async_database_url(self) -> str:

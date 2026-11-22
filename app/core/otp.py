@@ -2,19 +2,29 @@ import hashlib
 import hmac
 import logging
 import secrets
-from email.message import EmailMessage
-from email.utils import formatdate, make_msgid
 from html import escape
 
-import aiosmtplib
+import httpx
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
+BREVO_SEND_URL = "https://api.brevo.com/v3/smtp/email"
+BREVO_TIMEOUT_SECONDS = 10
+
+
 class EmailNotConfigured(RuntimeError):
     pass
+
+
+class EmailDeliveryError(RuntimeError):
+    """Brevo answered with a non-2xx status. Carries only the status code, never the response body."""
+
+    def __init__(self, status_code: int):
+        super().__init__(f"Brevo returned HTTP {status_code}")
+        self.status_code = status_code
 
 
 def generate_otp() -> str:
@@ -46,37 +56,32 @@ def _html(heading: str, body_html: str, code: str | None = None, note: str = "")
 
 async def _send(to_email: str, subject: str, text: str, html: str) -> None:
     if not settings.EMAIL_ENABLED:
-        if settings.ENVIRONMENT == "production" and not settings.DEMO_MODE:
+        if settings.ENVIRONMENT == "production":
             # Never fall back to printing codes on a live server.
             raise EmailNotConfigured("EMAIL_ENABLED is false in production")
-        # Development / synthetic-data demo only: show the email in the server log instead of sending it.
+        # Development only: show the email in the server log instead of sending it.
         print(f"[DEV] Email to {to_email} - {subject}\n{text}", flush=True)
         return
 
-    msg = EmailMessage()
-    msg["From"] = settings.SMTP_FROM
-    msg["To"] = to_email
-    msg["Subject"] = subject
-    msg["Date"] = formatdate(localtime=True)
-    msg["Message-ID"] = make_msgid(domain=settings.SMTP_FROM.rsplit("@", 1)[-1].strip("> ") or None)
-    msg.set_content(text)
-    msg.add_alternative(html, subtype="html")
+    if not (settings.BREVO_API_KEY and settings.EMAIL_FROM_NAME and settings.EMAIL_FROM_ADDRESS):
+        raise EmailNotConfigured("BREVO_API_KEY, EMAIL_FROM_NAME and EMAIL_FROM_ADDRESS must be set when EMAIL_ENABLED is true")
 
-    implicit_tls = settings.SMTP_PORT == 465
+    payload = {
+        "sender": {"name": settings.EMAIL_FROM_NAME, "email": settings.EMAIL_FROM_ADDRESS},
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": html,
+    }
+    headers = {"api-key": settings.BREVO_API_KEY, "accept": "application/json", "content-type": "application/json"}
     try:
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.SMTP_HOST,
-            port=settings.SMTP_PORT,
-            username=settings.SMTP_USER or None,
-            password=settings.SMTP_PASSWORD or None,
-            use_tls=implicit_tls,
-            start_tls=not implicit_tls,
-            timeout=20,
-        )
+        async with httpx.AsyncClient(timeout=BREVO_TIMEOUT_SECONDS) as client:
+            response = await client.post(BREVO_SEND_URL, json=payload, headers=headers)
+        if not 200 <= response.status_code < 300:
+            raise EmailDeliveryError(response.status_code)
     except Exception as exc:
-        # Log the failure type only - never the message body, which contains the code.
-        logger.error("Email delivery to SMTP failed (%s): %s", type(exc).__name__, subject)
+        # Log only the status code, error type and subject - never the API key, the code or the body.
+        status = exc.status_code if isinstance(exc, EmailDeliveryError) else "-"
+        logger.error("Email delivery via Brevo failed (status %s, %s): %s", status, type(exc).__name__, subject)
         raise
 
 

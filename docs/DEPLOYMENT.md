@@ -7,19 +7,19 @@
 | Service | Type | Build | Start | Notes |
 |---|---|---|---|---|
 | `vn-group-api` | Docker web service (`./Dockerfile`, Python 3.11) | image build installs `requirements.txt` | `alembic upgrade head && uvicorn app.main:app` | Health check: `GET /health`. Migrations run on every start, so every API deploy is a live migration. |
-| `vn-group-demo` | Static site, `rootDir: vn-frontend` | `npm ci && npm run build` | n/a (publishes `dist`) | `NODE_VERSION=22`. Rewrites `/api/*` to the API service so auth cookies stay first-party. |
+| `vn-group-demo` | Static site, `rootDir: vn-frontend` | `npm ci && npm run build` | n/a (publishes `dist`) | `NODE_VERSION=22`. Calls the API directly at `api.myvngroup.com` (same site, so auth cookies stay first-party). |
 
 Python is pinned by the Docker base image (`python:3.11-slim`, `.python-version` = 3.11) and Node by `NODE_VERSION` / `vn-frontend/.node-version`.
 
 ## Environment variables for the API
 
-Set by `render.yaml` (no action): `ENVIRONMENT=production`, `COOKIE_SECURE=true`, `API_PATH_PREFIX=/api`, `CORS_ORIGINS`, `FRONTEND_URL`, `UPLOAD_DIR`, `EMAIL_ENABLED`, `DEMO_MODE`, `SECRET_KEY` (generated).
+Set by `render.yaml` (no action): `ENVIRONMENT=production`, `COOKIE_SECURE=true`, `CORS_ORIGINS`, `FRONTEND_URL`, `UPLOAD_DIR`, `EMAIL_ENABLED`, `EMAIL_FROM_NAME`, `EMAIL_FROM_ADDRESS`, `SECRET_KEY` (generated).
 
-Enter in the Render dashboard (`sync: false`): `DATABASE_URL` (Neon pooled), `DATABASE_URL_UNPOOLED` (Neon direct, used by migrations), `BANK_DATA_ENCRYPTION_KEY` (Fernet key, back it up), `STAFF_EMAILS`.
+Enter in the Render dashboard (`sync: false`): `DATABASE_URL` (Neon pooled), `DATABASE_URL_UNPOOLED` (Neon direct, used by migrations), `BANK_DATA_ENCRYPTION_KEY` (Fernet key, back it up), `BREVO_API_KEY`, `STAFF_EMAILS`.
 
-For a real (non-demo) launch also set: `DEMO_MODE=false`, `EMAIL_ENABLED=true`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`. Startup refuses to run in production without them. Optional tuning: `LOGIN_MAX_FAILURES`, `LOGIN_LOCKOUT_MINUTES`, `MAX_UPLOAD_MB`, `OTP_EXPIRE_MINUTES`.
+Email is sent through Brevo's transactional HTTPS API (Render's free plan blocks SMTP). Startup refuses to run in production unless `EMAIL_ENABLED=true`, `BREVO_API_KEY`, `EMAIL_FROM_NAME` and `EMAIL_FROM_ADDRESS` are set. Optional tuning: `LOGIN_MAX_FAILURES`, `LOGIN_LOCKOUT_MINUTES`, `MAX_UPLOAD_MB`, `OTP_EXPIRE_MINUTES`.
 
-The frontend needs `VITE_API_URL` (`/api`) at build time.
+The frontend needs `VITE_API_URL` (`https://api.myvngroup.com`) at build time. Leave `API_PATH_PREFIX` unset: the API is called on its own host, so the refresh cookie path is `/auth`.
 
 ## Rate limits behind Render
 
@@ -29,7 +29,7 @@ If the API is ever reachable without Cloudflare in front (another host, a privat
 
 ## Uploads (known gap)
 
-Documents and photos are written to `UPLOAD_DIR` on the instance disk. On Render's free plan that disk is wiped on every deploy and restart, and files are stored unencrypted. Fine for the synthetic demo; **not acceptable for real student documents.** Options, in the order I would consider them:
+Documents and photos are written to `UPLOAD_DIR` on the instance disk. On Render's free plan that disk is wiped on every deploy and restart, and files are stored unencrypted. **Not acceptable for real student documents.** Options, in the order I would consider them:
 
 1. **Render persistent disk** (paid plan, mounted at `/app/uploads`): smallest change, no code change; one instance only; back it up.
 2. **S3-compatible object storage** (Cloudflare R2, AWS S3, Neon object storage): survives redeploys and scaling, supports server-side encryption and private signed downloads; needs a small storage layer in `app/utils/file_validation.py` and the download routes.
