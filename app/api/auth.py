@@ -1,11 +1,9 @@
 import hmac
-import os
 import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, Form, File, UploadFile, Query
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import FileResponse
 from sqlalchemy import select, delete, func, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
@@ -44,6 +42,7 @@ from app.schemas.user import (
 )
 from app.schemas.token import TokenPair
 from app.api.deps import get_current_user, get_signed_in_user, require_role, session_is_revoked
+from app.core.storage import StorageMissing, get_storage, guess_media_type
 from app.utils.file_validation import validate_and_save_upload
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -162,10 +161,8 @@ REGISTER_MESSAGE = (
 )
 
 
-def _remove_profile_photo(stored_filename: str) -> None:
-    path = os.path.join(settings.UPLOAD_DIR, "profile_photos", os.path.basename(stored_filename))
-    if os.path.isfile(path):
-        os.remove(path)
+async def _remove_profile_photo(stored_filename: str) -> None:
+    await get_storage().delete("profile_photos", stored_filename)
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
@@ -268,14 +265,14 @@ async def register(
                 await db.commit()
                 existing = None
                 if old_photo:
-                    _remove_profile_photo(old_photo)
+                    await _remove_profile_photo(old_photo)
             except IntegrityError:
                 await db.rollback()
         nid_taken = bool(payload.national_id) and (
             await db.execute(select(User.id).where(User.national_id == payload.national_id))
         ).first() is not None
         if existing or nid_taken:
-            _remove_profile_photo(saved["stored_filename"])
+            await _remove_profile_photo(saved["stored_filename"])
             return RegisterResponse(message=REGISTER_MESSAGE)
 
         user = User(
@@ -308,12 +305,12 @@ async def register(
         except IntegrityError:
             # A simultaneous sign-up took the same email or National ID first.
             await db.rollback()
-            _remove_profile_photo(saved["stored_filename"])
+            await _remove_profile_photo(saved["stored_filename"])
             return RegisterResponse(message=REGISTER_MESSAGE)
         await db.refresh(user)
     except Exception:
         # Don't leave the uploaded photo behind if the account could not be created.
-        _remove_profile_photo(saved["stored_filename"])
+        await _remove_profile_photo(saved["stored_filename"])
         raise
 
     await issue_verification(db, user)
@@ -746,10 +743,14 @@ async def update_me(
 async def get_my_photo(current_user: User = Depends(get_current_user)):
     if not current_user.profile_image:
         raise HTTPException(404, "No profile photo set")
-    path = os.path.join(settings.UPLOAD_DIR, "profile_photos", current_user.profile_image)
-    if not os.path.isfile(path):
+    try:
+        return await get_storage().response(
+            "profile_photos", current_user.profile_image,
+            media_type=guess_media_type(current_user.profile_image),
+            headers={"Cache-Control": "private, no-store"},
+        )
+    except StorageMissing:
         raise HTTPException(404, "Photo file is missing on the server")
-    return FileResponse(path, headers={"Cache-Control": "private, no-store"})
 
 
 @router.post("/me/photo", response_model=UserOut)
@@ -766,8 +767,6 @@ async def update_my_photo(
     await db.refresh(current_user)
 
     if old_filename:
-        old_path = os.path.join(settings.UPLOAD_DIR, "profile_photos", old_filename)
-        if os.path.isfile(old_path):
-            os.remove(old_path)
+        await get_storage().delete("profile_photos", old_filename)
 
     return current_user

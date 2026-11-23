@@ -23,8 +23,8 @@ services:
         value: noreply@send.myvngroup.com
       - key: FRONTEND_URL
         value: https://myvngroup.com
-      - key: UPLOAD_DIR
-        value: /app/uploads
+      - key: STORAGE_BACKEND
+        value: r2
       - key: SECRET_KEY
         generateValue: true
       # Secrets entered in the Render dashboard on first Blueprint sync:
@@ -33,6 +33,14 @@ services:
       - key: DATABASE_URL_UNPOOLED # same database, direct connection (used by migrations)
         sync: false
       - key: BANK_DATA_ENCRYPTION_KEY # Fernet key; back it up or stored numbers become unreadable
+        sync: false
+      - key: R2_ACCOUNT_ID         # Cloudflare account id (R2 > Overview)
+        sync: false
+      - key: R2_BUCKET             # private bucket that holds uploads
+        sync: false
+      - key: R2_ACCESS_KEY_ID      # R2 API token (Object Read & Write, this bucket only)
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
         sync: false
       - key: BREVO_API_KEY         # Brevo API key (sends OTP, verification and approval emails)
         sync: false
