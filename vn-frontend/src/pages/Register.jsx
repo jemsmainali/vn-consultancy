@@ -10,7 +10,6 @@ import AccountNoticeDialog from '../components/auth/AccountNoticeDialog'
 const ROLES = [
   { value: 'student', label: 'Student' },
   { value: 'principal', label: 'College/University Principal' },
-  { value: 'agent', label: 'Agent' },
   { value: 'parent', label: 'Parent / Guardian' },
   { value: 'other', label: 'Other' },
   { value: 'consultancy_staff', label: 'VN Group Staff' },
@@ -261,7 +260,7 @@ export default function Register() {
           <div className="auth-grid">
             <AuthField
               label="I am registering as"
-              hint={f.role === 'principal' || f.role === 'agent'
+              hint={f.role === 'principal'
                 ? 'After you verify your email, VN Group staff review and approve this account type. Until then you will only see an "awaiting approval" page.'
                 : f.role === 'consultancy_staff'
                   ? 'Only approved VN Group staff email addresses can create a staff account.'
