@@ -71,7 +71,7 @@ export const siteImages = {
   // JPEG only (no WebP set); ResponsiveImage falls back to src.
   machhapuchchhreBank: { src: '/images/gallery/partner-machhapuchchhre-bank-1200.jpg', width: 1200, height: 900, alt: 'VN Group and Machhapuchchhre Bank Limited representatives shaking hands and holding document folders at the VN Group office' },
   officeVisit: { src: '/images/gallery/partner-office-visit-1200.jpg', width: 720, height: 960, alt: 'A VN Group representative presenting a framed memento to a visiting guest at the VN Group office', position: 'center 30%' },
-  partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team meeting with a partner delegation', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
+  partnerMeeting: photo('about', 'partner-meeting', [480, 800, 960], 960, 960, 720, 'VN Group team at a successful meeting with H.E. Mahesh Dahal, Ambassador of Nepal to Australia', '(max-width: 820px) calc(100vw - 42px), (max-width: 1280px) 44vw, 540px'),
   // Partner visits and official meetings (homepage).
   nepalEmbassyCanberra: { ...photo('partners', 'visit-nepal-embassy-canberra', [480, 800, 1200], 800, 1200, 1600, 'A VN Group representative with H.E. Kailash Raj Pokharel, Ambassador of Nepal to Australia, at the Embassy of Nepal in Canberra', VISIT_SIZES), position: 'center 35%' },
   tafeQueensland: { ...photo('partners', 'visit-tafe-queensland', [480, 800, 1200], 800, 1200, 1600, 'A VN Group representative with a TAFE Queensland staff member beside a TAFE Queensland campus information sign', VISIT_SIZES), position: 'center 55%' },
@@ -197,7 +197,7 @@ export const siteContent = {
       { image: siteImages.nepalEmbassyCanberra, title: 'Meeting with H.E. Kailash Raj Pokharel, Ambassador of Nepal to Australia and New Zealand', place: 'Embassy of Nepal, Canberra', date: '2024-05', description: 'Our FECON delegation met the Ambassador to discuss student concerns.', tag: 'Official meeting' },
       { image: siteImages.tafeQueensland, title: 'Visit to TAFE Queensland', date: '2024-05', description: 'Learning about the courses offered to international students during the FECON FAM Trip 2024.', tag: 'Institution visit' },
       // No photo supplied yet: hidden until `image` is set.
-      { image: null, title: 'Meeting with H.E. Mahesh Dahal, Ambassador of Nepal to Australia', place: 'Embassy of Nepal, Australia', date: '2020-02', description: 'A successful meeting of the FECON delegation.', tag: 'Official meeting' },
+      { image: siteImages.partnerMeeting, title: 'Meeting with H.E. Mahesh Dahal, Ambassador of Nepal to Australia', place: 'Embassy of Nepal, Australia', date: '2020-02', description: 'A successful meeting of the FECON delegation.', tag: 'Official meeting' },
       // Photo to be supplied; spelling "Yonzon" awaiting confirmation (posts also use "Younjan").
       { image: null, title: 'Meeting with Mr. Chandra Yonzon, Consul General of Nepal in Victoria', place: 'Victoria, Australia', date: '2020-02', description: '', tag: 'Official meeting' },
       { image: siteImages.australianEmbassyKathmandu, title: 'Meeting with H.E. Peter Budd, Ambassador of Australia to Nepal', place: 'Australian Embassy, Kathmandu', date: '2020-01', description: 'A meeting with the FECON team.', tag: 'Official meeting' },
@@ -205,7 +205,6 @@ export const siteContent = {
       { image: siteImages.officeVisit, title: 'Welcoming a visiting guest to our office' },
       { image: siteImages.griffin, title: 'Visiting Griffin College, Australia', tag: 'Institution visit' },
       { image: siteImages.sahe, title: 'Visiting Southern Academy of Higher Education', tag: 'Institution visit' },
-      { image: siteImages.partnerMeeting, title: 'Meeting with a partner delegation' },
       { image: siteImages.notreDame, title: 'Visiting The University of Notre Dame Australia', tag: 'Institution visit' },
       { image: siteImages.aiihe, title: 'Meeting at Australian International Institute of Higher Education', tag: 'Institution visit' },
       { image: siteImages.charlesSturt, title: 'With the team at Charles Sturt University', tag: 'Institution visit' },
