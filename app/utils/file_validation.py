@@ -10,6 +10,7 @@ import magic
 from fastapi import UploadFile, HTTPException
 
 from app.core.config import settings
+from app.core.storage import get_storage
 
 CHUNK_BYTES = 64 * 1024
 
@@ -67,16 +68,10 @@ async def validate_and_save_upload(
     # what prevents path traversal (e.g. "../../etc/passwd") and collisions.
     stored_filename = f"{uuid.uuid4().hex}{ext}"
 
-    upload_dir = os.path.join(settings.UPLOAD_DIR, subfolder)
-    os.makedirs(upload_dir, exist_ok=True)
-    full_path = os.path.join(upload_dir, stored_filename)
-
-    with open(full_path, "wb") as f:
-        f.write(contents)
+    await get_storage().save(subfolder, stored_filename, contents, detected_mime)
 
     return {
         "stored_filename": stored_filename,
-        "stored_path": full_path,
         "original_filename": os.path.basename(file.filename or "unnamed"),
         "mime_type": detected_mime,
         "size_bytes": size,

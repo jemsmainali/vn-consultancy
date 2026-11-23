@@ -11,7 +11,8 @@ from app.core.config import Settings
 
 LINK = "https://vn.example.com/verify-email?token=abc.def&x=1"
 PROD = dict(_env_file=None, SECRET_KEY="x" * 40, DATABASE_URL="postgresql://x", ENVIRONMENT="production",
-            FRONTEND_URL="https://example.com")
+            FRONTEND_URL="https://example.com", STORAGE_BACKEND="r2", R2_ACCOUNT_ID="a", R2_ACCESS_KEY_ID="i",
+            R2_SECRET_ACCESS_KEY="s", R2_BUCKET="b")
 
 
 def configured(key="brevo_test_key"):

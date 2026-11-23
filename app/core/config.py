@@ -38,7 +38,13 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "http://localhost:3000"
 
+    # "local" = files under UPLOAD_DIR (development, tests). "r2" = private Cloudflare R2 bucket (required in production).
+    STORAGE_BACKEND: str = "local"
     UPLOAD_DIR: str = "./uploads"
+    R2_ACCOUNT_ID: str = ""
+    R2_ACCESS_KEY_ID: str = ""
+    R2_SECRET_ACCESS_KEY: str = ""
+    R2_BUCKET: str = ""
     MAX_UPLOAD_MB: int = 10
     ALLOWED_MIME_TYPES: str = "application/pdf,image/jpeg,image/png"
 
@@ -82,6 +88,8 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def check_production(self):
         """Refuse to start a production server with development-only settings."""
+        if self.STORAGE_BACKEND not in ("local", "r2"):
+            raise ValueError("STORAGE_BACKEND must be 'local' or 'r2'")
         if self.ENVIRONMENT != "production":
             return self
         problems = []
@@ -91,6 +99,12 @@ class Settings(BaseSettings):
             problems.append("COOKIE_SECURE must be true")
         if not self.EMAIL_ENABLED or not (self.BREVO_API_KEY and self.EMAIL_FROM_NAME and self.EMAIL_FROM_ADDRESS):
             problems.append("EMAIL_ENABLED=true, BREVO_API_KEY, EMAIL_FROM_NAME and EMAIL_FROM_ADDRESS must be set")
+        if self.STORAGE_BACKEND != "r2" or not (
+            self.R2_ACCOUNT_ID and self.R2_ACCESS_KEY_ID and self.R2_SECRET_ACCESS_KEY and self.R2_BUCKET
+        ):
+            problems.append(
+                "STORAGE_BACKEND=r2 with R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY and R2_BUCKET must be set"
+            )
         if any(o == "*" or "localhost" in o or "127.0.0.1" in o or o.startswith("http://") for o in self.cors_origins_list):
             problems.append("CORS_ORIGINS must list only https:// production origins")
         if not self.FRONTEND_URL.startswith("https://") or "localhost" in self.FRONTEND_URL:

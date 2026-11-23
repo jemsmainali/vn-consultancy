@@ -1,14 +1,12 @@
-import os
 import uuid
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
-from fastapi.responses import FileResponse
 from sqlalchemy import false, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_role
-from app.core.config import settings
 from app.core.database import get_db
+from app.core.storage import StorageMissing, get_storage
 from app.models.audit import AuditLog
 from app.models.gallery import GalleryItem
 from app.models.user import User, UserRole
@@ -19,8 +17,12 @@ router = APIRouter(prefix="/gallery", tags=["gallery"])
 ALLOWED_IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp", "image/avif"]
 
 
-def _path(filename: str) -> str:
-    return os.path.join(settings.UPLOAD_DIR, "gallery", os.path.basename(filename))
+async def _image_response(item: GalleryItem):
+    try:
+        return await get_storage().response("gallery", item.stored_filename, media_type=item.mime_type,
+                                            headers={"Cache-Control": "no-store"})
+    except StorageMissing:
+        raise HTTPException(404, "Gallery image is missing")
 
 
 def _out(item: GalleryItem, staff: bool = False) -> GalleryItemOut:
@@ -100,8 +102,7 @@ async def create_gallery_item(
         await db.refresh(item)
     except Exception:
         await db.rollback()
-        if os.path.isfile(saved["stored_path"]):
-            os.remove(saved["stored_path"])
+        await get_storage().delete("gallery", saved["stored_filename"])
         raise
     return _staff_out(item)
 
@@ -112,10 +113,7 @@ async def gallery_image(item_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(404, "Gallery image not found")
-    path = _path(item.stored_filename)
-    if not os.path.isfile(path):
-        raise HTTPException(404, "Gallery image is missing")
-    return FileResponse(path, media_type=item.mime_type, headers={"Cache-Control": "no-store"})
+    return await _image_response(item)
 
 
 @router.get("/staff/{item_id}/image")
@@ -127,10 +125,7 @@ async def staff_gallery_image(
     item = await db.get(GalleryItem, item_id)
     if not item:
         raise HTTPException(404, "Gallery image not found")
-    path = _path(item.stored_filename)
-    if not os.path.isfile(path):
-        raise HTTPException(404, "Gallery image is missing")
-    return FileResponse(path, media_type=item.mime_type, headers={"Cache-Control": "no-store"})
+    return await _image_response(item)
 
 
 @router.patch("/{item_id}", response_model=GalleryStaffItemOut)
@@ -167,9 +162,8 @@ async def delete_gallery_item(
     item = await db.get(GalleryItem, item_id)
     if not item:
         raise HTTPException(404, "Gallery item not found")
-    path = _path(item.stored_filename)
+    stored_name = item.stored_filename
     db.add(AuditLog(actor_id=current_user.id, action="gallery_item_deleted", target_id=item.id, detail=f"{item.category}: {item.caption[:120]}"))
     await db.delete(item)
     await db.commit()
-    if os.path.isfile(path):
-        os.remove(path)
+    await get_storage().delete("gallery", stored_name)
