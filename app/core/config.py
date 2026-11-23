@@ -50,9 +50,6 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: str = "development"
 
-    STAFF_INVITE_CODE: str = ""
-    PRINCIPAL_INVITE_CODE: str = ""
-
     EMAIL_ENABLED: bool = False
     # Brevo transactional HTTPS API (Render's free plan blocks SMTP ports).
     BREVO_API_KEY: str = ""
